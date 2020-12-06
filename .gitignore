@@ -1,0 +1,6 @@
+# ignoring folders
+bin
+obj
+
+# ignoring files
+*.log
