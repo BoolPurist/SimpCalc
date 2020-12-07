@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Calculator_Window"
+        xmlns:local="clr-namespace:Calculator_Window"        
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
+        Title="Calculator" Height="450" Width="800">
+  <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+      <local:Calculator></local:Calculator>
     </Grid>
 </Window>
