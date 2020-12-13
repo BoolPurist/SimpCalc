@@ -65,7 +65,8 @@
   
   <Border 
     CornerRadius="5"  BorderThickness="5" BorderBrush="Black">
-    <Grid Background="Gray">
+    <Grid Background="Gray" 
+          Loaded="GetMainGridWidth_Loaded">
                   
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="auto"/>
@@ -77,8 +78,10 @@
       </Grid.RowDefinitions>
 
       <TextBox  Grid.Column="0" Grid.Row="0"
-                IsReadOnly="True"
+                IsReadOnly="True"                
                 Margin="{StaticResource CalculatorElementMargin}"
+                TextWrapping="Wrap"
+                Width="{Binding Path=MainGirdWidth, Mode=OneWay}"
                 Name="CalculationInput">
       </TextBox>
       

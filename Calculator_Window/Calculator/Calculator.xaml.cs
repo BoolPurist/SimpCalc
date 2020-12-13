@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -17,13 +18,27 @@ namespace Calculator_Window
   /// <summary>
   /// Interaction logic for Calculator.xaml
   /// </summary>
-  public partial class Calculator : UserControl
+  public partial class Calculator : UserControl, INotifyPropertyChanged
   {
+    public event PropertyChangedEventHandler PropertyChanged;
+
     public InputCalculatorCommand InputCommand { get; set; }
 
     public ClearCalculatorCommand ClearCommand { get; set; }
 
     public ResultCalculatorCommand ResultCommand { get; set; }
+
+    private double mainGridWidth = 0.0;
+
+    public double MainGirdWidth 
+    {
+      get => this.mainGridWidth;
+      set
+      {
+        this.mainGridWidth = value * 0.9;
+        this.OnPropertyChanged(nameof(MainGirdWidth));
+      }
+    }
 
     public bool ShowsResult { get; private set; } = false;
 
@@ -35,6 +50,7 @@ namespace Calculator_Window
       this.ClearCommand = new ClearCalculatorCommand(this.ClearDisplay);
       this.ResultCommand = new ResultCalculatorCommand(this.CalculateResult);
     }
+
 
     public void CalculateResult()
     {
@@ -72,6 +88,18 @@ namespace Calculator_Window
     {
       this.CalculationInput.Text = String.Empty;
     }
+
+    private void GetMainGridWidth_Loaded(object sender, RoutedEventArgs e)
+    {
+      if (sender is Grid mainGrid)
+      {
+        this.MainGirdWidth = mainGrid.ActualWidth;
+      }
+    }
+
+    private void OnPropertyChanged(string paramName)
+      => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(paramName));
+    
   }
   
 }
