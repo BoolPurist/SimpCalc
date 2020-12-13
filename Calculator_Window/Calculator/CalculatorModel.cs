@@ -4,13 +4,13 @@ using System.Text;
 
 namespace Calculator_Window
 {
-  class CalculatorModel
+  public class CalculatorModel
   {
     public double CurrentResult { get; private set; } = 0.0;
 
-    public double CalculateFromString(string inputForCalc)
-    {
-      this.CurrentResult = -1.0;
+    public double CalculateFromText(string inputForCalc)
+    {     
+      this.CurrentResult = 4.0;
       return this.CurrentResult;
     }
 

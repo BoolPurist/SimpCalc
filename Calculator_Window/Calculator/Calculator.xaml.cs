@@ -66,7 +66,7 @@ namespace Calculator_Window
       this.ShowsResult = true;
       
       this.CalculationInput.Text = 
-        this.calculatorModel.CalculateFromString(this.CalculationInput.Text)
+        this.calculatorModel.CalculateFromText(this.CalculationInput.Text)
           .ToString();
     }
 
