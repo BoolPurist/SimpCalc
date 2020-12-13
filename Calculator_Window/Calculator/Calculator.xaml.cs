@@ -28,6 +28,8 @@ namespace Calculator_Window
 
     public ResultCalculatorCommand ResultCommand { get; set; }
 
+    private readonly CalculatorModel calculatorModel = new CalculatorModel();
+
     private double mainGridWidth = 0.0;
 
     public double MainGirdWidth 
@@ -51,11 +53,21 @@ namespace Calculator_Window
       this.ResultCommand = new ResultCalculatorCommand(this.CalculateResult);
     }
 
+    private void GetMainGridWidth_Loaded(object sender, RoutedEventArgs e)
+    {
+      if (sender is Grid mainGrid)
+      {
+        this.MainGirdWidth = mainGrid.ActualWidth;
+      }
+    }
 
     public void CalculateResult()
     {
       this.ShowsResult = true;
-      this.CalculationInput.Text = "0";
+      
+      this.CalculationInput.Text = 
+        this.calculatorModel.CalculateFromString(this.CalculationInput.Text)
+          .ToString();
     }
 
     public void AddInputToCalc(object inputControl)
@@ -86,15 +98,8 @@ namespace Calculator_Window
 
     public void ClearDisplay()
     {
+      this.calculatorModel.Clear();
       this.CalculationInput.Text = String.Empty;
-    }
-
-    private void GetMainGridWidth_Loaded(object sender, RoutedEventArgs e)
-    {
-      if (sender is Grid mainGrid)
-      {
-        this.MainGirdWidth = mainGrid.ActualWidth;
-      }
     }
 
     private void OnPropertyChanged(string paramName)
