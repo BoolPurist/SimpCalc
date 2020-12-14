@@ -16,7 +16,7 @@ namespace CalculatorModelUnit
     {
       var calculator = new CalculatorModel();
       double actualResult = calculator.CalculateFromText(text);
-      Assert.Equal(actualResult, expectedResult);
+      Assert.Equal(expectedResult, actualResult);
     }
 
     public static TheoryData<string, double> BasicCalculation
@@ -29,7 +29,16 @@ namespace CalculatorModelUnit
         {                
           "40 - 2 + 58 - 800",
           -704.0
-        }
+        },        
+        {                
+          "800",
+          800.0
+        },
+        {
+          "---800 + --50",
+          -750.0
+        },
+
       };
   }
 }
