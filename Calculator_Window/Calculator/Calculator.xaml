@@ -59,6 +59,7 @@
               Tag="{TemplateBinding Tag}"
               Template="{StaticResource CalculationBtnTemplate}"/>
     </ControlTemplate>
+    
   </UserControl.Resources>
 
 
@@ -69,6 +70,7 @@
           Loaded="GetMainGridWidth_Loaded">
                   
       <Grid.ColumnDefinitions>
+        
         <ColumnDefinition Width="auto"/>
       </Grid.ColumnDefinitions>
 
@@ -77,14 +79,23 @@
         <RowDefinition Height="auto"/>
       </Grid.RowDefinitions>
 
-      <TextBox  Grid.Column="0" Grid.Row="0"
+      <StackPanel>
+
+        <TextBox 
+                Grid.Column="0" Grid.Row="0"
                 IsReadOnly="True"                
                 Margin="{StaticResource CalculatorElementMargin}"
-                TextWrapping="Wrap"
-                Width="{Binding Path=MainGirdWidth, Mode=OneWay}"
-                Name="CalculationInput">
-      </TextBox>
-      
+                TextWrapping="Wrap"                
+                Width="{Binding Path=MainGirdWidth}"
+                Loaded="GetCalculationFeedTextBox_Loaded"
+                >
+        </TextBox>
+        <Label Loaded="ErrorMsgLabel_Loaded" 
+               Foreground="DarkRed" 
+               HorizontalAlignment="Center"
+               Visibility="Collapsed"/>
+      </StackPanel>
+
       <StackPanel Grid.Column="0" Grid.Row="1"
                   Margin="{StaticResource CalculatorElementMargin}">
         <WrapPanel>

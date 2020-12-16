@@ -34,6 +34,10 @@ namespace Calculator_Window
 
     private double mainGridWidth = 0.0;
 
+    private TextBox calculationInput = null;
+
+    private Label errorMessageLabel = null;
+
     public double MainGirdWidth 
     {
       get => this.mainGridWidth;
@@ -55,21 +59,26 @@ namespace Calculator_Window
       this.ResultCommand = new RelayCommand(param => this.CalculateResult());
     }
 
-    private void GetMainGridWidth_Loaded(object sender, RoutedEventArgs e)
-    {
-      if (sender is Grid mainGrid)
-      {
-        this.MainGirdWidth = mainGrid.ActualWidth;
-      }
-    }
-
     public void CalculateResult()
     {
+      this.errorMessageLabel.Visibility = Visibility.Collapsed;
       this.ShowsResult = true;
-      
-      this.CalculationInput.Text = 
-        this.calculatorModel.CalculateFromText(this.CalculationInput.Text)
-          .ToString();
+
+      try
+      {
+        this.calculationInput.Text =
+          this.calculatorModel.CalculateFromText(this.calculationInput.Text)
+            .ToString();
+      }
+      catch (ArgumentException e)
+      {
+        this.calculationInput.Text = "0";
+      }
+      catch (CalculationParseException e)
+      {
+        this.errorMessageLabel.Content = e.Message;
+        this.errorMessageLabel.Visibility = Visibility.Visible;
+      }
     }
 
     public void AddInputToCalc(object inputControl)
@@ -78,7 +87,7 @@ namespace Calculator_Window
       {
         if (ShowsResult)
         {
-          this.CalculationInput.Text = String.Empty;
+          this.calculationInput.Text = String.Empty;
           ShowsResult = false;
         }
 
@@ -89,11 +98,11 @@ namespace Calculator_Window
           Boolean.TryParse(inputBtn.Tag as string, out noSpaceNeeded) && noSpaceNeeded
           )
         {
-          this.CalculationInput.Text += $"{symbol}";
+          this.calculationInput.Text += $"{symbol}";
         }
         else
         {
-          this.CalculationInput.Text += $" {symbol} ";
+          this.calculationInput.Text += $" {symbol} ";
         }
       }
     }
@@ -101,12 +110,27 @@ namespace Calculator_Window
     public void ClearDisplay()
     {
       this.calculatorModel.Clear();
-      this.CalculationInput.Text = String.Empty;
+      this.calculationInput.Text = String.Empty;
     }
+
+    private void GetMainGridWidth_Loaded(object sender, RoutedEventArgs e)
+    {
+      if (sender is Grid mainGrid)
+      {
+        this.MainGirdWidth = mainGrid.ActualWidth;
+      }
+    }
+
+    private void GetCalculationFeedTextBox_Loaded(object sender, RoutedEventArgs e)
+      => this.calculationInput = sender as TextBox;
+         
+    private void ErrorMsgLabel_Loaded(object sender, RoutedEventArgs e)
+      => this.errorMessageLabel = sender as Label;
 
     private void OnPropertyChanged(string paramName)
       => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(paramName));
-    
+
+
   }
   
 }

@@ -21,6 +21,20 @@ namespace Calculator_Window
       
     public double CalculateFromText(string inputForCalc)
     {
+
+      if (inputForCalc == null)
+      {
+        throw new ArgumentNullException(
+          nameof(inputForCalc) ,"Parameter must not be null" 
+          );
+      }
+      else if (inputForCalc == String.Empty)
+      {
+        throw new ArgumentException(
+          "Equation must not be empty", nameof(inputForCalc)
+          );
+      }
+
       try
       {
         this.CurrentResult = this.ProcessTextTerm(inputForCalc.Trim());        
