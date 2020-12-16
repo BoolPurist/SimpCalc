@@ -9,11 +9,15 @@ namespace Calculator_Window
   {
     public double CurrentResult { get; private set; } = 0.0;
 
-    protected readonly Regex operrandRegex = 
+    protected readonly Regex operrandRegex =
       new Regex(@"^\s*(?<sign>[+-]*)(?<number>(\d+)+([\.,](\d+))?)");
 
-    protected readonly Regex operratorRegex = 
-      new Regex(@"^\s*(?<operator>[\+\*-/])");
+    protected readonly Regex operratorRegex =
+      new Regex(@"^\s*(?<operator>[+*-/])");
+
+    protected readonly HashSet<string> prioOperands = 
+      new HashSet<string>( new string[] { "*", "/" } );
+    
       
     public double CalculateFromText(string inputForCalc)
     {
@@ -32,8 +36,14 @@ namespace Calculator_Window
     private double ProcessTextTerm(string textTerm)
     {
       var expectsOpperand = true;
+      var lastOperandsWasPrio = false;
       var operands = new List<double>();
       var operators = new List<string>();
+      var prioStartIndexes = new List<int>();
+      var operandsPrio = new List< List<double> >();
+      var operatorsPrio = new List< List<string> >();
+      List<double> currentOperandsPrio = null;
+      List<string> currentOperatorsPrio = null;
 
       Match currentMatch;
 
@@ -49,8 +59,15 @@ namespace Calculator_Window
           {            
             string sign = currentMatch.Groups["sign"].Value;
             var number = Double.Parse(currentMatch.Groups["number"].Value);
-            operands.Add(number * ProcessPlusMinusSeq(sign));
-            textTerm = MoveToNextTextPart(textTerm, currentMatch);
+
+            if (lastOperandsWasPrio)
+            {
+              currentOperandsPrio.Add((double)(ProcessPlusMinusSeq(sign, number)));
+            }
+            else
+            {
+              operands.Add(ProcessPlusMinusSeq(sign, number));
+            }            
           }
           else
           {
@@ -65,8 +82,29 @@ namespace Calculator_Window
 
           if (currentMatch.Success)
           {
-            operators.Add(currentMatch.Groups["operator"].Value);
-            textTerm = MoveToNextTextPart(textTerm, currentMatch);
+            string currentOperator = currentMatch.Groups["operator"].Value;
+
+            if (this.prioOperands.Contains(currentOperator))
+            {
+              if (!lastOperandsWasPrio)
+              {
+                operandsPrio.Add(new List<double>());
+                currentOperandsPrio = operandsPrio[^1];
+                currentOperandsPrio.Add(operands[^1]);
+                prioStartIndexes.Add(operands.Count - 1);
+                
+                operatorsPrio.Add(new List<string>());
+                currentOperatorsPrio = operatorsPrio[^1];
+              }
+              
+              currentOperatorsPrio.Add(currentOperator);
+              lastOperandsWasPrio = true;
+            }
+            else
+            {
+              lastOperandsWasPrio = false;
+              operators.Add(currentMatch.Groups["operator"].Value);
+            }            
           }
           else
           {
@@ -75,43 +113,21 @@ namespace Calculator_Window
 
           expectsOpperand = true;
         }
+
+        textTerm = MoveToNextTextPart(textTerm, currentMatch);
       }
 
-      var result = 0.0;
-
-      if (operands.Count == 1)
+      // Calculating prio ..
+      for (int i = 0, count = prioStartIndexes.Count; i < count; i++)
       {
-        result = operands[operands.Count - 1];
-      }
-      else
-      {
-        result = operands[0];
-        operands.RemoveAt(0);
-
-        while (operands.Count > 0)
-        {
-
-          switch (operators[0])
-          {
-            case "+":
-              result += operands[0];
-              break;
-            case "-":
-              result -= operands[0];
-              break;
-            default:
-              break;
-          }
-
-          operands.RemoveAt(0);
-          operators.RemoveAt(0);
-        }
-
+        operands[prioStartIndexes[i]] = ProcessMacroTerm(
+          operandsPrio[i], operatorsPrio[i], CalculateOnePrioOperation
+          );
       }
 
-      return result;
+      return ProcessMacroTerm(operands, operators, CalculateOneOperation);
 
-      static double ProcessPlusMinusSeq(string signSeq)
+      static double ProcessPlusMinusSeq(string signSeq, double number)
       {
         var currentSign = 1.0;
 
@@ -123,13 +139,72 @@ namespace Calculator_Window
           }
         }
 
-        return currentSign;
+        return currentSign * number;
+      }
+
+      static string MoveToNextTextPart(string text, Match currentMath)
+        => text[(currentMath.Index + currentMath.Length)..];
+
+      static double ProcessMacroTerm(
+        List<double> operands, 
+        List<string> operators, 
+        Func<string, double, double, double> calculatorLogic
+        )
+      {
+        var currentOperand = operands[0];
+        var result = currentOperand;
+        operands.RemoveAt(0);
+
+        while (operands.Count > 0)
+        {
+          result = calculatorLogic(operators[0], result, operands[0]);
+
+          operands.RemoveAt(0);
+          operators.RemoveAt(0);
+        }
+
+        return result;
+      }
+
+      static double CalculateOneOperation(
+        string operatorPart, double firstOperand, double secondOperand
+        )
+      {
+        switch (operatorPart)
+        {
+          case "+":
+            firstOperand += secondOperand;
+            break;
+          case "-":
+            firstOperand -= secondOperand;
+            break;
+          default:
+            break;
+        }
+
+        return firstOperand;
+      }
+
+      static double CalculateOnePrioOperation(
+        string operatorPart, double firstOperand, double secondOperand
+      )
+      {
+        switch (operatorPart)
+        {
+          case "*":
+            firstOperand *= secondOperand;
+            break;
+          case "/":
+            firstOperand /= secondOperand;
+            break;
+          default:
+            break;
+        }
+
+        return firstOperand;
       }
 
     }
-
-    static string MoveToNextTextPart(string text, Match currentMath) 
-      => text[(currentMath.Index + currentMath.Length)..];
 
     public void Clear() => this.CurrentResult = 0.0;
   }
