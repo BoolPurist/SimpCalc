@@ -32,7 +32,8 @@ namespace CalculatorModelUnit
       actualResult = Math.Round(actualResult, fractionalDigits);
       Assert.Equal(expectedResult, actualResult);
     }
-
+    // 1. test element as string = equation as a text
+    // 2. test element as double = expected result from equation
     public static TheoryData<string, double> BasicCalculation
       => new TheoryData<string, double>()
       {

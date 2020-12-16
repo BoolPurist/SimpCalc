@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Calculator_Window.Util;
+
 namespace Calculator_Window
 {
   /// <summary>
@@ -22,11 +24,11 @@ namespace Calculator_Window
   {
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public InputCalculatorCommand InputCommand { get; set; }
+    public RelayCommand InputCommand { get; private set; }
 
-    public ClearCalculatorCommand ClearCommand { get; set; }
+    public RelayCommand ClearCommand { get; private set; }
 
-    public ResultCalculatorCommand ResultCommand { get; set; }
+    public RelayCommand ResultCommand { get; private set; }
 
     private readonly CalculatorModel calculatorModel = new CalculatorModel();
 
@@ -48,9 +50,9 @@ namespace Calculator_Window
     {
       InitializeComponent();
       DataContext = this;
-      this.InputCommand = new InputCalculatorCommand(this.AddInputToCalc);
-      this.ClearCommand = new ClearCalculatorCommand(this.ClearDisplay);
-      this.ResultCommand = new ResultCalculatorCommand(this.CalculateResult);
+      this.InputCommand = new RelayCommand(this.AddInputToCalc);
+      this.ClearCommand = new RelayCommand(param => this.ClearDisplay());
+      this.ResultCommand = new RelayCommand(param => this.CalculateResult());
     }
 
     private void GetMainGridWidth_Loaded(object sender, RoutedEventArgs e)

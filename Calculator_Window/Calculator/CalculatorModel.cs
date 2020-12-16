@@ -117,7 +117,7 @@ namespace Calculator_Window
         textTerm = MoveToNextTextPart(textTerm, currentMatch);
       }
 
-      // Calculating prio ..
+      // Calculating priority terms aka point before line calculation ..
       for (int i = 0, count = prioStartIndexes.Count; i < count; i++)
       {
         operands[prioStartIndexes[i]] = ProcessMacroTerm(
