@@ -164,17 +164,12 @@ namespace Calculator_Window
         List<string> operators, 
         Func<string, double, double, double> calculatorLogic
         )
-      {
-        var currentOperand = operands[0];
-        var result = currentOperand;
-        operands.RemoveAt(0);
-
-        while (operands.Count > 0)
+      {        
+        var result = operands[0];
+        
+        for (int i = 1, j = 0, count = operands.Count; i < count ; i++, j++)
         {
-          result = calculatorLogic(operators[0], result, operands[0]);
-
-          operands.RemoveAt(0);
-          operators.RemoveAt(0);
+          result = calculatorLogic(operators[j], result, operands[i]);
         }
 
         return result;
