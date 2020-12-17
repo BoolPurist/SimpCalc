@@ -30,10 +30,6 @@ namespace Calculator_Window
 
     public RelayCommand ResultCommand { get; private set; }
 
-    private readonly CalculatorModel calculatorModel = new CalculatorModel();
-
-    private double mainGridWidth = 0.0;
-
     protected string errorMessage = String.Empty;
 
     public string ErrorMessage
@@ -60,8 +56,6 @@ namespace Calculator_Window
       }
     }
 
-    
-
     public string CalculationOutput
     {
       get => this.calculationOutput;
@@ -71,6 +65,8 @@ namespace Calculator_Window
         this.OnPropertyChanged(nameof(CalculationOutput));
       }
     }
+
+    private double mainGridWidth = 0.0;
 
     public double MainGirdWidth 
     {
@@ -83,6 +79,8 @@ namespace Calculator_Window
     }
 
     public bool ShowsResult { get; private set; } = false;
+
+    private readonly CalculatorModel calculatorModel = new CalculatorModel();
 
     public Calculator()
     {

@@ -9,16 +9,15 @@ namespace Calculator_Window
   {
     public double CurrentResult { get; private set; } = 0.0;
 
-    protected readonly Regex operrandRegex =
+    protected static readonly Regex operrandRegex =
       new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)");
 
-    protected readonly Regex operratorRegex =
-      new Regex(@"^\s*(?<operator>[+*-/])");
+    protected static readonly Regex operratorRegex =
+      new Regex(@"^\s*(?<operator>[+*\-/])");
 
-    protected readonly HashSet<string> prioOperands = 
+    protected static readonly HashSet<string> prioOperands = 
       new HashSet<string>( new string[] { "*", "/" } );
-    
-      
+          
     public double CalculateFromText(string inputForCalc)
     {
 
@@ -67,7 +66,7 @@ namespace Calculator_Window
       {
         if (expectsOpperand)
         {
-          currentMatch = this.operrandRegex.Match(textTerm);
+          currentMatch = operrandRegex.Match(textTerm);
           
           if (currentMatch.Success)
           {            
@@ -92,13 +91,13 @@ namespace Calculator_Window
         }
         else
         {
-          currentMatch = this.operratorRegex.Match(textTerm);
+          currentMatch = operratorRegex.Match(textTerm);
 
           if (currentMatch.Success)
           {
             string currentOperator = currentMatch.Groups["operator"].Value;
 
-            if (this.prioOperands.Contains(currentOperator))
+            if (prioOperands.Contains(currentOperator))
             {
               if (!lastOperandsWasPrio)
               {

@@ -7,6 +7,36 @@ namespace CalculatorModelUnit
 {
   public class CalculatorModelUnit
   {
+    [Fact]
+    public void CalculateFromText_ShouldThrowExceptionForNull()
+    {
+      var calculator = new CalculatorModel();
+      Assert.Throws<ArgumentNullException>(
+        () => calculator.CalculateFromText(null)
+        );
+    }
+
+    [Fact]
+    public void CalculateFromText_ShouldThrowExceptionForEmptyString()
+    {
+      var calculator = new CalculatorModel();
+      Assert.Throws<ArgumentException>(
+        () => calculator.CalculateFromText(String.Empty)
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(InvalidEqautions))]
+    public void CalculateFromText_ShouldThrowExceptionForInvalidEquation(
+      string invalidEquation
+      )
+    {
+      var calculator = new CalculatorModel();
+      Assert.Throws<CalculationParseException>(
+        () => calculator.CalculateFromText(invalidEquation)
+        );
+    }
+
     [Theory]
     [MemberData(nameof(BasicCalculation))]
     public void CalculateFromText_ShouldReturnExactResult(
@@ -77,6 +107,23 @@ namespace CalculatorModelUnit
             1
           }
         };
+
+    public static TheoryData<string> InvalidEqautions
+      => new TheoryData<string>()
+      {
+        {
+          "+"
+        },
+        {
+          "24 +"
+        },
+        {
+          "24 + 2x5"
+        },
+        {
+          "24. + 25.25"
+        }
+      };
 
   }
 }

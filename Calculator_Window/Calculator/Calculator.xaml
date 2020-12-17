@@ -94,7 +94,8 @@
                Foreground="White"
                Background="DarkRed"
                HorizontalAlignment="Stretch"
-                HorizontalContentAlignment="Center"
+               HorizontalContentAlignment="Center"
+               Width="{Binding Path=MainGirdWidth}"
                Visibility="{Binding ErrorMessageVisible}"/>
       </StackPanel>
 
