@@ -7,7 +7,34 @@
         mc:Ignorable="d"
         Title="Calculator" Height="450" Width="800">
 
+  <Window.Resources>
+    
+  </Window.Resources>
+
   <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
-    <local:Calculator x:Name="Calc"></local:Calculator>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="20"/>
+      <ColumnDefinition/>
+    </Grid.ColumnDefinitions>
+
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition/>
+    </Grid.RowDefinitions>
+    
+    <local:Calculator Grid.Column="0" 
+                      Grid.Row="0" Grid.RowSpan="2" 
+                      x:Name="Calc"></local:Calculator>
+    <Border CornerRadius="2" BorderBrush="Olive" BorderThickness="1" 
+            Grid.Column="2" Grid.Row="0">
+      <WrapPanel  Background="OliveDrab" Height="Auto">
+        <Label FontWeight="Bold">
+          Last Result:
+        </Label>
+        <Label FontWeight="Bold" Content="{Binding LastResult, ElementName=Calc}"/>
+      </WrapPanel>
+    </Border>
+    
   </Grid>
 </Window>

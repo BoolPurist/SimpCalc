@@ -101,7 +101,15 @@ namespace Calculator_Window
 
     private string lastResult = "0";
 
-    public string LastResult => this.lastResult;
+    public string LastResult
+    {
+      get => this.lastResult;
+      set
+      {
+        this.lastResult = value;
+        this.OnPropertyChanged(nameof(this.LastResult));        
+      }
+    }
 
     public Calculator()
     {
@@ -129,13 +137,13 @@ namespace Calculator_Window
         this.CalculationOutput = this.calculatorModel
           .CalculateFromText(this.CalculationOutput)
             .ToString();
-        this.lastResult = this.CalculationOutput;
+        this.LastResult = this.CalculationOutput;
         this.ShowsResult = true;
       }
       catch (ArgumentException)
       {
         this.CalculationOutput = "0";
-        this.lastResult = this.CalculationOutput;
+        this.LastResult = this.CalculationOutput;
         this.ShowsResult = true;
       }
       catch (CalculationParseException e)
@@ -206,7 +214,7 @@ namespace Calculator_Window
       {
         this.CalculationOutput = 
           this.calculatorModel.IntegerFromCurrentResult.ToString();
-        this.lastResult = this.CalculationOutput;
+        this.LastResult = this.CalculationOutput;
       }      
     }
 
@@ -221,7 +229,7 @@ namespace Calculator_Window
       {
         this.CalculationOutput =
           this.calculatorModel.FractionFromCurrentResult.ToString();
-        this.lastResult = this.CalculationOutput;
+        this.LastResult = this.CalculationOutput;
       }
     }
 
