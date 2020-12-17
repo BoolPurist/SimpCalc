@@ -53,6 +53,16 @@
               Template="{StaticResource CalculationBtnTemplate}"/>
     </ControlTemplate>
 
+    <Style x:Key="AnnouncementResultStat" TargetType="Label">
+      <Setter Property="Content" Value="Entered equation" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding ShowsResult}" Value="True">
+          <Setter Property="Content" Value="Current Result"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+
   </UserControl.Resources>
 
 
@@ -73,7 +83,7 @@
       </Grid.RowDefinitions>
 
       <StackPanel>
-
+        <Label Style="{StaticResource AnnouncementResultStat}" />
         <TextBox 
                 Grid.Column="0" Grid.Row="0"                
                 Margin="{StaticResource CalculatorElementMargin}"

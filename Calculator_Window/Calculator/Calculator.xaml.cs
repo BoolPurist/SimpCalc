@@ -44,7 +44,7 @@ namespace Calculator_Window
     }
 
     protected Visibility errorMessageVisible = Visibility.Collapsed;
-    protected string calculationOutput = String.Empty;
+    
 
     public Visibility ErrorMessageVisible
     {
@@ -56,6 +56,8 @@ namespace Calculator_Window
         this.OnPropertyChanged(nameof(ErrorMessageVisible));
       }
     }
+
+    protected string calculationOutput = String.Empty;
 
     public string CalculationOutput
     {
@@ -83,11 +85,23 @@ namespace Calculator_Window
       }
     }
 
-    public bool ShowsResult { get; private set; } = false;
+    protected bool showsResult = false;
+
+    public bool ShowsResult
+    {
+      get => this.showsResult;
+      set
+      {
+        this.showsResult = value;
+        this.OnPropertyChanged(nameof(this.ShowsResult));
+      }
+    }
 
     private readonly CalculatorModel calculatorModel = new CalculatorModel();
 
     private string lastResult = "0";
+
+    public string LastResult => this.lastResult;
 
     public Calculator()
     {
