@@ -128,7 +128,9 @@
         <WrapPanel>
           <Button Content="Clear" Template="{StaticResource ClearBtnTemp}" />
           <Button Content="=" Template="{StaticResource ResultBtnTemp}" />
-          <Button Tag="True" Content="^" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="LR" 
+                  Loaded="SetLastResultToken_Button_Loaded" 
+                  Template="{StaticResource InputBtnTemp}" />
           <Button Content="Root" Template="{StaticResource InputBtnTemp}" />
         </WrapPanel>
       </StackPanel>

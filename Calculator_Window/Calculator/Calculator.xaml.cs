@@ -41,7 +41,7 @@ namespace Calculator_Window
         this.OnPropertyChanged(nameof(this.ErrorMessage));
       }
     }
-    
+
     protected Visibility errorMessageVisible = Visibility.Collapsed;
     protected string calculationOutput = String.Empty;
 
@@ -50,7 +50,7 @@ namespace Calculator_Window
       get => this.errorMessageVisible;
       set
       {
-        
+
         this.errorMessageVisible = value;
         this.OnPropertyChanged(nameof(ErrorMessageVisible));
       }
@@ -68,6 +68,9 @@ namespace Calculator_Window
 
     private double mainGridWidth = 0.0;
 
+    private string lastResultToken = "X";
+    
+
     public double MainGirdWidth 
     {
       get => this.mainGridWidth;
@@ -81,6 +84,8 @@ namespace Calculator_Window
     public bool ShowsResult { get; private set; } = false;
 
     private readonly CalculatorModel calculatorModel = new CalculatorModel();
+
+    private string lastResult = "0";
 
     public Calculator()
     {
@@ -101,11 +106,16 @@ namespace Calculator_Window
       this.ErrorMessageVisible = Visibility.Collapsed;
       this.ShowsResult = true;
 
+      // Insert the result from the last calculation. 
+      this.CalculationOutput = 
+        this.CalculationOutput.Replace(this.lastResultToken, lastResult);
+
       try
       {
         this.CalculationOutput = this.calculatorModel
           .CalculateFromText(this.CalculationOutput)
             .ToString();
+        this.lastResult = this.CalculationOutput;
       }
       catch (ArgumentException)
       {
@@ -174,6 +184,53 @@ namespace Calculator_Window
       if (sender is Grid mainGrid)
       {
         this.MainGirdWidth = mainGrid.ActualWidth;
+      }
+      else
+      {
+        string faultyParamName = nameof(sender);
+        throw new ArgumentException(
+          $"Parameter {faultyParamName} must be of type Grid",
+          faultyParamName
+          );
+      }
+
+    }
+
+    private void SetLastResultToken_Button_Loaded(object sender, RoutedEventArgs e)
+    {
+      string faultyParmaName = nameof(sender);
+      if (sender is Button lastResultBtn)
+      {
+        if (lastResultBtn.Content is string btnContent)
+        {
+          if (btnContent != null)
+          {
+            this.lastResultToken = btnContent;
+          }
+          else
+          {
+            throw new ArgumentNullException(
+              $"{faultyParmaName}.{nameof(lastResultBtn.Content)}",
+              $"Property {nameof(lastResultBtn.Content)} of" +
+              $"{faultyParmaName} must not be null"
+              );
+          }
+        }
+        else
+        {
+          throw new ArgumentException(
+            $"Property {nameof(lastResultBtn.Content)} of" +
+            $"{faultyParmaName} must be a string", 
+            $"{faultyParmaName}.{nameof(lastResultBtn.Content)}"
+            );
+        }
+      }
+      else
+      {
+        
+        throw new ArgumentException(
+          $"Parameter {faultyParmaName} must be of type Button", faultyParmaName
+          );
       }
     }
          
