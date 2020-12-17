@@ -46,20 +46,13 @@
               Template="{StaticResource CalculationBtnTemplate}"/>
     </ControlTemplate>
 
-    <ControlTemplate TargetType="Button" x:Key="ClearBtnTemp">
+    <ControlTemplate TargetType="Button" x:Key="CommandBtnTemp">
       <Button Content="{TemplateBinding Content}" 
-              Command="{Binding ClearCommand}" 
+              Command="{TemplateBinding Command}" 
               Tag="{TemplateBinding Tag}"
               Template="{StaticResource CalculationBtnTemplate}"/>
     </ControlTemplate>
 
-    <ControlTemplate TargetType="Button" x:Key="ResultBtnTemp">
-      <Button Content="{TemplateBinding Content}" 
-              Command="{Binding ResultCommand}" 
-              Tag="{TemplateBinding Tag}"
-              Template="{StaticResource CalculationBtnTemplate}"/>
-    </ControlTemplate>
-    
   </UserControl.Resources>
 
 
@@ -82,12 +75,12 @@
       <StackPanel>
 
         <TextBox 
-                Grid.Column="0" Grid.Row="0"
-                IsReadOnly="True"                
+                Grid.Column="0" Grid.Row="0"                
                 Margin="{StaticResource CalculatorElementMargin}"
                 TextWrapping="Wrap"                
-                Width="{Binding Path=MainGirdWidth}"                
-                Text="{Binding CalculationOutput}"
+                Width="{Binding Path=MainGirdWidth}"
+                KeyDown="ClearResult_TextBox_KeyDown"
+                Text="{Binding CalculationOutput, UpdateSourceTrigger=PropertyChanged}"
                 >
         </TextBox>
         <Label  Content="{Binding ErrorMessage}"
@@ -105,13 +98,17 @@
           <Button Tag="True" Content="1" Template="{StaticResource InputBtnTemp}" />
           <Button Tag="True" Content="2" Template="{StaticResource InputBtnTemp}" />
           <Button Tag="True" Content="3" Template="{StaticResource InputBtnTemp}" />
-          <Button Content="Int" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="Int" 
+                  Command="{Binding IntegerCommand}" 
+                  Template="{StaticResource CommandBtnTemp}" />
         </WrapPanel>        
         <WrapPanel>
           <Button Tag="True" Content="4" Template="{StaticResource InputBtnTemp}" />
           <Button Tag="True" Content="5" Template="{StaticResource InputBtnTemp}" />
           <Button Tag="True" Content="6" Template="{StaticResource InputBtnTemp}" />
-          <Button Content="Fract" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="Fract" 
+                  Command="{Binding FractionCommand}"
+                  Template="{StaticResource CommandBtnTemp}" />
         </WrapPanel>
         <WrapPanel>
           <Button Tag="True" Content="7" Template="{StaticResource InputBtnTemp}" />
@@ -126,12 +123,18 @@
           <Button Content="/" Template="{StaticResource InputBtnTemp}" />
         </WrapPanel>
         <WrapPanel>
-          <Button Content="Clear" Template="{StaticResource ClearBtnTemp}" />
-          <Button Content="=" Template="{StaticResource ResultBtnTemp}" />
+          <Button Content="Clear" 
+                  Command="{Binding ClearCommand}"
+                  Template="{StaticResource CommandBtnTemp}" />
+          <Button Content="=" 
+                  Command="{Binding ResultCommand}"
+                  Template="{StaticResource CommandBtnTemp}" />
           <Button Content="LR" 
                   Loaded="SetLastResultToken_Button_Loaded" 
                   Template="{StaticResource InputBtnTemp}" />
-          <Button Content="Root" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="Back"
+                  Command="{Binding RemoveCommand}"
+                  Template="{StaticResource CommandBtnTemp}" />
         </WrapPanel>
       </StackPanel>
     </Grid>

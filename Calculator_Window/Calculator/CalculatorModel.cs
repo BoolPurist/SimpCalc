@@ -9,6 +9,11 @@ namespace Calculator_Window
   {
     public double CurrentResult { get; private set; } = 0.0;
 
+    public double IntegerFromCurrentResult => Math.Truncate(this.CurrentResult);
+
+    public double FractionFromCurrentResult
+     => Double.Parse($"0.{this.CurrentResult.ToString().Split('.')[1]}");
+
     protected static readonly Regex operrandRegex =
       new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)");
 

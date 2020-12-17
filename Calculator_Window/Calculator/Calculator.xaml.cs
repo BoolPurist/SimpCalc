@@ -25,10 +25,11 @@ namespace Calculator_Window
     public event PropertyChangedEventHandler PropertyChanged;
 
     public RelayCommand InputCommand { get; private set; }
-
     public RelayCommand ClearCommand { get; private set; }
-
     public RelayCommand ResultCommand { get; private set; }
+    public RelayCommand FractionCommand { get; private set; }
+    public RelayCommand IntegerCommand { get; private set; }
+    public RelayCommand RemoveCommand { get; private set; }
 
     protected string errorMessage = String.Empty;
 
@@ -62,6 +63,7 @@ namespace Calculator_Window
       set
       {
         this.calculationOutput = value;
+        this.ShowsResult = false;
         this.OnPropertyChanged(nameof(CalculationOutput));
       }
     }
@@ -94,17 +96,15 @@ namespace Calculator_Window
       this.InputCommand = new RelayCommand(this.AddInputToCalc);
       this.ClearCommand = new RelayCommand(param => this.ClearDisplay());
       this.ResultCommand = new RelayCommand(param => this.CalculateResult());
-
-#if DEBUG
-      this.errorMessageVisible = Visibility.Visible;
-      this.errorMessage = "Error message";
-#endif
+      this.IntegerCommand = new RelayCommand(param => this.IntegerFromResult());
+      this.FractionCommand = new RelayCommand(param => this.FractionFromResult());
+      this.RemoveCommand = new RelayCommand(param => this.RemoveOneChar());
     }
 
     public void CalculateResult()
     {
       this.ErrorMessageVisible = Visibility.Collapsed;
-      this.ShowsResult = true;
+      
 
       // Insert the result from the last calculation. 
       this.CalculationOutput = 
@@ -116,15 +116,18 @@ namespace Calculator_Window
           .CalculateFromText(this.CalculationOutput)
             .ToString();
         this.lastResult = this.CalculationOutput;
+        this.ShowsResult = true;
       }
       catch (ArgumentException)
       {
         this.CalculationOutput = "0";
+        this.lastResult = this.CalculationOutput;
+        this.ShowsResult = true;
       }
       catch (CalculationParseException e)
       {
         this.ErrorMessage = e.Message;
-        this.ErrorMessageVisible = Visibility.Visible;
+        this.ErrorMessageVisible = Visibility.Visible;        
       }
     }
 
@@ -136,8 +139,7 @@ namespace Calculator_Window
       {
         if (ShowsResult)
         {
-          this.CalculationOutput = String.Empty;
-          ShowsResult = false;
+          this.CalculationOutput = String.Empty;          
         }
 
         if (inputBtn.Content is string symbol)
@@ -177,6 +179,55 @@ namespace Calculator_Window
 
       this.calculatorModel.Clear();
       this.CalculationOutput = String.Empty;
+    }
+
+    public void IntegerFromResult()
+    {
+      if (!this.ShowsResult)
+      {
+        this.ResultCommand.Execute(null);
+      }
+
+      if (this.ShowsResult)
+      {
+        this.CalculationOutput = 
+          this.calculatorModel.IntegerFromCurrentResult.ToString();
+        this.lastResult = this.CalculationOutput;
+      }      
+    }
+
+    public void FractionFromResult()
+    {
+      if (!this.ShowsResult)
+      {
+        this.ResultCommand.Execute(null);
+      }
+
+      if (this.ShowsResult)
+      {
+        this.CalculationOutput =
+          this.calculatorModel.FractionFromCurrentResult.ToString();
+        this.lastResult = this.CalculationOutput;
+      }
+    }
+
+    private void RemoveOneChar()
+    {
+      this.CalculationOutput = this.CalculationOutput.Length > 0 ? 
+        this.CalculationOutput[..^1] : String.Empty;
+      Debug.WriteLine($"Output after removal {this.CalculationOutput}");
+    }
+
+    private void ClearResult_TextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+      if (ShowsResult)
+      {
+        ShowsResult = false;
+        if ( sender is TextBox textBox )
+        {
+          textBox.Text = String.Empty;
+        }
+      }
     }
 
     private void GetMainGridWidth_Loaded(object sender, RoutedEventArgs e)
@@ -236,7 +287,6 @@ namespace Calculator_Window
          
     private void OnPropertyChanged(string paramName)
       => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(paramName));
-
 
   }
   
