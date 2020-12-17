@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -18,12 +19,45 @@ namespace Calculator_Window
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// </summary>
-  public partial class MainWindow : Window
+  public partial class MainWindow : Window, INotifyPropertyChanged
   {    
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private bool showLastResult = true;
+    public bool ShowLastResult
+    {
+      get => this.showLastResult;
+      set
+      {
+        this.showLastResult = value;
+        this.PropertyChanged?.Invoke(
+          this, 
+          new PropertyChangedEventArgs(nameof(this.ShowLastResult))
+          );
+      }
+    }
+
+    private Visibility lastResultVisibility = Visibility.Visible;
+
+    public Visibility LastResultVisibility
+    {
+      get => this.lastResultVisibility;
+      set
+      {
+        this.lastResultVisibility = value;
+        this.PropertyChanged?.Invoke(
+          this,
+          new PropertyChangedEventArgs(nameof(this.LastResultVisibility))
+          );
+      }
+    }
+
     public MainWindow()
     {
       InitializeComponent();
       this.DataContext = this;
     }
+
+
   }
 }

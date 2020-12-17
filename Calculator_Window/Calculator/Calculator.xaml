@@ -7,16 +7,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"              
              d:DesignHeight="450" d:DesignWidth="800">
-
-  <UserControl.InputBindings>
-    <KeyBinding Command="{Binding ClearCommand}"
-                Modifiers="Ctrl"
-                Key="L"/>
-    <KeyBinding Command="{Binding ResultCommand}"
-                Modifiers="Ctrl"
-                Key="R"/>
-  </UserControl.InputBindings>
-
+  
   <UserControl.Resources>
     <sys:Double x:Key="BtnSize">50</sys:Double>
     

@@ -3,38 +3,77 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Calculator_Window"        
+        xmlns:local="clr-namespace:Calculator_Window"   
+        xmlns:converters="clr-namespace:Calculator_Window.Util.Converters"
         mc:Ignorable="d"
         Title="Calculator" Height="450" Width="800">
 
+  <Window.InputBindings>
+    <KeyBinding Command="{Binding ClearCommand, ElementName=Calc}"
+                Modifiers="Ctrl"
+                Key="L"/>
+    <KeyBinding Command="{Binding ResultCommand, ElementName=Calc}"
+                Modifiers="Ctrl"
+                Key="R"/>
+  </Window.InputBindings>
+  
   <Window.Resources>
-    
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisibleHidden" 
+                                          CollapsesIt="True"/>
   </Window.Resources>
 
-  <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition/>
-      <ColumnDefinition Width="20"/>
-      <ColumnDefinition/>
-    </Grid.ColumnDefinitions>
+  <!--<Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+          IsMainMenu="True">
+    <MenuItem Header="_Action"/>
+    <MenuItem Header="_View"/>
+  </Menu>-->
 
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition/>
-    </Grid.RowDefinitions>
-    
-    <local:Calculator Grid.Column="0" 
+
+  <StackPanel>
+    <Menu Margin="0,0,0,10" IsMainMenu="True">
+      <MenuItem Header="Action">
+        <MenuItem Header="Clear" 
+                  Command="{Binding ClearCommand, ElementName=Calc}"
+                  InputGestureText="Ctrl+L"/>
+        <MenuItem Header="Calculate"
+                  Command="{Binding ResultCommand, ElementName=Calc}"
+                  InputGestureText="Ctrl+R"/>
+      </MenuItem>
+
+      <MenuItem Header="View">
+        <MenuItem Header="Last Result"
+                  IsCheckable="True" 
+                  IsChecked="{Binding LastResultVisibility, Converter={StaticResource BoolToVisibleHidden}}"
+                  />
+      </MenuItem>
+    </Menu>
+
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition Width="20"/>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+
+      <local:Calculator Grid.Column="0" 
                       Grid.Row="0" Grid.RowSpan="2" 
-                      x:Name="Calc"></local:Calculator>
-    <Border CornerRadius="2" BorderBrush="Olive" BorderThickness="1" 
+                      x:Name="Calc">
+      </local:Calculator>
+      <Border Visibility="{Binding LastResultVisibility}" CornerRadius="2" BorderBrush="Olive" BorderThickness="1" 
             Grid.Column="2" Grid.Row="0">
-      <WrapPanel  Background="OliveDrab" Height="Auto">
-        <Label FontWeight="Bold">
-          Last Result:
-        </Label>
-        <Label FontWeight="Bold" Content="{Binding LastResult, ElementName=Calc}"/>
-      </WrapPanel>
-    </Border>
-    
-  </Grid>
+        <WrapPanel  Background="OliveDrab" Height="Auto">
+          <Label FontWeight="Bold">
+            Last Result:
+          </Label>
+          <Label FontWeight="Bold" Content="{Binding LastResult, ElementName=Calc}"/>
+        </WrapPanel>
+      </Border>
+
+    </Grid>
+  </StackPanel>
 </Window>
