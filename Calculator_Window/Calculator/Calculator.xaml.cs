@@ -34,9 +34,43 @@ namespace Calculator_Window
 
     private double mainGridWidth = 0.0;
 
-    private TextBox calculationInput = null;
+    protected string errorMessage = String.Empty;
 
-    private Label errorMessageLabel = null;
+    public string ErrorMessage
+    {
+      get => this.errorMessage;
+      set
+      {
+        this.errorMessage = value;
+        this.OnPropertyChanged(nameof(this.ErrorMessage));
+      }
+    }
+    
+    protected Visibility errorMessageVisible = Visibility.Collapsed;
+    protected string calculationOutput = String.Empty;
+
+    public Visibility ErrorMessageVisible
+    {
+      get => this.errorMessageVisible;
+      set
+      {
+        
+        this.errorMessageVisible = value;
+        this.OnPropertyChanged(nameof(ErrorMessageVisible));
+      }
+    }
+
+    
+
+    public string CalculationOutput
+    {
+      get => this.calculationOutput;
+      set
+      {
+        this.calculationOutput = value;
+        this.OnPropertyChanged(nameof(CalculationOutput));
+      }
+    }
 
     public double MainGirdWidth 
     {
@@ -57,60 +91,84 @@ namespace Calculator_Window
       this.InputCommand = new RelayCommand(this.AddInputToCalc);
       this.ClearCommand = new RelayCommand(param => this.ClearDisplay());
       this.ResultCommand = new RelayCommand(param => this.CalculateResult());
+
+#if DEBUG
+      this.errorMessageVisible = Visibility.Visible;
+      this.errorMessage = "Error message";
+#endif
     }
 
     public void CalculateResult()
     {
-      this.errorMessageLabel.Visibility = Visibility.Collapsed;
+      this.ErrorMessageVisible = Visibility.Collapsed;
       this.ShowsResult = true;
 
       try
       {
-        this.calculationInput.Text =
-          this.calculatorModel.CalculateFromText(this.calculationInput.Text)
+        this.CalculationOutput = this.calculatorModel
+          .CalculateFromText(this.CalculationOutput)
             .ToString();
       }
-      catch (ArgumentException e)
+      catch (ArgumentException)
       {
-        this.calculationInput.Text = "0";
+        this.CalculationOutput = "0";
       }
       catch (CalculationParseException e)
       {
-        this.errorMessageLabel.Content = e.Message;
-        this.errorMessageLabel.Visibility = Visibility.Visible;
+        this.ErrorMessage = e.Message;
+        this.ErrorMessageVisible = Visibility.Visible;
       }
     }
 
     public void AddInputToCalc(object inputControl)
     {
+      this.ErrorMessageVisible = Visibility.Collapsed;
+
       if (inputControl is Button inputBtn)
       {
         if (ShowsResult)
         {
-          this.calculationInput.Text = String.Empty;
+          this.CalculationOutput = String.Empty;
           ShowsResult = false;
         }
 
-        string symbol = inputBtn.Content as string;
-        bool noSpaceNeeded;
-
-        if (
-          Boolean.TryParse(inputBtn.Tag as string, out noSpaceNeeded) && noSpaceNeeded
-          )
+        if (inputBtn.Content is string symbol)
         {
-          this.calculationInput.Text += $"{symbol}";
+          if (
+          Boolean.TryParse(inputBtn.Tag as string, out bool noSpaceNeeded) && 
+          noSpaceNeeded
+          )
+          {
+            this.CalculationOutput += $"{symbol}";
+          }
+          else
+          {
+            this.CalculationOutput += $" {symbol} ";
+          }
         }
         else
         {
-          this.calculationInput.Text += $" {symbol} ";
+          throw new ArgumentException(
+            $"Content of {nameof(inputControl)} must be a string !", 
+            nameof(inputBtn.Content)
+            );
         }
+                
+      }
+      else
+      {
+        throw new ArgumentException(
+          "Control as parameter must be of type Button", nameof(inputControl)
+          );
       }
     }
 
     public void ClearDisplay()
     {
+      this.ErrorMessageVisible = Visibility.Collapsed;
+
       this.calculatorModel.Clear();
-      this.calculationInput.Text = String.Empty;
+      this.CalculationOutput = String.Empty;
     }
 
     private void GetMainGridWidth_Loaded(object sender, RoutedEventArgs e)
@@ -120,13 +178,7 @@ namespace Calculator_Window
         this.MainGirdWidth = mainGrid.ActualWidth;
       }
     }
-
-    private void GetCalculationFeedTextBox_Loaded(object sender, RoutedEventArgs e)
-      => this.calculationInput = sender as TextBox;
          
-    private void ErrorMsgLabel_Loaded(object sender, RoutedEventArgs e)
-      => this.errorMessageLabel = sender as Label;
-
     private void OnPropertyChanged(string paramName)
       => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(paramName));
 

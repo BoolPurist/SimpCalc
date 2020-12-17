@@ -17,23 +17,28 @@ namespace Calculator_Window.Util
       Action<object> _execute, Predicate<object> _canExecute = null
       )
     {
-      if (_execute == null)
-      {
-        throw new ArgumentNullException();
-      }
-
-      this.execute = _execute;
+      this.execute = _execute 
+        ?? throw new ArgumentNullException(nameof(_execute), errorMsgForNoExecute); ;
       this.canExecute = _canExecute;
     }
 
-    private Action<object> execute;
-    private Predicate<object> canExecute;
+    private const string errorMsgForNoExecute = 
+      "Instance of command has no method to be executed !";
+
+    private readonly Action<object> execute;
+    private readonly Predicate<object> canExecute;
 
     public bool CanExecute(object parameter)
-      => this.canExecute == null ? 
-      true : this.canExecute.Invoke(parameter);
+      => this.canExecute == null || this.canExecute.Invoke(parameter);
 
     public void Execute(object parameter)
-      => this.execute.Invoke(parameter);
+    {
+      if (this.execute == null)
+      {
+        throw new ArgumentNullException(errorMsgForNoExecute);
+      }
+
+      this.execute.Invoke(parameter);
+    }
   }
 }

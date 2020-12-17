@@ -86,14 +86,16 @@
                 IsReadOnly="True"                
                 Margin="{StaticResource CalculatorElementMargin}"
                 TextWrapping="Wrap"                
-                Width="{Binding Path=MainGirdWidth}"
-                Loaded="GetCalculationFeedTextBox_Loaded"
+                Width="{Binding Path=MainGirdWidth}"                
+                Text="{Binding CalculationOutput}"
                 >
         </TextBox>
-        <Label Loaded="ErrorMsgLabel_Loaded" 
-               Foreground="DarkRed" 
-               HorizontalAlignment="Center"
-               Visibility="Collapsed"/>
+        <Label  Content="{Binding ErrorMessage}"
+               Foreground="White"
+               Background="DarkRed"
+               HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+               Visibility="{Binding ErrorMessageVisible}"/>
       </StackPanel>
 
       <StackPanel Grid.Column="0" Grid.Row="1"

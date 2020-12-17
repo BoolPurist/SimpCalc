@@ -10,7 +10,7 @@ namespace Calculator_Window
     public double CurrentResult { get; private set; } = 0.0;
 
     protected readonly Regex operrandRegex =
-      new Regex(@"^\s*(?<sign>[+-]*)(?<number>(\d+)+([\.,](\d+))?)");
+      new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)");
 
     protected readonly Regex operratorRegex =
       new Regex(@"^\s*(?<operator>[+*-/])");
@@ -129,6 +129,11 @@ namespace Calculator_Window
         }
 
         textTerm = MoveToNextTextPart(textTerm, currentMatch);
+      }
+
+      if (expectsOpperand)
+      {
+        throw new CalculationParseException("Syntax Error: missing operand !");
       }
 
       // Calculating priority terms aka point before line calculation ..
