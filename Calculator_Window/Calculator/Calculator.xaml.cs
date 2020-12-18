@@ -82,6 +82,7 @@ namespace Calculator_Window
       {
         this.mainGridWidth = value * 0.9;
         this.OnPropertyChanged(nameof(MainGirdWidth));
+
       }
     }
 
@@ -115,41 +116,51 @@ namespace Calculator_Window
     {
       InitializeComponent();
       DataContext = this;
+      
+
       this.InputCommand = new RelayCommand(this.AddInputToCalc);
       this.ClearCommand = new RelayCommand(param => this.ClearDisplay());
       this.ResultCommand = new RelayCommand(param => this.CalculateResult());
       this.IntegerCommand = new RelayCommand(param => this.IntegerFromResult());
       this.FractionCommand = new RelayCommand(param => this.FractionFromResult());
       this.RemoveCommand = new RelayCommand(param => this.RemoveOneChar());
+
+
     }
 
     public void CalculateResult()
     {
       this.ErrorMessageVisible = Visibility.Collapsed;
-      
+
+      this.CalculationOutput = this.CalculationOutput.Trim();
+
+      if (this.CalculationOutput == String.Empty)
+      {
+        this.CalculationOutput = "0";
+        ProcessValidResult();
+      }
 
       // Insert the result from the last calculation. 
       this.CalculationOutput = 
         this.CalculationOutput.Replace(this.lastResultToken, lastResult);
-
+   
       try
-      {
+      {        
         this.CalculationOutput = this.calculatorModel
           .CalculateFromText(this.CalculationOutput)
             .ToString();
-        this.LastResult = this.CalculationOutput;
-        this.ShowsResult = true;
-      }
-      catch (ArgumentException)
-      {
-        this.CalculationOutput = "0";
-        this.LastResult = this.CalculationOutput;
-        this.ShowsResult = true;
-      }
+        ProcessValidResult();
+      }      
       catch (CalculationParseException e)
       {
         this.ErrorMessage = e.Message;
         this.ErrorMessageVisible = Visibility.Visible;        
+      }
+
+      void ProcessValidResult()
+      {
+        this.LastResult = this.CalculationOutput;
+        this.ShowsResult = true;
       }
     }
 

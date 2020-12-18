@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Calculator_Window"   
         xmlns:converters="clr-namespace:Calculator_Window.Util.Converters"
         mc:Ignorable="d"
-        Title="Calculator" Height="450" Width="800">
+        Title="Calculator" SizeToContent="WidthAndHeight">
 
   <Window.InputBindings>
     <KeyBinding Command="{Binding ClearCommand, ElementName=Calc}"
@@ -16,19 +16,12 @@
                 Modifiers="Ctrl"
                 Key="R"/>
   </Window.InputBindings>
-  
+
   <Window.Resources>
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibleHidden" 
                                           CollapsesIt="True"/>
   </Window.Resources>
-
-  <!--<Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
-          IsMainMenu="True">
-    <MenuItem Header="_Action"/>
-    <MenuItem Header="_View"/>
-  </Menu>-->
-
-
+  
   <StackPanel>
     <Menu Margin="0,0,0,10" IsMainMenu="True">
       <MenuItem Header="Action">
@@ -48,9 +41,10 @@
       </MenuItem>
     </Menu>
 
-    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+    <Grid 
+      Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition/>
+        <ColumnDefinition Width="auto"/>
         <ColumnDefinition Width="20"/>
         <ColumnDefinition/>
       </Grid.ColumnDefinitions>

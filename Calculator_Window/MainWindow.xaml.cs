@@ -23,20 +23,6 @@ namespace Calculator_Window
   {    
     public event PropertyChangedEventHandler PropertyChanged;
 
-    private bool showLastResult = true;
-    public bool ShowLastResult
-    {
-      get => this.showLastResult;
-      set
-      {
-        this.showLastResult = value;
-        this.PropertyChanged?.Invoke(
-          this, 
-          new PropertyChangedEventArgs(nameof(this.ShowLastResult))
-          );
-      }
-    }
-
     private Visibility lastResultVisibility = Visibility.Visible;
 
     public Visibility LastResultVisibility
@@ -56,8 +42,13 @@ namespace Calculator_Window
     {
       InitializeComponent();
       this.DataContext = this;
-    }
 
+      this.Loaded += (sender, e) => 
+      {
+        this.MinHeight = this.ActualHeight;
+        this.MinWidth = this.ActualWidth;
+      };
+    }
 
   }
 }

@@ -66,6 +66,7 @@
       <Grid.ColumnDefinitions>
         
         <ColumnDefinition Width="auto"/>
+        <ColumnDefinition Width="auto"/>
       </Grid.ColumnDefinitions>
 
       <Grid.RowDefinitions>
@@ -138,6 +139,9 @@
                   Template="{StaticResource CommandBtnTemp}" />
         </WrapPanel>
       </StackPanel>
+    
     </Grid>
+  
   </Border>
+  
 </UserControl>
