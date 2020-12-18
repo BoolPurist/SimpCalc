@@ -117,15 +117,12 @@ namespace Calculator_Window
       InitializeComponent();
       DataContext = this;
       
-
       this.InputCommand = new RelayCommand(this.AddInputToCalc);
       this.ClearCommand = new RelayCommand(param => this.ClearDisplay());
       this.ResultCommand = new RelayCommand(param => this.CalculateResult());
       this.IntegerCommand = new RelayCommand(param => this.IntegerFromResult());
       this.FractionCommand = new RelayCommand(param => this.FractionFromResult());
       this.RemoveCommand = new RelayCommand(param => this.RemoveOneChar());
-
-
     }
 
     public void CalculateResult()
