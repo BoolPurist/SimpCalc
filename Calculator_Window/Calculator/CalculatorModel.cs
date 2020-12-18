@@ -16,10 +16,22 @@ namespace Calculator_Window
      => Double.Parse($"0.{this.CurrentResult.ToString().Split('.')[1]}");
 
     protected static readonly Regex operrandRegex =
-      new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)");
+      new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)(?<powerSign>\^)?");
+    protected static readonly Regex numberPowerRegex =
+      new Regex(@"(?<sign>[+-]*)(?<number>\d+)+");
 
     protected static readonly Regex operratorRegex =
       new Regex(@"^\s*(?<operator>[+*\-/])");
+
+    protected static readonly Regex parentheseOpeningRegex =
+      new Regex(@"^\s*\(");
+
+    protected static readonly Regex parentheseCloseRegex =
+      new Regex(@"^\s*\)");
+
+    protected static readonly Regex parentheseCloseAnywereRegex =
+      new Regex(@"\s*\)");
+
 
     protected static readonly HashSet<string> prioOperands = 
       new HashSet<string>( new string[] { "*", "/" } );
@@ -42,7 +54,8 @@ namespace Calculator_Window
 
       try
       {
-        this.CurrentResult = this.ProcessTextTerm(inputForCalc.Trim());        
+        string textForm = inputForCalc.Trim();
+        this.CurrentResult = this.ProcessTextTerm(ref textForm);        
       }
       catch (CalculationParseException e)
       {
@@ -52,10 +65,16 @@ namespace Calculator_Window
       return this.CurrentResult;
     }
 
-    private double ProcessTextTerm(string textTerm)
+    private int _stackCounter = 0;
+
+    private double ProcessTextTerm(
+      ref string textTerm, bool looksCloseParanthese = false
+      )
     {
+      this._stackCounter++;
       var expectsOpperand = true;
       var lastOperandsWasPrio = false;
+      var foundClosingParanthese = false;
       var operands = new List<double>();
       var operators = new List<string>();
       var prioStartIndexes = new List<int>();
@@ -63,6 +82,7 @@ namespace Calculator_Window
       var operatorsPrio = new List< List<string> >();
       List<double> currentOperandsPrio = null;
       List<string> currentOperatorsPrio = null;
+      var result = 0.0;
 
       Match currentMatch;
 
@@ -70,29 +90,76 @@ namespace Calculator_Window
 
       while (textTerm != String.Empty)
       {
-        if (expectsOpperand)
+        if (looksCloseParanthese)
         {
-          currentMatch = operrandRegex.Match(textTerm);
+          currentMatch = parentheseCloseRegex.Match(textTerm);
           
           if (currentMatch.Success)
+          {
+            textTerm = MoveToNextTextPart(textTerm, currentMatch);
+            foundClosingParanthese = true;
+            break;
+          }
+        }
+
+        currentMatch = parentheseOpeningRegex.Match(textTerm);
+
+        if (currentMatch.Success)
+        {
+          textTerm = MoveToNextTextPart(textTerm, currentMatch);
+          // Getting result from inner parentheses.
+          double subResult = this.ProcessTextTerm(ref textTerm, true);
+
+          if (!expectsOpperand)
           {            
+            DigestPrioOperator("*");
+          }
+
+          AddOperand(subResult);
+
+          expectsOpperand = false;          
+        }
+        else if (expectsOpperand)
+        {
+          currentMatch = operrandRegex.Match(textTerm);
+
+          if (currentMatch.Success)
+          {
             string sign = currentMatch.Groups["sign"].Value;
             var number = Double.Parse(currentMatch.Groups["number"].Value);
+            number = ProcessPlusMinusSeq(sign, number);
 
-            if (lastOperandsWasPrio)
+            if (currentMatch.Groups["powerSign"].Value == "^")
             {
-              currentOperandsPrio.Add((double)(ProcessPlusMinusSeq(sign, number)));
+              string forwardText = MoveToNextTextPart(textTerm, currentMatch);
+              Match powerFactor = numberPowerRegex.Match(forwardText);
+
+              if (powerFactor.Success)
+              {
+                string powerSign = powerFactor.Groups["sign"].Value;
+                var powerNumber = Double.Parse(powerFactor.Groups["number"].Value);
+                powerNumber = ProcessPlusMinusSeq(powerSign, powerNumber);
+
+                number = Math.Pow(number, powerNumber);
+                textTerm = MoveToNextTextPart(textTerm, currentMatch);
+                currentMatch = powerFactor;
+              }
+              else
+              {
+                throw new CalculationParseException(
+                  "Syntax Error: No valid number for power"
+                  );
+              }
             }
-            else
-            {
-              operands.Add(ProcessPlusMinusSeq(sign, number));
-            }            
+
+            AddOperand(number);
           }
           else
           {
             throw new CalculationParseException("Syntax Error: invalid operand");
           }
 
+          textTerm = MoveToNextTextPart(textTerm, currentMatch);
           expectsOpperand = false;
         }
         else
@@ -105,41 +172,33 @@ namespace Calculator_Window
 
             if (prioOperands.Contains(currentOperator))
             {
-              if (!lastOperandsWasPrio)
-              {
-                operandsPrio.Add(new List<double>());
-                currentOperandsPrio = operandsPrio[^1];
-                currentOperandsPrio.Add(operands[^1]);
-                prioStartIndexes.Add(operands.Count - 1);
-                
-                operatorsPrio.Add(new List<string>());
-                currentOperatorsPrio = operatorsPrio[^1];
-              }
-              
-              currentOperatorsPrio.Add(currentOperator);
-              lastOperandsWasPrio = true;
+              DigestPrioOperator(currentOperator);
             }
             else
             {
               lastOperandsWasPrio = false;
               operators.Add(currentMatch.Groups["operator"].Value);
-            }            
+            }
           }
           else
           {
             throw new CalculationParseException("Syntax Error: invalid operator");
           }
-
+          
+          textTerm = MoveToNextTextPart(textTerm, currentMatch);
           expectsOpperand = true;
-        }
-
-        textTerm = MoveToNextTextPart(textTerm, currentMatch);
+        }        
       }
 
-      if (expectsOpperand)
+      if (looksCloseParanthese && !foundClosingParanthese)
+      {
+        throw new CalculationParseException("Syntax Error: Closing parentheses !");
+      }
+      else if (expectsOpperand)
       {
         throw new CalculationParseException("Syntax Error: missing operand !");
       }
+
 
       // Calculating priority terms aka point before line calculation ..
       for (int i = 0, count = prioStartIndexes.Count; i < count; i++)
@@ -149,8 +208,15 @@ namespace Calculator_Window
           );
       }
 
-      return ProcessMacroTerm(operands, operators, CalculateOneOperation);
+      this._stackCounter--;
 
+      return result + ProcessMacroTerm(operands, operators, CalculateOneOperation);
+
+      // Operand is extracted into 2 parts, sign and its numeric value. 
+      // This method returns whole signed operand with these 2 parts.
+      // Param signSeq, char sequence made of only '+' or '-'
+      // Parma number, numeric value which is should be positive because it is 
+      // unsigned yet             
       static double ProcessPlusMinusSeq(string signSeq, double number)
       {
         var currentSign = 1.0;
@@ -222,6 +288,38 @@ namespace Calculator_Window
 
         return firstOperand;
       }
+
+      void AddOperand(double newOperand)
+      {
+        if (lastOperandsWasPrio)
+        {
+          currentOperandsPrio.Add(newOperand);
+        }
+        else
+        {
+          operands.Add(newOperand);
+        }
+      }
+
+      void DigestPrioOperator(string prioOperator)
+      {
+        if (!lastOperandsWasPrio)
+        {
+          operandsPrio.Add(new List<double>());
+          currentOperandsPrio = operandsPrio[^1];
+          currentOperandsPrio.Add(operands[^1]);
+
+          prioStartIndexes.Add(operands.Count - 1);
+
+          operatorsPrio.Add(new List<string>());
+          currentOperatorsPrio = operatorsPrio[^1];
+        }
+
+        currentOperatorsPrio.Add(prioOperator);
+        lastOperandsWasPrio = true;
+      }
+
+      
 
     }
 
