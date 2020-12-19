@@ -130,24 +130,33 @@ namespace Calculator_Window
       // Insert the result from the last calculation. 
       this.CalculationOutput = 
         this.CalculationOutput.Replace(this.lastResultToken, lastResult);
-   
+
       try
-      {        
+      {
         this.CalculationOutput = this.calculatorModel
           .CalculateFromText(this.CalculationOutput)
             .ToString();
         ProcessValidResult();
-      }      
+      }
+      catch (DivideByZeroException e)
+      {
+        ShowParsingError(e);
+      }
       catch (CalculationParseException e)
       {
-        this.ErrorMessage = e.Message;
-        this.ErrorMessageVisible = Visibility.Visible;        
+        ShowParsingError(e);
       }
 
       void ProcessValidResult()
       {
         this.LastResult = this.CalculationOutput;
         this.ShowsResult = true;
+      }
+
+      void ShowParsingError(Exception e)
+      {
+        this.ErrorMessage = e.Message;
+        this.ErrorMessageVisible = Visibility.Visible;
       }
     }
 

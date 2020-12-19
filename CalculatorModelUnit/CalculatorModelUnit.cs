@@ -26,7 +26,19 @@ namespace CalculatorModelUnit
     }
 
     [Theory]
-    [MemberData(nameof(InvalidEqautions))]
+    [MemberData(nameof(EquationWithDenominatorAsZero))]
+    public void CalculateFromText_ShouldThrowExceptionZeroDivition(
+      string invalidEquation
+      )
+    {
+      var calculator = new CalculatorModel();
+      Assert.Throws<DivideByZeroException>(
+          () => calculator.CalculateFromText(invalidEquation)
+        );
+    }
+
+    [Theory]
+    [MemberData(nameof(InvalidEquations))]
     public void CalculateFromText_ShouldThrowExceptionForInvalidEquation(
       string invalidEquation
       )
@@ -155,7 +167,7 @@ namespace CalculatorModelUnit
           }
         };
 
-    public static TheoryData<string> InvalidEqautions
+    public static TheoryData<string> InvalidEquations
       => new TheoryData<string>()
       {
         {
@@ -187,8 +199,14 @@ namespace CalculatorModelUnit
         },
         {
           "25 + ^-25"
-        },
+        },        
       };
 
+    public static TheoryData<string> EquationWithDenominatorAsZero
+      => new TheoryData<string>()
+      {
+        "2/0",
+        "2(2/(4-2*2))"
+      };
   }
 }

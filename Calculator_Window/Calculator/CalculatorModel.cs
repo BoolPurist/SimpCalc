@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace Calculator_Window
 {
   public class CalculatorModel
-  {
+  {    
     public double CurrentResult { get; private set; } = 0.0;
 
     public double IntegerFromCurrentResult => Math.Truncate(this.CurrentResult);
@@ -58,7 +58,11 @@ namespace Calculator_Window
       try
       {
         string textForm = inputForCalc.Trim();
-        this.CurrentResult = this.ProcessTextTerm(ref textForm);        
+        this.CurrentResult = this.ProcessTextTerm(ref textForm);
+      }
+      catch (DivideByZeroException e)
+      {
+        throw e;
       }
       catch (CalculationParseException e)
       {
@@ -311,6 +315,12 @@ namespace Calculator_Window
             firstOperand *= secondOperand;
             break;
           case "/":
+            if (secondOperand == 0.0)
+            {
+              throw new DivideByZeroException(
+                "Mathematical Error: One denominator is zero in a fraction !"
+                );
+            }
             firstOperand /= secondOperand;
             break;
           default:

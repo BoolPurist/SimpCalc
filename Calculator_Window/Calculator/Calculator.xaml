@@ -85,7 +85,10 @@
                 Text="{Binding CalculationOutput, UpdateSourceTrigger=PropertyChanged}"
                 >
         </TextBox>
-        <Label  Content="{Binding ErrorMessage}"
+        <TextBox Text="{Binding ErrorMessage}"
+               IsReadOnly="True"
+               Padding="5"
+               TextWrapping="Wrap"
                Foreground="White"
                Background="DarkRed"
                HorizontalAlignment="Stretch"
