@@ -16,7 +16,7 @@ namespace Calculator_Window
      => Double.Parse($"0.{this.CurrentResult.ToString().Split('.')[1]}");
 
     protected static readonly Regex operrandRegex =
-      new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)(?<powerSign>\^)?");
+      new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)(?<powerSign>[\^E])?");
     protected static readonly Regex numberPowerRegex =
       new Regex(@"^(?<sign>[+-]*)(?<number>\d+)+");
 
@@ -60,6 +60,10 @@ namespace Calculator_Window
         string textForm = inputForCalc.Trim();
         this.CurrentResult = this.ProcessTextTerm(ref textForm);
       }
+      catch (OverflowException e)
+      {
+        throw e;
+      }
       catch (DivideByZeroException e)
       {
         throw e;
@@ -73,6 +77,9 @@ namespace Calculator_Window
     }
 
     private int _stackCounter = 0;
+
+    private const string OverflowOperationErrorMsg =
+      "Mathematical Error: one operation resulted in a too big number !";
 
     private double ProcessTextTerm(
       ref string textTerm, bool looksCloseParanthese = false
@@ -127,15 +134,27 @@ namespace Calculator_Window
           expectsOpperand = false;          
         }
         else if (expectsOpperand)
-        {
+        {          
           currentMatch = operrandRegex.Match(textTerm);
 
           if (currentMatch.Success)
           {
-            double number = GetNumericOperandFromMatch(currentMatch);
+            double number;
+
+            try
+            {
+              number = GetNumericOperandFromMatch(currentMatch);
+            }
+            catch (OverflowException)
+            {
+              throw new OverflowException(
+                "Mathematical Error: One operand is too big for calculation"
+                );
+            }
+            
 
             // Checks if an operand contains a power operation.
-            if (currentMatch.Groups["powerSign"].Value == "^")
+            if (currentMatch.Groups["powerSign"].Value != String.Empty)
             {
               textTerm = MoveToNextTextPart(textTerm, currentMatch);
 
@@ -144,10 +163,29 @@ namespace Calculator_Window
 
               if (powerFactor.Success)
               {
-                double powerNumber = GetNumericOperandFromMatch(powerFactor);
+                double powerNumber;
+
+                try
+                {
+                  powerNumber = GetNumericOperandFromMatch(powerFactor);
+                }
+                catch (OverflowException)
+                {
+                  throw new OverflowException(
+                    "Mathematical Error: One factor for a power operation is too big !"
+                    );
+                }
 
                 number = Math.Pow(number, powerNumber);
                 
+                if (Double.IsInfinity(number))
+                {
+                  throw new OverflowException(
+                    "Mathematical Error: one operand is too big" +
+                    " after raised to a certain power"
+                    );
+                }
+
                 // valid power factor as whole number after "^" is processed
                 // and will be now removed.
                 currentMatch = powerFactor;
@@ -161,14 +199,24 @@ namespace Calculator_Window
                 {
                   textTerm = MoveToNextTextPart(textTerm, powerFactor);
                   double subResult = this.ProcessTextTerm(ref textTerm, true);
-                  number = Math.Pow(number, subResult);
+                  try
+                  {
+                    number = Math.Pow(number, subResult);
+                  }
+                  catch (OverflowException)
+                  {
+                    throw new OverflowException(
+                      "One operand raised to a power is too high"
+                      );
+                  }
+                  
                 }
                 else
                 {
                   // String after '^' is no valid whole number 
                   // or term surrounded by ( ) as a power factor 
                   throw new CalculationParseException(
-                  "Syntax Error: power factor"
+                  "Syntax Error: invalid factor for power !"
                   );
                 }
               }
@@ -182,7 +230,7 @@ namespace Calculator_Window
           }
           else
           {
-            throw new CalculationParseException("Syntax Error: invalid operand");
+            throw new CalculationParseException("Syntax Error: one invalid operand");
           }
 
           // textTerm = MoveToNextTextPart(textTerm, currentMatch);
@@ -243,7 +291,12 @@ namespace Calculator_Window
       static double GetNumericOperandFromMatch(Match operandMatch)
       {
         string sign = operandMatch.Groups["sign"].Value;
-        var number = Double.Parse(operandMatch.Groups["number"].Value);
+        var number = 0.0;
+        
+        number = Double.Parse(operandMatch.Groups["number"].Value);
+
+        CheckForOverflow(number);
+        
         return ProcessPlusMinusSeq(sign, number);
       }
 
@@ -290,8 +343,9 @@ namespace Calculator_Window
         string operatorPart, double firstOperand, double secondOperand
         )
       {
+
         switch (operatorPart)
-        {
+        {           
           case "+":
             firstOperand += secondOperand;
             break;
@@ -301,6 +355,8 @@ namespace Calculator_Window
           default:
             break;
         }
+
+        CheckForOverflow(firstOperand, OverflowOperationErrorMsg);
 
         return firstOperand;
       }
@@ -326,6 +382,8 @@ namespace Calculator_Window
           default:
             break;
         }
+
+        CheckForOverflow(firstOperand, OverflowOperationErrorMsg);
 
         return firstOperand;
       }
@@ -359,6 +417,24 @@ namespace Calculator_Window
 
         currentOperatorsPrio.Add(prioOperator);
         lastOperandsWasPrio = true;
+      }
+
+      static void CheckForOverflow(
+        double possibleTooBigNbr, string errorMsg = null
+        )
+      {
+        if (Double.IsInfinity(possibleTooBigNbr))
+        {
+          if (errorMsg == null)
+          {
+            throw new OverflowException();
+          }
+          else
+          {
+            throw new OverflowException(errorMsg);
+          }
+          
+        }
       }
 
 

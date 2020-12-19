@@ -38,6 +38,18 @@ namespace CalculatorModelUnit
     }
 
     [Theory]
+    [MemberData(nameof(EquationWithTooBigNumbers))]
+    public void CalculateFromText_ShouldThrowExceptionForTooBigNbr(
+      string invalidEquation
+      )
+    {
+      var calculator = new CalculatorModel();
+      Assert.Throws<OverflowException>(
+          () => calculator.CalculateFromText(invalidEquation)
+        );
+    }
+
+    [Theory]
     [MemberData(nameof(InvalidEquations))]
     public void CalculateFromText_ShouldThrowExceptionForInvalidEquation(
       string invalidEquation
@@ -208,5 +220,29 @@ namespace CalculatorModelUnit
         "2/0",
         "2(2/(4-2*2))"
       };
+
+    private static string tooBigNumber = 
+        "10000000000000000000000000000000000000000000000000000000000000000000000" +
+        "00000000000000000000000000000000000000000000000000000000000000000000000" +
+        "00000000000000000000000000000000000000000000000000000000000000000000000" +
+        "0000000000000000000000000000000000000000000000000000000000000000000000000" +
+        "0000000000000000000000000000000000000000000000000000000000000000000000000" +
+        "000000000000000";
+
+    public static TheoryData<string> EquationWithTooBigNumbers
+      => new TheoryData<string>()
+      {
+
+        "456^4564654654654654654654",
+        tooBigNumber,
+        $"2^{tooBigNumber}",
+        "465465465465454665446546546546545664654654654654546654465465465465456646" +
+        "5465465465454665446546546546545664654654654654546654465465465465456646546" +
+        "54654654546654465465465465456646546546546545466544654654654654566" +
+        "*" +
+        "465465465465454665446546546546545664654654654654546654465465465465456" +
+        "6465465465465454665446546546546545664654654654654546654465465465465456666"
+      };
+
   }
 }

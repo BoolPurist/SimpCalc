@@ -138,6 +138,10 @@ namespace Calculator_Window
             .ToString();
         ProcessValidResult();
       }
+      catch (OverflowException e)
+      {
+        ShowParsingError(e);
+      }
       catch (DivideByZeroException e)
       {
         ShowParsingError(e);
