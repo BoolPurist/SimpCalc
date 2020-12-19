@@ -18,13 +18,16 @@ namespace Calculator_Window
     protected static readonly Regex operrandRegex =
       new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)(?<powerSign>\^)?");
     protected static readonly Regex numberPowerRegex =
-      new Regex(@"(?<sign>[+-]*)(?<number>\d+)+");
+      new Regex(@"^(?<sign>[+-]*)(?<number>\d+)+");
 
     protected static readonly Regex operratorRegex =
       new Regex(@"^\s*(?<operator>[+*\-/])");
 
     protected static readonly Regex parentheseOpeningRegex =
       new Regex(@"^\s*\(");
+
+    protected static readonly Regex parantheseClosedNoSpaceRegex =
+      new Regex(@"^\(");
 
     protected static readonly Regex parentheseCloseRegex =
       new Regex(@"^\s*\)");
@@ -125,31 +128,50 @@ namespace Calculator_Window
 
           if (currentMatch.Success)
           {
-            string sign = currentMatch.Groups["sign"].Value;
-            var number = Double.Parse(currentMatch.Groups["number"].Value);
-            number = ProcessPlusMinusSeq(sign, number);
+            double number = GetNumericOperandFromMatch(currentMatch);
 
+            // Checks if an operand contains a power operation.
             if (currentMatch.Groups["powerSign"].Value == "^")
             {
-              string forwardText = MoveToNextTextPart(textTerm, currentMatch);
-              Match powerFactor = numberPowerRegex.Match(forwardText);
+              textTerm = MoveToNextTextPart(textTerm, currentMatch);
+
+              // Check if factor for power operation is a valid whole number
+              Match powerFactor = numberPowerRegex.Match(textTerm);
 
               if (powerFactor.Success)
               {
-                string powerSign = powerFactor.Groups["sign"].Value;
-                var powerNumber = Double.Parse(powerFactor.Groups["number"].Value);
-                powerNumber = ProcessPlusMinusSeq(powerSign, powerNumber);
+                double powerNumber = GetNumericOperandFromMatch(powerFactor);
 
                 number = Math.Pow(number, powerNumber);
-                textTerm = MoveToNextTextPart(textTerm, currentMatch);
+                
+                // valid power factor as whole number after "^" is processed
+                // and will be now removed.
                 currentMatch = powerFactor;
+                textTerm = MoveToNextTextPart(textTerm, currentMatch);
               }
               else
               {
-                throw new CalculationParseException(
-                  "Syntax Error: No valid number for power"
+                powerFactor = parantheseClosedNoSpaceRegex.Match(textTerm);
+
+                if (powerFactor.Success)
+                {
+                  textTerm = MoveToNextTextPart(textTerm, powerFactor);
+                  double subResult = this.ProcessTextTerm(ref textTerm, true);
+                  number = Math.Pow(number, subResult);
+                }
+                else
+                {
+                  // String after '^' is no valid whole number 
+                  // or term surrounded by ( ) as a power factor 
+                  throw new CalculationParseException(
+                  "Syntax Error: power factor"
                   );
+                }
               }
+            }
+            else
+            {
+              textTerm = MoveToNextTextPart(textTerm, currentMatch);
             }
 
             AddOperand(number);
@@ -159,7 +181,7 @@ namespace Calculator_Window
             throw new CalculationParseException("Syntax Error: invalid operand");
           }
 
-          textTerm = MoveToNextTextPart(textTerm, currentMatch);
+          // textTerm = MoveToNextTextPart(textTerm, currentMatch);
           expectsOpperand = false;
         }
         else
@@ -212,6 +234,15 @@ namespace Calculator_Window
 
       return result + ProcessMacroTerm(operands, operators, CalculateOneOperation);
 
+      // Parameter: operandMatch is a match of a valid operand in a string.
+      // Returns numeric signed value of an operand
+      static double GetNumericOperandFromMatch(Match operandMatch)
+      {
+        string sign = operandMatch.Groups["sign"].Value;
+        var number = Double.Parse(operandMatch.Groups["number"].Value);
+        return ProcessPlusMinusSeq(sign, number);
+      }
+
       // Operand is extracted into 2 parts, sign and its numeric value. 
       // This method returns whole signed operand with these 2 parts.
       // Param signSeq, char sequence made of only '+' or '-'
@@ -250,7 +281,7 @@ namespace Calculator_Window
 
         return result;
       }
-
+      
       static double CalculateOneOperation(
         string operatorPart, double firstOperand, double secondOperand
         )
@@ -301,6 +332,7 @@ namespace Calculator_Window
         }
       }
 
+      // 
       void DigestPrioOperator(string prioOperator)
       {
         if (!lastOperandsWasPrio)
@@ -319,7 +351,6 @@ namespace Calculator_Window
         lastOperandsWasPrio = true;
       }
 
-      
 
     }
 

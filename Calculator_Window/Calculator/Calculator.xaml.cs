@@ -32,7 +32,6 @@ namespace Calculator_Window
     public RelayCommand RemoveCommand { get; private set; }
 
     protected string errorMessage = String.Empty;
-
     public string ErrorMessage
     {
       get => this.errorMessage;
@@ -43,22 +42,18 @@ namespace Calculator_Window
       }
     }
 
-    protected Visibility errorMessageVisible = Visibility.Collapsed;
-    
-
+    protected Visibility errorMessageVisible = Visibility.Collapsed;    
     public Visibility ErrorMessageVisible
     {
       get => this.errorMessageVisible;
       set
       {
-
         this.errorMessageVisible = value;
         this.OnPropertyChanged(nameof(ErrorMessageVisible));
       }
     }
 
     protected string calculationOutput = String.Empty;
-
     public string CalculationOutput
     {
       get => this.calculationOutput;
@@ -71,10 +66,7 @@ namespace Calculator_Window
     }
 
     private double mainGridWidth = 0.0;
-
-    private string lastResultToken = "X";
-    
-
+    private string lastResultToken = "X";  
     public double MainGirdWidth 
     {
       get => this.mainGridWidth;
@@ -87,7 +79,6 @@ namespace Calculator_Window
     }
 
     protected bool showsResult = false;
-
     public bool ShowsResult
     {
       get => this.showsResult;
@@ -101,7 +92,6 @@ namespace Calculator_Window
     private readonly CalculatorModel calculatorModel = new CalculatorModel();
 
     private string lastResult = "0";
-
     public string LastResult
     {
       get => this.lastResult;
