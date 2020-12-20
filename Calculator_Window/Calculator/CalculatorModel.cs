@@ -7,38 +7,60 @@ using System.Text.RegularExpressions;
 namespace Calculator_Window
 {
   public class CalculatorModel
-  {    
+  {
+    /// <summary> Result from last successfully calculated given equation </summary>
+    /// <value> Getter for last result  </value>
     public double CurrentResult { get; private set; } = 0.0;
-
+    /// <summary> Integral part of a result </summary>
+    /// <value> Getter of the integral part of a result </value>
+    /// <example> Returns 22 of the result 22.45646   </example>
     public double IntegerFromCurrentResult => Math.Truncate(this.CurrentResult);
-
+    /// <summary> Fractional part of a result </summary>
+    /// <value> Getter of the fractional part of a result </value>
+    /// <example> Returns 0.45646 of the result 22.45646 </example>
     public double FractionFromCurrentResult
      => Double.Parse($"0.{this.CurrentResult.ToString().Split('.')[1]}");
-
+    // Regular expression for matching a valid operand as a text unit
     protected static readonly Regex operrandRegex =
       new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)(?<powerSign>[\^E])?");
+    // Regular expression for matching a valid whole number for a factor of a power
     protected static readonly Regex numberPowerRegex =
       new Regex(@"^(?<sign>[+-]*)(?<number>\d+)+");
-
+    // Regular expression for matching a valid operator as a text unit.
     protected static readonly Regex operratorRegex =
       new Regex(@"^\s*(?<operator>[+*\-/])");
-
+    // Regular expression for matching a valid text unit as an opening parentheses
     protected static readonly Regex parentheseOpeningRegex =
       new Regex(@"^\s*\(");
-
+    // Regular expression for matching a valid text unit as an closing parentheses
+    // with no whitespace before.
     protected static readonly Regex parantheseClosedNoSpaceRegex =
       new Regex(@"^\(");
-
+    // Regular expression for matching a valid text unit as an closing parentheses
     protected static readonly Regex parentheseCloseRegex =
       new Regex(@"^\s*\)");
-
-    protected static readonly Regex parentheseCloseAnywereRegex =
-      new Regex(@"\s*\)");
-
-
+    // All priority operators
     protected static readonly HashSet<string> prioOperands = 
       new HashSet<string>( new string[] { "*", "/" } );
-          
+
+    /// <summary> 
+    /// Takes a string as an equation and returns a numeric values as the result
+    /// of this equation.
+    /// </summary>
+    /// <param name="inputForCalc"> 
+    /// String as the equation to be calculated from 
+    /// </param>
+    /// <returns> Numeric value of the equation </returns>
+    /// <exception cref="OverflowException"> 
+    /// Thrown if one operand or a result of an operation 
+    /// is too big for a double value
+    /// </exception>
+    /// <exception cref="DivideByZeroException"> 
+    /// Thrown if one operand is a denominator and zero
+    /// </exception>
+    /// <exception cref="CalculationParseException"> 
+    /// If string is not a valid equation for example "25 + " is not valid
+    /// </exception>
     public double CalculateFromText(string inputForCalc)
     {
 
@@ -81,35 +103,58 @@ namespace Calculator_Window
     private const string OverflowOperationErrorMsg =
       "Mathematical Error: one operation resulted in a too big number !";
 
+    // Equation as a string is parsed. An equation string is considered to be made 
+    // of text units. While parsing, operands and operators are extracted 
+    // from the equation string. Every extraction is a text unit which is then removed
+    // from the equation text. These extractions are put in lists
+    // for later calculation to return a numeric result. 
     private double ProcessTextTerm(
       ref string textTerm, bool looksCloseParanthese = false
       )
     {
       this._stackCounter++;
-      var expectsOpperand = true;
+
+      // If true, next text unit must be a valid operand
+      // else next text unit must be a valid operator
+      var expectsOpperand = true;      
       var lastOperandsWasPrio = false;
+      // if true, a closing parentheses was found 
+      // during the parsing of the equation string       
       var foundClosingParanthese = false;
+      // List of all extracted operands for the calculation
       var operands = new List<double>();
+      // List of all extracted operators for the calculation
       var operators = new List<string>();
+      // Priority operators are used for priority calculation
+      // Priority calculation is are performed before normal
+      // calculation. For example multiplication before adding numbers 
+      // List of all positions in operands where sub-results 
+      // from priority operations, needed for calculation.
       var prioStartIndexes = new List<int>();
+      // Lists of lists which contain operands for priority calculation
       var operandsPrio = new List< List<double> >();
+      // List of lists which contain all priority operators
       var operatorsPrio = new List< List<string> >();
       List<double> currentOperandsPrio = null;
-      List<string> currentOperatorsPrio = null;
-      var result = 0.0;
+      List<string> currentOperatorsPrio = null;      
 
+      // Match for next valid text unit
       Match currentMatch;
 
-      // Parsing
-
+      // Parsing equation and extracting text units for calculation
       while (textTerm != String.Empty)
       {
+        // Checks if the next equation unit is ')' in case the current method
+        // stack was created because of '(' as equation unit.
         if (looksCloseParanthese)
         {
           currentMatch = parentheseCloseRegex.Match(textTerm);
           
           if (currentMatch.Success)
           {
+            // After ')' was found, method stack proceeds to the calculation
+            // to return its sub-result to method stack 
+            // which invoked this method stack
             textTerm = MoveToNextTextPart(textTerm, currentMatch);
             foundClosingParanthese = true;
             break;
@@ -274,7 +319,7 @@ namespace Calculator_Window
       }
 
 
-      // Calculating priority terms aka point before line calculation ..
+      // Calculating priority terms aka multiplication before adding numbers ..
       for (int i = 0, count = prioStartIndexes.Count; i < count; i++)
       {
         operands[prioStartIndexes[i]] = ProcessMacroTerm(
@@ -283,8 +328,8 @@ namespace Calculator_Window
       }
 
       this._stackCounter--;
-
-      return result + ProcessMacroTerm(operands, operators, CalculateOneOperation);
+      // Calculate final result from text unit.
+      return ProcessMacroTerm(operands, operators, CalculateOneOperation);
 
       // Parameter: operandMatch is a match of a valid operand in a string.
       // Returns numeric signed value of an operand
@@ -320,9 +365,11 @@ namespace Calculator_Window
         return currentSign * number;
       }
 
+      // Removes last found text unit from the equation string
       static string MoveToNextTextPart(string text, Match currentMath)
         => text[(currentMath.Index + currentMath.Length)..];
-
+      
+      // Makes a calculation based on the extractions of the unit text.
       static double ProcessMacroTerm(
         List<double> operands, 
         List<string> operators, 
@@ -339,11 +386,11 @@ namespace Calculator_Window
         return result;
       }
       
+      // Takes 2 operands and performs an mathematical operation 
       static double CalculateOneOperation(
         string operatorPart, double firstOperand, double secondOperand
         )
       {
-
         switch (operatorPart)
         {           
           case "+":
@@ -361,6 +408,7 @@ namespace Calculator_Window
         return firstOperand;
       }
 
+      // Takes 2 operands and performs an mathematical operation 
       static double CalculateOnePrioOperation(
         string operatorPart, double firstOperand, double secondOperand
       )
@@ -388,6 +436,7 @@ namespace Calculator_Window
         return firstOperand;
       }
 
+
       void AddOperand(double newOperand)
       {
         if (lastOperandsWasPrio)
@@ -400,7 +449,7 @@ namespace Calculator_Window
         }
       }
 
-      // 
+      // Integrates priority operand for later calculation
       void DigestPrioOperator(string prioOperator)
       {
         if (!lastOperandsWasPrio)
@@ -419,6 +468,8 @@ namespace Calculator_Window
         lastOperandsWasPrio = true;
       }
 
+      // Checks if double value is infinity and therefore an overflow has happened.
+      // Error message is then the message property of the overflow exception
       static void CheckForOverflow(
         double possibleTooBigNbr, string errorMsg = null
         )
@@ -432,12 +483,9 @@ namespace Calculator_Window
           else
           {
             throw new OverflowException(errorMsg);
-          }
-          
+          }          
         }
       }
-
-
     }
 
     public void Clear() => this.CurrentResult = 0.0;
