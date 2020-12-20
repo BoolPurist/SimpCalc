@@ -215,21 +215,12 @@ namespace Calculator_Window
     }
 
     public void IntegerFromResult()
-    {
-      if (!this.ShowsResult)
-      {
-        this.ResultCommand.Execute(null);
-      }
-
-      if (this.ShowsResult)
-      {
-        this.CalculationOutput = 
-          this.calculatorModel.IntegerFromCurrentResult.ToString();
-        this.LastResult = this.CalculationOutput;
-      }      
-    }
+     => this.ExtractFractOrIntergerFromResult();
 
     public void FractionFromResult()
+     => this.ExtractFractOrIntergerFromResult(true);
+
+    private void ExtractFractOrIntergerFromResult(bool fractional = false)
     {
       if (!this.ShowsResult)
       {
@@ -238,10 +229,13 @@ namespace Calculator_Window
 
       if (this.ShowsResult)
       {
-        this.CalculationOutput =
-          this.calculatorModel.FractionFromCurrentResult.ToString();
+        this.CalculationOutput = fractional ?
+          this.calculatorModel.FractionFromCurrentResult.ToString() :
+          this.calculatorModel.IntegerFromCurrentResult.ToString();
         this.LastResult = this.CalculationOutput;
       }
+
+      this.ShowsResult = true;
     }
 
     private void RemoveOneChar()

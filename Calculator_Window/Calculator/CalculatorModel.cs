@@ -20,7 +20,19 @@ namespace Calculator_Window
     /// <example> Returns 0.45646 of the result 22.45646 </example>
     // surroundedOperator
     public double FractionFromCurrentResult
-     => Double.Parse($"0.{this.CurrentResult.ToString().Split('.')[1]}");
+    {
+      get
+      {
+        if (!this.CurrentResult.ToString().Contains('.'))
+        {
+          return 0.0;
+        }
+        else
+        {
+          return Double.Parse($"0.{this.CurrentResult.ToString().Split('.')[1]}");
+        } 
+      }
+    } 
     // Regular expression for matching a valid operand as a text unit
     
     protected static readonly Regex operrandRegex =

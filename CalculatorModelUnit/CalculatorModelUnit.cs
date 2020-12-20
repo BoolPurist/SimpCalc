@@ -64,7 +64,7 @@ namespace CalculatorModelUnit
     [Theory]
     [MemberData(nameof(BasicCalculation))]
     public void CalculateFromText_ShouldReturnExactResult(
-      string text, 
+      string text,
       double expectedResult
       )
     {
@@ -86,20 +86,47 @@ namespace CalculatorModelUnit
       actualResult = Math.Round(actualResult, fractionalDigits);
       Assert.Equal(expectedResult, actualResult);
     }
+
+    [Theory]
+    [MemberData(nameof(CalculationForInteger))]
+    public void CalculateFromText_ShouldReturnIntegralPart(
+      string text,
+      double expectedResult      
+      )
+    {
+      var calculator = new CalculatorModel();
+      double actualResult = calculator.CalculateFromText(text);
+      actualResult = calculator.IntegerFromCurrentResult;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
+    [Theory]
+    [MemberData(nameof(CalculationForFragtion))]
+    public void CalculateFromText_ShouldReturnFractionalPart(
+      string text,
+      double expectedResult
+      )
+    {
+      var calculator = new CalculatorModel();
+      double actualResult = calculator.CalculateFromText(text);
+      actualResult = calculator.FractionFromCurrentResult;
+      Assert.Equal(expectedResult, actualResult);
+    }
+
     // 1. test element as string = equation as a text
     // 2. test element as double = expected result from equation
     public static TheoryData<string, double> BasicCalculation
       => new TheoryData<string, double>()
       {
         {
-          "2 + 2", 
+          "2 + 2",
           4.0
         },
-        {                
+        {
           "40 - 2 + 58 - 800",
           -704.0
-        },        
-        {                
+        },
+        {
           "800",
           800.0
         },
@@ -123,7 +150,7 @@ namespace CalculatorModelUnit
           "(1)",
           1.0
         },
-        { 
+        {
           "2(4)",
           8.0
         },
@@ -131,7 +158,7 @@ namespace CalculatorModelUnit
           "2-(4)*2",
           -6.0
         },
-        {          
+        {
           "2 * (2 - 4) - 24",
           -28.0
         },
@@ -178,7 +205,7 @@ namespace CalculatorModelUnit
         {
           "4R16",
           2.0
-        },        
+        },
         {
           "3R(26+(3/3))",
           3.0
@@ -196,7 +223,7 @@ namespace CalculatorModelUnit
           16.0
         },
         // Testing modular calculation
-        { 
+        {
           "2-(5%4+2)*2",
           -4.0
         },
@@ -215,6 +242,48 @@ namespace CalculatorModelUnit
             1
           }
         };
+
+    public static TheoryData<string, double> CalculationForInteger
+     => new TheoryData<string, double>()
+      {
+        {
+          "0",
+          0.0
+        },
+        {
+          "24",
+          24.0
+        },
+        { 
+          "0.45",
+          0.0
+        },
+        {
+          "78.04",
+          78.0
+        }
+      };
+
+    public static TheoryData<string, double> CalculationForFragtion
+      => new TheoryData<string, double>()
+      {
+        {
+          "0",
+          0.0
+        },
+        {
+          "24",
+          0.0
+        },
+        {
+          "0.45",
+          0.45
+        },
+        {
+          "78.04",
+          0.04
+        }
+      };
 
     public static TheoryData<string> InvalidEquations
       => new TheoryData<string>()

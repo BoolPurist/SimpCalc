@@ -124,6 +124,7 @@
         <WrapPanel>
           <Button Tag="True" Content="^" Template="{StaticResource InputBtnTemp}" />
           <Button Tag="True" Content="0" Template="{StaticResource InputBtnTemp}" />
+          <Button Tag="True" Content="√" Template="{StaticResource InputBtnTemp}" />
           <Button Tag="True" Content="(" Template="{StaticResource InputBtnTemp}" />
           <Button Tag="True" Content=")" Template="{StaticResource InputBtnTemp}" />
         </WrapPanel>
@@ -132,6 +133,7 @@
           <Button Content="-" Template="{StaticResource InputBtnTemp}" />
           <Button Content="*" Template="{StaticResource InputBtnTemp}" />
           <Button Content="/" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="%" Template="{StaticResource InputBtnTemp}" />
         </WrapPanel>
         <WrapPanel>
           <Button Content="Clear" 
