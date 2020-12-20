@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Xunit;
 
 using Calculator_Window;
@@ -146,7 +146,11 @@ namespace CalculatorModelUnit
           "2  +  ( 2/ (8*4) +2)-89",
           -84.9375
         },
-        // Testing functionality for power
+        // Testing functionality for power        
+        {
+          "-5^0",
+          1.0
+        },
         {
           "2^4",
           16.0
@@ -166,6 +170,30 @@ namespace CalculatorModelUnit
         {
           "2^(2(2-1)+(10+8))",
           1048576.0
+        },
+        {
+          "2R9",
+          3.0
+        },
+        {
+          "4R16",
+          2.0
+        },        
+        {
+          "3R(26+(3/3))",
+          3.0
+        },
+        {
+          "2√16",
+          4.0
+        },
+        {
+          "R16",
+          4.0
+        },
+        {
+          "12 + R16",
+          16.0
         }
       };
 
@@ -211,7 +239,16 @@ namespace CalculatorModelUnit
         },
         {
           "25 + ^-25"
-        },        
+        },
+        {
+          "0R24"
+        },
+        {
+          "4R0"
+        },
+        {
+          "4R-8"
+        }
       };
 
     public static TheoryData<string> EquationWithDenominatorAsZero

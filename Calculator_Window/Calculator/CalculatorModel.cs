@@ -18,17 +18,23 @@ namespace Calculator_Window
     /// <summary> Fractional part of a result </summary>
     /// <value> Getter of the fractional part of a result </value>
     /// <example> Returns 0.45646 of the result 22.45646 </example>
+    // surroundedOperator
     public double FractionFromCurrentResult
      => Double.Parse($"0.{this.CurrentResult.ToString().Split('.')[1]}");
     // Regular expression for matching a valid operand as a text unit
+    
     protected static readonly Regex operrandRegex =
-      new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)(?<powerSign>[\^E])?");
+      new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)(?<surroundedOperator>[\^ER√])?");
     // Regular expression for matching a valid whole number for a factor of a power
-    protected static readonly Regex numberPowerRegex =
+    protected static readonly Regex wholeNumberRegex =
       new Regex(@"^(?<sign>[+-]*)(?<number>\d+)+");
+    // Used to find cases for root operations with no left factor
+    // Example: √9, which is √9 = 3
+    protected static readonly Regex rightSurroundedOperand =
+      new Regex(@"\s*(?<surroundedOperator>[R√])");
     // Regular expression for matching a valid operator as a text unit.
     protected static readonly Regex operratorRegex =
-      new Regex(@"^\s*(?<operator>[+*\-/])");
+      new Regex(@"^\s*(?<operator>[+*\-/])");      
     // Regular expression for matching a valid text unit as an opening parentheses
     protected static readonly Regex parentheseOpeningRegex =
       new Regex(@"^\s*\(");
@@ -101,7 +107,7 @@ namespace Calculator_Window
     private int _stackCounter = 0;
 
     private const string OverflowOperationErrorMsg =
-      "Mathematical Error: one operation resulted in a too big number !";
+      "Mathematical Error: one operation resulted in a too big or small number !";
 
     // Equation as a string is parsed. An equation string is considered to be made 
     // of text units. While parsing, operands and operators are extracted 
@@ -181,6 +187,7 @@ namespace Calculator_Window
         else if (expectsOpperand)
         {          
           currentMatch = operrandRegex.Match(textTerm);
+          expectsOpperand = false;
 
           if (currentMatch.Success)
           {
@@ -196,23 +203,23 @@ namespace Calculator_Window
                 "Mathematical Error: One operand is too big for calculation"
                 );
             }
-            
 
+            string surroundedOperator = currentMatch.Groups["surroundedOperator"].Value;
             // Checks if an operand contains a power operation.
-            if (currentMatch.Groups["powerSign"].Value != String.Empty)
+            if (surroundedOperator != String.Empty)
             {
               textTerm = MoveToNextTextPart(textTerm, currentMatch);
 
               // Check if factor for power operation is a valid whole number
-              Match powerFactor = numberPowerRegex.Match(textTerm);
+              Match rightSideOfOperand = wholeNumberRegex.Match(textTerm);
 
-              if (powerFactor.Success)
+              if (rightSideOfOperand.Success)
               {
-                double powerNumber;
+                double rightNumber;
 
                 try
                 {
-                  powerNumber = GetNumericOperandFromMatch(powerFactor);
+                  rightNumber = GetNumericOperandFromMatch(rightSideOfOperand);
                 }
                 catch (OverflowException)
                 {
@@ -221,8 +228,11 @@ namespace Calculator_Window
                     );
                 }
 
-                number = Math.Pow(number, powerNumber);
-                
+                number = CalcualteSurroundedOperator(
+                  number, rightNumber, surroundedOperator
+                  );
+
+
                 if (Double.IsInfinity(number))
                 {
                   throw new OverflowException(
@@ -233,35 +243,38 @@ namespace Calculator_Window
 
                 // valid power factor as whole number after "^" is processed
                 // and will be now removed.
-                currentMatch = powerFactor;
+                currentMatch = rightSideOfOperand;
                 textTerm = MoveToNextTextPart(textTerm, currentMatch);
               }
               else
               {
-                powerFactor = parantheseClosedNoSpaceRegex.Match(textTerm);
+                rightSideOfOperand = parantheseClosedNoSpaceRegex.Match(textTerm);
 
-                if (powerFactor.Success)
+                if (rightSideOfOperand.Success)
                 {
-                  textTerm = MoveToNextTextPart(textTerm, powerFactor);
+                  textTerm = MoveToNextTextPart(textTerm, rightSideOfOperand);
                   double subResult = this.ProcessTextTerm(ref textTerm, true);
                   try
                   {
-                    number = Math.Pow(number, subResult);
+                    number = CalcualteSurroundedOperator(
+                      number, subResult, surroundedOperator
+                      );
                   }
                   catch (OverflowException)
                   {
                     throw new OverflowException(
-                      "One operand raised to a power is too high"
+                      $"One operand is too big or small" +
+                      $" after the operation {surroundedOperator}"
                       );
                   }
-                  
+
                 }
                 else
                 {
-                  // String after '^' is no valid whole number 
+                  // String after operator is no valid whole number 
                   // or term surrounded by ( ) as a power factor 
                   throw new CalculationParseException(
-                  "Syntax Error: invalid factor for power !"
+                  $"Syntax Error: invalid factor for {surroundedOperator} !"
                   );
                 }
               }
@@ -273,13 +286,16 @@ namespace Calculator_Window
 
             AddOperand(number);
           }
+          else if (rightSurroundedOperand.Match(textTerm).Success)
+          {
+            textTerm = textTerm.Trim();
+            textTerm = $"2{textTerm}";
+            expectsOpperand = true;
+          }
           else
           {
             throw new CalculationParseException("Syntax Error: one invalid operand");
-          }
-
-          // textTerm = MoveToNextTextPart(textTerm, currentMatch);
-          expectsOpperand = false;
+          }                
         }
         else
         {
@@ -486,7 +502,42 @@ namespace Calculator_Window
           }          
         }
       }
+
+      static double CalcualteSurroundedOperator(
+        double leftSide, double rightSide, string operatorSign
+      )
+      {
+        if (operatorSign == "^" || operatorSign == "E")
+        {
+          leftSide = Math.Pow(leftSide, rightSide);
+          
+        }
+        else if (operatorSign == "R" || operatorSign == "√")
+        {
+          if (leftSide == 0.0)
+          {
+            throw new CalculationParseException(
+              "Mathematical Error: left side of a root operation must not be 0 !"
+              );
+          }
+          else if (rightSide <= 0)
+          {
+            throw new CalculationParseException(
+              "Mathematical Error: " + 
+              "Right side of a root operation must greater than 0 !"
+            );
+          }
+
+          leftSide = Math.Pow(rightSide, 1.0 / leftSide);
+        }
+
+        return leftSide;
+      }
+
     }
+
+
+
 
     public void Clear() => this.CurrentResult = 0.0;
   }
