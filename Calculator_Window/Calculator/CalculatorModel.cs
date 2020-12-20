@@ -34,7 +34,7 @@ namespace Calculator_Window
       new Regex(@"\s*(?<surroundedOperator>[R√])");
     // Regular expression for matching a valid operator as a text unit.
     protected static readonly Regex operratorRegex =
-      new Regex(@"^\s*(?<operator>[+*\-/])");      
+      new Regex(@"^\s*(?<operator>[+*\-/%])");      
     // Regular expression for matching a valid text unit as an opening parentheses
     protected static readonly Regex parentheseOpeningRegex =
       new Regex(@"^\s*\(");
@@ -47,7 +47,7 @@ namespace Calculator_Window
       new Regex(@"^\s*\)");
     // All priority operators
     protected static readonly HashSet<string> prioOperands = 
-      new HashSet<string>( new string[] { "*", "/" } );
+      new HashSet<string>( new string[] { "*", "/", "%" } );
 
     /// <summary> 
     /// Takes a string as an equation and returns a numeric values as the result
@@ -435,13 +435,12 @@ namespace Calculator_Window
             firstOperand *= secondOperand;
             break;
           case "/":
-            if (secondOperand == 0.0)
-            {
-              throw new DivideByZeroException(
-                "Mathematical Error: One denominator is zero in a fraction !"
-                );
-            }
+            ThrowIfDivededByZero();
             firstOperand /= secondOperand;
+            break;
+          case "%":
+            ThrowIfDivededByZero();
+            firstOperand %= secondOperand;
             break;
           default:
             break;
@@ -450,6 +449,17 @@ namespace Calculator_Window
         CheckForOverflow(firstOperand, OverflowOperationErrorMsg);
 
         return firstOperand;
+
+        void ThrowIfDivededByZero()
+        {
+          if (secondOperand == 0.0)
+          {
+            throw new DivideByZeroException(
+              $"Mathematical Error: "+ 
+              $"One denominator is zero in the operation {operatorPart} !"
+              );
+          }
+        }
       }
 
 

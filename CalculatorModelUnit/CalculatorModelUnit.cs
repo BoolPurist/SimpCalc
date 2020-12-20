@@ -194,6 +194,15 @@ namespace CalculatorModelUnit
         {
           "12 + R16",
           16.0
+        },
+        // Testing modular calculation
+        { 
+          "2-(5%4+2)*2",
+          -4.0
+        },
+        {
+          "4%(2+1)",
+          1.0
         }
       };
 
@@ -255,7 +264,8 @@ namespace CalculatorModelUnit
       => new TheoryData<string>()
       {
         "2/0",
-        "2(2/(4-2*2))"
+        "2(2/(4-2*2))",                
+        "8%0"        
       };
 
     private const string tooBigNumber = 
