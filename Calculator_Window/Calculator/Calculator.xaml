@@ -33,14 +33,12 @@
     <ControlTemplate TargetType="Button" x:Key="InputBtnTemp">
       <Button Content="{TemplateBinding Content}" 
               Command="{Binding InputCommand}" 
-              Tag="{TemplateBinding Tag}"
               Template="{StaticResource CalculationBtnTemplate}"/>
     </ControlTemplate>
 
     <ControlTemplate TargetType="Button" x:Key="CommandBtnTemp">
       <Button Content="{TemplateBinding Content}" 
               Command="{TemplateBinding Command}" 
-              Tag="{TemplateBinding Tag}"
               Template="{StaticResource CalculationBtnTemplate}"/>
     </ControlTemplate>
 
@@ -135,6 +133,7 @@
           <Button Content="*" Template="{StaticResource InputBtnTemp}" />
           <Button Content="/" Template="{StaticResource InputBtnTemp}" />
           <Button Content="%" Template="{StaticResource InputBtnTemp}" />
+          
         </WrapPanel>
         <WrapPanel>
           <Button Content="Clear" 
@@ -148,6 +147,9 @@
                   Template="{StaticResource InputBtnTemp}" />
           <Button Content="Back"
                   Command="{Binding RemoveCommand}"
+                  Template="{StaticResource CommandBtnTemp}" />
+          <Button Content="Space" 
+                  Command="{Binding SpaceCommand}"
                   Template="{StaticResource CommandBtnTemp}" />
         </WrapPanel>
       </StackPanel>

@@ -30,6 +30,7 @@ namespace Calculator_Window
     public RelayCommand FractionCommand { get; private set; }
     public RelayCommand IntegerCommand { get; private set; }
     public RelayCommand RemoveCommand { get; private set; }
+    public RelayCommand SpaceCommand { get; private set; }
 
     protected string errorMessage = String.Empty;
     public string ErrorMessage
@@ -109,10 +110,20 @@ namespace Calculator_Window
       
       this.InputCommand = new RelayCommand(this.AddInputToCalc);
       this.ClearCommand = new RelayCommand(param => this.ClearDisplay());
-      this.ResultCommand = new RelayCommand(param => this.CalculateResult());
       this.IntegerCommand = new RelayCommand(param => this.IntegerFromResult());
       this.FractionCommand = new RelayCommand(param => this.FractionFromResult());
-      this.RemoveCommand = new RelayCommand(param => this.RemoveOneChar());
+      this.ResultCommand = new RelayCommand(
+        param => this.CalculateResult(),
+        param => this.CanCalculateResult()
+        );
+      this.RemoveCommand = new RelayCommand(
+        param => this.RemoveOneChar(),
+        param => this.CanRemoveOneChar()
+        );
+      this.SpaceCommand = new RelayCommand(
+        param => this.AddSpace(),
+        param => this.CanAddSpace()
+        );
     }
 
     public void CalculateResult()
@@ -164,6 +175,9 @@ namespace Calculator_Window
       }
     }
 
+    private bool CanCalculateResult()
+      => !this.ShowsResult;
+
     public void AddInputToCalc(object inputControl)
     {
       this.ErrorMessageVisible = Visibility.Collapsed;
@@ -176,18 +190,8 @@ namespace Calculator_Window
         }
 
         if (inputBtn.Content is string symbol)
-        {
-          if (
-          Boolean.TryParse(inputBtn.Tag as string, out bool noSpaceNeeded) && 
-          noSpaceNeeded
-          )
-          {
-            this.CalculationOutput += $"{symbol}";
-          }
-          else
-          {
-            this.CalculationOutput += $" {symbol} ";
-          }
+        {                   
+          this.CalculationOutput += $"{symbol}";                                          
         }
         else
         {
@@ -241,9 +245,17 @@ namespace Calculator_Window
     private void RemoveOneChar()
     {
       this.CalculationOutput = this.CalculationOutput.Length > 0 ? 
-        this.CalculationOutput[..^1] : String.Empty;
-      Debug.WriteLine($"Output after removal {this.CalculationOutput}");
+        this.CalculationOutput[..^1] : String.Empty;      
     }
+
+    private bool CanRemoveOneChar()
+      => !this.ShowsResult;
+
+    private void AddSpace()
+     => this.CalculationOutput += " ";
+
+    private bool CanAddSpace()
+      => !this.ShowsResult;
 
     private void ClearResult_TextBox_KeyDown(object sender, KeyEventArgs e)
     {
