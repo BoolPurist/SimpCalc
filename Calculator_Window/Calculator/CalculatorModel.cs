@@ -32,9 +32,11 @@ namespace Calculator_Window
           return Double.Parse($"0.{this.CurrentResult.ToString().Split('.')[1]}");
         } 
       }
-    } 
+    }
     // Regular expression for matching a valid operand as a text unit
-    
+    protected static readonly Regex operationOneOperandRegex =
+      new Regex(@"^\s*(?<operator>log)");
+
     protected static readonly Regex operrandRegex =
       new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)(?<surroundedOperator>[\^ER√])?");
     // Regular expression for matching a valid whole number for a factor of a power
@@ -198,12 +200,76 @@ namespace Calculator_Window
         }
         else if (expectsOpperand)
         {          
-          currentMatch = operrandRegex.Match(textTerm);
+          currentMatch = operationOneOperandRegex.Match(textTerm);
           expectsOpperand = false;
+          var number = 0.0;
 
           if (currentMatch.Success)
           {
-            double number;
+            //TODO
+
+            textTerm = MoveToNextTextPart(textTerm, currentMatch);
+            var numberInParanthese = 0.0;
+            var baseNumber = 0.0;
+            string operandOperator = currentMatch.Groups["operator"].Value;
+
+            if (operandOperator == "log")
+            {
+              if ((currentMatch = operrandRegex.Match(textTerm)).Success)
+              {
+                baseNumber = ProcessOneOperand(ref textTerm);                
+              }
+              else
+              {
+                throw new CalculationParseException(
+                  $"Syntax Error:" +
+                  $"No number as a base provided for {operandOperator}"
+                  );
+              }
+            }
+
+            if (
+              (currentMatch = parantheseClosedNoSpaceRegex.Match(textTerm)).Success
+              )
+            {
+              textTerm = MoveToNextTextPart(textTerm, currentMatch);
+              numberInParanthese = this.ProcessTextTerm(ref textTerm, true); 
+            }
+            else
+            {
+              throw new CalculationParseException(
+                $"Syntax Error: " + 
+                $"No term in parentheses for {operandOperator} was provided"
+                );
+            }
+            
+            number = CalculateFunctionOperand(
+              operandOperator, baseNumber, numberInParanthese
+              );
+
+            AddOperand(number);
+          }
+          else if (
+            (currentMatch = operrandRegex.Match(textTerm)).Success
+            )
+          {
+            number = ProcessOneOperand(ref textTerm);
+            AddOperand(number);
+          }
+          else if (rightSurroundedOperand.Match(textTerm).Success)
+          {
+            textTerm = textTerm.Trim();
+            textTerm = $"2{textTerm}";
+            expectsOpperand = true;
+          }
+          else
+          {
+            throw new CalculationParseException("Syntax Error: one invalid operand");
+          }
+
+          double ProcessOneOperand(ref string textTerm)
+          {
+            double number = 0.0;
 
             try
             {
@@ -296,18 +362,9 @@ namespace Calculator_Window
               textTerm = MoveToNextTextPart(textTerm, currentMatch);
             }
 
-            AddOperand(number);
+            return number;
           }
-          else if (rightSurroundedOperand.Match(textTerm).Success)
-          {
-            textTerm = textTerm.Trim();
-            textTerm = $"2{textTerm}";
-            expectsOpperand = true;
-          }
-          else
-          {
-            throw new CalculationParseException("Syntax Error: one invalid operand");
-          }                
+
         }
         else
         {
@@ -554,6 +611,39 @@ namespace Calculator_Window
         }
 
         return leftSide;
+      }
+      
+      static double CalculateFunctionOperand(
+        string operandFunction, double firstOperand, double secondOperand 
+        )
+      {
+        if (operandFunction == "log")
+        {
+          if (firstOperand <= 0.0)
+          {
+            throw new CalculationParseException(
+              $"Mathematical Error: " +
+              $"base number must not be zero or smaller for {operandFunction}"
+              );
+          }
+          else if (secondOperand <= 0.0)
+          {
+            throw new CalculationParseException(
+              $"Mathematical Error: Term in parentheses must not be" +
+              $"zero or smaller for {operandFunction}"
+              );
+
+          }
+
+          return Math.Log(secondOperand, firstOperand);
+        }
+        else
+        {
+          throw new ArgumentException(
+            "No valid function for operator was given !", 
+            nameof(operandFunction)
+            );
+        }
       }
 
     }

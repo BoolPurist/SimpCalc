@@ -230,7 +230,16 @@ namespace CalculatorModelUnit
         {
           "4%(2+1)",
           1.0
-        }
+        },
+        // Testing Logarithm
+        {
+          "log10(10)",
+          1.0
+        },
+        {
+          "log2(8)",
+          3.0
+        },        
       };
 
     public static TheoryData<string, double, int> CalculationWithRounding
@@ -326,6 +335,27 @@ namespace CalculatorModelUnit
         },
         {
           "4R-8"
+        },
+        {
+          "log(2)"
+        },
+        {
+          "log2"
+        },
+        {
+          "log2 (2)"
+        },
+        {
+          "log-2(2)"
+        },
+        {
+          "log0(2)"
+        },
+        {
+          "log2(-2)"
+        },
+        {
+          "log2(0)"
         }
       };
 
