@@ -23,13 +23,66 @@ namespace Calculator_Window
   public partial class Calculator : UserControl, INotifyPropertyChanged
   {
     public event PropertyChangedEventHandler PropertyChanged;
+    /// <summary> 
+    /// Used to append content as text from a calculation button 
+    /// to the binding source for the content of the calculation display 
+    /// for the current Result or entered equation.
+    /// </summary>
+    /// <value> 
+    /// Getter for a command to append provided CommandCommand as a string 
+    /// to property CalculationOutput.
 
+    /// </value>
     public RelayCommand InputCommand { get; private set; }
+    /// <summary> 
+    /// Clears the display for showing entered equation or current result  
+    /// </summary>
+    /// <value> 
+    /// Execution of command sets property CalculationOutput to an empty string
+    /// </value>
     public RelayCommand ClearCommand { get; private set; }
+    /// <summary> 
+    /// Tries to convert entered equation to an numeric value and shows 
+    /// it to the user if no parsing error happens. If parsing fails user enters 
+    /// an invalid equation. If parsing fails, 
+    /// an error message is shown to user instead
+    /// </summary>
+    /// <value> 
+    /// Execution of command converts value of the property CalculationOutput 
+    /// to a result of the entered result. If entered equation is invalid the
+    /// property ErrorMessage is set to the error message of an exception and
+    /// the property ErrorMessageVisibility is set to Visibility.Visible
+    /// Only executes if property ShowsResult is true.
+    /// </value>
     public RelayCommand ResultCommand { get; private set; }
+    /// <summary> 
+    /// Execution of command displays the whole number part of the current result. 
+    /// if entered equation is not calculated yet then the calculation is 
+    /// converted to whole number part of this result and shows it to the user.
+    /// </summary>
     public RelayCommand FractionCommand { get; private set; }
+    /// <summary> 
+    /// Execution of command displays the fractional part of the current result. 
+    /// if entered equation is not calculated yet then the calculation is 
+    /// converted to fractional part of this result and shows it to the user.
+    /// </summary>
     public RelayCommand IntegerCommand { get; private set; }
+    /// <summary> 
+    /// Command to remove last char of text presenting currently entered equation 
+    /// </summary>
+    /// <value> 
+    /// Execution of command removes last char of the property CalculationOutput
+    /// Only executes if property ShowsResult is true.
+    /// </value>
     public RelayCommand RemoveCommand { get; private set; }
+    /// <summary>
+    /// Inserts a white space at the end of the calculator display for
+    /// the current result in the calculator
+    /// </summary>
+    /// <value> 
+    /// Execution of command appends " " to the property CalculationOutput
+    /// Only executes if property ShowsResult is true. 
+    /// </value>
     public RelayCommand SpaceCommand { get; private set; }
 
     protected string errorMessage = String.Empty;
@@ -90,7 +143,7 @@ namespace Calculator_Window
       }
     }
 
-    private readonly CalculatorModel calculatorModel = new CalculatorModel();
+
 
     private string lastResult = "0";
     public string LastResult
@@ -102,6 +155,8 @@ namespace Calculator_Window
         this.OnPropertyChanged(nameof(this.LastResult));        
       }
     }
+
+    private readonly CalculatorModel calculatorModel = new CalculatorModel();
 
     public Calculator()
     {
@@ -126,7 +181,7 @@ namespace Calculator_Window
         );
     }
 
-    public void CalculateResult()
+    private void CalculateResult()
     {
       this.ErrorMessageVisible = Visibility.Collapsed;
 
@@ -178,50 +233,41 @@ namespace Calculator_Window
     private bool CanCalculateResult()
       => !this.ShowsResult;
 
-    public void AddInputToCalc(object inputControl)
-    {
+    private void AddInputToCalc(object inputSymbol)
+    {      
       this.ErrorMessageVisible = Visibility.Collapsed;
 
-      if (inputControl is Button inputBtn)
+      if (inputSymbol is string symbol)
       {
         if (ShowsResult)
         {
-          this.CalculationOutput = String.Empty;          
-        }
-
-        if (inputBtn.Content is string symbol)
-        {                   
-          this.CalculationOutput += $"{symbol}";                                          
+          this.CalculationOutput = String.Empty;
         }
         else
         {
-          throw new ArgumentException(
-            $"Content of {nameof(inputControl)} must be a string !", 
-            nameof(inputBtn.Content)
-            );
-        }
-                
+          this.CalculationOutput += $"{symbol}";
+        }                      
       }
       else
       {
+        string paramName = nameof(inputSymbol);
         throw new ArgumentException(
-          "Control as parameter must be of type Button", nameof(inputControl)
+          $"Parameter {paramName} must be of type String", paramName
           );
       }
     }
 
-    public void ClearDisplay()
-    {
-      this.ErrorMessageVisible = Visibility.Collapsed;
 
-      this.calculatorModel.Clear();
+    private void ClearDisplay()
+    {
+      this.ErrorMessageVisible = Visibility.Collapsed;      
       this.CalculationOutput = String.Empty;
     }
 
-    public void IntegerFromResult()
+    private void IntegerFromResult()
      => this.ExtractFractOrIntergerFromResult();
 
-    public void FractionFromResult()
+    private void FractionFromResult()
      => this.ExtractFractOrIntergerFromResult(true);
 
     private void ExtractFractOrIntergerFromResult(bool fractional = false)

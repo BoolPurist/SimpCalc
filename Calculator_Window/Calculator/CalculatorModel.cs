@@ -60,7 +60,7 @@ namespace Calculator_Window
     protected static readonly Regex parentheseCloseRegex =
       new Regex(@"^\s*\)");
     // All priority operators
-    protected static readonly HashSet<string> prioOperands = 
+    protected static readonly HashSet<string> priorotyOperands = 
       new HashSet<string>( new string[] { "*", "/", "%" } );
 
     /// <summary> 
@@ -79,7 +79,7 @@ namespace Calculator_Window
     /// Thrown if one operand is a denominator and zero
     /// </exception>
     /// <exception cref="CalculationParseException"> 
-    /// If string is not a valid equation for example "25 + " is not valid
+    /// If the parameter inputForCalc is an invalid equation 
     /// </exception>
     public double CalculateFromText(string inputForCalc)
     {
@@ -117,9 +117,7 @@ namespace Calculator_Window
 
       return this.CurrentResult;
     }
-
-    private int _stackCounter = 0;
-
+   
     private const string OverflowOperationErrorMsg =
       "Mathematical Error: one operation resulted in a too big or small number !";
 
@@ -131,9 +129,7 @@ namespace Calculator_Window
     private double ProcessTextTerm(
       ref string textTerm, bool looksCloseParanthese = false
       )
-    {
-      this._stackCounter++;
-
+    {     
       // If true, next text unit must be a valid operand
       // else next text unit must be a valid operator
       var expectsOpperand = true;      
@@ -374,7 +370,7 @@ namespace Calculator_Window
           {
             string currentOperator = currentMatch.Groups["operator"].Value;
 
-            if (prioOperands.Contains(currentOperator))
+            if (priorotyOperands.Contains(currentOperator))
             {
               DigestPrioOperator(currentOperator);
             }
@@ -403,7 +399,6 @@ namespace Calculator_Window
         throw new CalculationParseException("Syntax Error: missing operand !");
       }
 
-
       // Calculating priority terms aka multiplication before adding numbers ..
       for (int i = 0, count = prioStartIndexes.Count; i < count; i++)
       {
@@ -411,9 +406,8 @@ namespace Calculator_Window
           operandsPrio[i], operatorsPrio[i], CalculateOnePrioOperation
           );
       }
-
-      this._stackCounter--;
-      // Calculate final result from text unit.
+      
+      // Calculate final result from text units from extractions.
       return ProcessMacroTerm(operands, operators, CalculateOneOperation);
 
       // Parameter: operandMatch is a match of a valid operand in a string.
@@ -531,7 +525,7 @@ namespace Calculator_Window
         }
       }
 
-
+      // Places parameter newOperand in the proper list for final calculation.
       void AddOperand(double newOperand)
       {
         if (lastOperandsWasPrio)
@@ -582,6 +576,9 @@ namespace Calculator_Window
         }
       }
 
+      // Calculates number from a surrounded operator like ^ and √
+      // A surrounded operator looks like this 2^4
+      // Parameter leftSide = 2, operatorSign = ^, rightSide = 4
       static double CalcualteSurroundedOperator(
         double leftSide, double rightSide, string operatorSign
       )
@@ -612,7 +609,12 @@ namespace Calculator_Window
 
         return leftSide;
       }
-      
+
+      // Calculate an operand as a function like log
+      // Example: log2(4)
+      // Parameter operandFunction = log, 
+      // Parameter firstOperand = 2, 
+      // Parameter secondOperand = 4
       static double CalculateFunctionOperand(
         string operandFunction, double firstOperand, double secondOperand 
         )
@@ -646,11 +648,6 @@ namespace Calculator_Window
         }
       }
 
-    }
-
-
-
-
-    public void Clear() => this.CurrentResult = 0.0;
+    }    
   }
 }

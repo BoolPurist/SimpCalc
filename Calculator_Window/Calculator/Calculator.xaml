@@ -21,18 +21,18 @@
         CornerRadius="1" BorderThickness="1" BorderBrush="Black">
         <Button Padding="5,2,5,2" Content="{TemplateBinding Content}"
           Width="{StaticResource BtnSize}" Height="{StaticResource BtnSize}"
-           Command="{TemplateBinding Command}"
-           Tag="{TemplateBinding Tag}"
+           Command="{TemplateBinding Command}" 
+           CommandParameter="{TemplateBinding Content}"
            DataContext="{Binding RelativeSource={RelativeSource Self}}"
-           CommandParameter="{Binding}"
            BorderThickness="0">
         </Button>
       </Border>
     </ControlTemplate>
 
     <ControlTemplate TargetType="Button" x:Key="InputBtnTemp">
-      <Button Content="{TemplateBinding Content}" 
-              Command="{Binding InputCommand}" 
+      <Button  Content="{TemplateBinding Content}"
+               Command="{Binding InputCommand}"
+               CommandParameter="{TemplateBinding Content}"
               Template="{StaticResource CalculationBtnTemplate}"/>
     </ControlTemplate>
 

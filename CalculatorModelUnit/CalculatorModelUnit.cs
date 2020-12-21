@@ -95,9 +95,8 @@ namespace CalculatorModelUnit
       )
     {
       var calculator = new CalculatorModel();
-      double actualResult = calculator.CalculateFromText(text);
-      actualResult = calculator.IntegerFromCurrentResult;
-      Assert.Equal(expectedResult, actualResult);
+      calculator.CalculateFromText(text);      
+      Assert.Equal(expectedResult, calculator.IntegerFromCurrentResult);
     }
 
     [Theory]
@@ -108,9 +107,8 @@ namespace CalculatorModelUnit
       )
     {
       var calculator = new CalculatorModel();
-      double actualResult = calculator.CalculateFromText(text);
-      actualResult = calculator.FractionFromCurrentResult;
-      Assert.Equal(expectedResult, actualResult);
+      calculator.CalculateFromText(text);
+      Assert.Equal(expectedResult, calculator.FractionFromCurrentResult);
     }
 
     // 1. test element as string = equation as a text
@@ -205,6 +203,10 @@ namespace CalculatorModelUnit
         {
           "4R16",
           2.0
+        },
+        {
+          "3√27",
+          3.0
         },
         {
           "3R(26+(3/3))",
