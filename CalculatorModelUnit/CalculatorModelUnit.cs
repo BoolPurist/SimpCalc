@@ -111,6 +111,16 @@ namespace CalculatorModelUnit
       Assert.Equal(expectedResult, calculator.FractionFromCurrentResult);
     }
 
+    [Theory]
+    [MemberData(nameof(FacultyCalculation))]
+    public void CalculateFaculty_ShouldReturnExactResult(
+      int parameter, 
+      int expectedResult
+      )
+    {      
+      Assert.Equal(expectedResult, CalculatorModel.CalculateFaculty(parameter));
+    }
+
     // 1. test element as string = equation as a text
     // 2. test element as double = expected result from equation
     public static TheoryData<string, double> BasicCalculation
@@ -244,6 +254,8 @@ namespace CalculatorModelUnit
         },        
       };
 
+    
+
     public static TheoryData<string, double, int> CalculationWithRounding
       => new TheoryData<string, double, int>()
         {
@@ -338,6 +350,7 @@ namespace CalculatorModelUnit
         {
           "4R-8"
         },
+        // Testing syntax errors for logarithm
         {
           "log(2)"
         },
@@ -347,6 +360,7 @@ namespace CalculatorModelUnit
         {
           "log2 (2)"
         },
+        // Testing mathematical errors for logarithm
         {
           "log-2(2)"
         },
@@ -390,6 +404,31 @@ namespace CalculatorModelUnit
         "*" +
         "465465465465454665446546546546545664654654654654546654465465465465456" +
         "6465465465465454665446546546546545664654654654654546654465465465465456666"
+      };
+
+    public static TheoryData<int,int> FacultyCalculation
+      => new TheoryData<int,int>()
+      {
+        {
+          0,
+          1
+        },
+        {
+          1,
+          1
+        },
+        {
+          2,
+          2
+        },
+        {
+          5,
+          120
+        },
+        {
+          -4,
+          -24
+        },
       };
 
   }

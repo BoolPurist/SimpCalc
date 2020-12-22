@@ -120,7 +120,7 @@ namespace Calculator_Window
     }
 
     private double mainGridWidth = 0.0;
-    private string lastResultToken = "X";  
+      
     public double MainGirdWidth 
     {
       get => this.mainGridWidth;
@@ -157,6 +157,7 @@ namespace Calculator_Window
     }
 
     private readonly CalculatorModel calculatorModel = new CalculatorModel();
+    private string lastResultToken = "X";
 
     public Calculator()
     {

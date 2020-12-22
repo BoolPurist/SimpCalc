@@ -33,6 +33,25 @@ namespace Calculator_Window
         } 
       }
     }
+
+    public static int CalculateFaculty(int number)
+    {
+      var result = 1;
+      bool numberIsNegative = number < 0;
+
+      if (numberIsNegative)
+      {
+        number *= -1;
+      }
+
+      for (int i = number; i > 0; i-- )
+      {
+        result *= i;
+      }
+
+      return numberIsNegative ? result * -1 : result;
+    }
+
     // Regular expression for matching a valid operand as a text unit
     protected static readonly Regex operationOneOperandRegex =
       new Regex(@"^\s*(?<operator>log)");
