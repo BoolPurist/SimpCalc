@@ -6,6 +6,9 @@ using System.Text.RegularExpressions;
 
 namespace Calculator_Window
 {
+  /// <summary> 
+
+  /// </summary>
   public class CalculatorModel
   {
     /// <summary> Result from last successfully calculated given equation </summary>
@@ -57,7 +60,7 @@ namespace Calculator_Window
       new Regex(@"^\s*(?<operator>log)");
 
     protected static readonly Regex operrandRegex =
-      new Regex(@"^\s*(?<sign>[+-]*)\s*(?<number>(\d+)+([\.,](\d+))?)(?<surroundedOperator>[\^ER√])?");
+      new Regex(@"^\s*(?<sign>[+-]*)(?<number>(\d+)+([\.,](\d+))?)(?<surroundedOperator>[\^ER√])?");
     // Regular expression for matching a valid whole number for a factor of a power
     protected static readonly Regex wholeNumberRegex =
       new Regex(@"^(?<sign>[+-]*)(?<number>\d+)+");
