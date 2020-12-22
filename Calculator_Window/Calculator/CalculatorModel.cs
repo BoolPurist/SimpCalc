@@ -57,33 +57,33 @@ namespace Calculator_Window
 
     // Regular expression for matching a valid operand as a text unit
     protected static readonly Regex operationOneOperandRegex =
-      new Regex(@"^\s*(?<operator>log)");
+      new Regex(@"^\s*(?<operandFunctionBaseNeeded>log)");
 
     protected static readonly Regex operrandRegex =
-      new Regex(@"^\s*(?<sign>[+-]*)(?<number>(\d+)+([\.,](\d+))?)(?<surroundedOperator>[\^ER√])?");
+      new Regex(
+        @"^\s*(?<signSequence>[+-]*)" +
+        @"(?<floatingNumber>(\d+)+([\.,](\d+))?)(?<surroundedOperator>[\^ER√])?"
+        );
     // Regular expression for matching a valid whole number for a factor of a power
-    protected static readonly Regex wholeNumberRegex =
-      new Regex(@"^(?<sign>[+-]*)(?<number>\d+)+");
+    protected static readonly Regex interegerPattern =
+      new Regex(@"^(?<signSequence>[+-]*)(?<floatingNumber>\d+)+");
     // Used to find cases for root operations with no left factor
     // Example: √9, which is √9 = 3
-    protected static readonly Regex rightSurroundedOperand =
-      new Regex(@"\s*(?<surroundedOperator>[R√])");
+    protected static readonly Regex operatorWithoutNeededLeftPattern 
+      = new Regex(@"\s*(?<surroundedOperator>[R√])");
     // Regular expression for matching a valid operator as a text unit.
-    protected static readonly Regex operratorRegex =
-      new Regex(@"^\s*(?<operator>[+*\-/%])");      
+    protected static readonly Regex operatorPattern =
+      new Regex(@"^\s*((?<sign>[+\-])|(?<prioritySign>[*/%]))");      
     // Regular expression for matching a valid text unit as an opening parentheses
-    protected static readonly Regex parentheseOpeningRegex =
+    protected static readonly Regex whiteSpaceOpeningParathesePattern =
       new Regex(@"^\s*\(");
     // Regular expression for matching a valid text unit as an closing parentheses
     // with no whitespace before.
-    protected static readonly Regex parantheseClosedNoSpaceRegex =
+    protected static readonly Regex openingParathesePattern =
       new Regex(@"^\(");
     // Regular expression for matching a valid text unit as an closing parentheses
-    protected static readonly Regex parentheseCloseRegex =
+    protected static readonly Regex whiteSpaceclosingParathesePattern =
       new Regex(@"^\s*\)");
-    // All priority operators
-    protected static readonly HashSet<string> priorotyOperands = 
-      new HashSet<string>( new string[] { "*", "/", "%" } );
 
     /// <summary> 
     /// Takes a string as an equation and returns a numeric values as the result
@@ -186,7 +186,7 @@ namespace Calculator_Window
         // stack was created because of '(' as equation unit.
         if (looksCloseParanthese)
         {
-          currentMatch = parentheseCloseRegex.Match(textTerm);
+          currentMatch = whiteSpaceclosingParathesePattern.Match(textTerm);
           
           if (currentMatch.Success)
           {
@@ -199,7 +199,7 @@ namespace Calculator_Window
           }
         }
 
-        currentMatch = parentheseOpeningRegex.Match(textTerm);
+        currentMatch = whiteSpaceOpeningParathesePattern.Match(textTerm);
 
         if (currentMatch.Success)
         {
@@ -229,7 +229,8 @@ namespace Calculator_Window
             textTerm = MoveToNextTextPart(textTerm, currentMatch);
             var numberInParanthese = 0.0;
             var baseNumber = 0.0;
-            string operandOperator = currentMatch.Groups["operator"].Value;
+            string operandOperator = 
+              currentMatch.Groups["operandFunctionBaseNeeded"].Value;
 
             if (operandOperator == "log")
             {
@@ -247,7 +248,7 @@ namespace Calculator_Window
             }
 
             if (
-              (currentMatch = parantheseClosedNoSpaceRegex.Match(textTerm)).Success
+              (currentMatch = openingParathesePattern.Match(textTerm)).Success
               )
             {
               textTerm = MoveToNextTextPart(textTerm, currentMatch);
@@ -274,7 +275,7 @@ namespace Calculator_Window
             number = ProcessOneOperand(ref textTerm);
             AddOperand(number);
           }
-          else if (rightSurroundedOperand.Match(textTerm).Success)
+          else if (operatorWithoutNeededLeftPattern.Match(textTerm).Success)
           {
             textTerm = textTerm.Trim();
             textTerm = $"2{textTerm}";
@@ -307,7 +308,7 @@ namespace Calculator_Window
               textTerm = MoveToNextTextPart(textTerm, currentMatch);
 
               // Check if factor for power operation is a valid whole number
-              Match rightSideOfOperand = wholeNumberRegex.Match(textTerm);
+              Match rightSideOfOperand = interegerPattern.Match(textTerm);
 
               if (rightSideOfOperand.Success)
               {
@@ -344,7 +345,7 @@ namespace Calculator_Window
               }
               else
               {
-                rightSideOfOperand = parantheseClosedNoSpaceRegex.Match(textTerm);
+                rightSideOfOperand = openingParathesePattern.Match(textTerm);
 
                 if (rightSideOfOperand.Success)
                 {
@@ -386,20 +387,20 @@ namespace Calculator_Window
         }
         else
         {
-          currentMatch = operratorRegex.Match(textTerm);
+          currentMatch = operatorPattern.Match(textTerm);
 
           if (currentMatch.Success)
           {
-            string currentOperator = currentMatch.Groups["operator"].Value;
+            string currentOperator = currentMatch.Groups["prioritySign"].Value;
 
-            if (priorotyOperands.Contains(currentOperator))
+            if (currentOperator != String.Empty)
             {
               DigestPrioOperator(currentOperator);
             }
             else
             {
               lastOperandsWasPrio = false;
-              operators.Add(currentMatch.Groups["operator"].Value);
+              operators.Add(currentMatch.Groups["sign"].Value);
             }
           }
           else
@@ -436,14 +437,14 @@ namespace Calculator_Window
       // Returns numeric signed value of an operand
       static double GetNumericOperandFromMatch(Match operandMatch)
       {
-        string sign = operandMatch.Groups["sign"].Value;
+        string signSequence = operandMatch.Groups["signSequence"].Value;
         var number = 0.0;
         
-        number = Double.Parse(operandMatch.Groups["number"].Value);
+        number = Double.Parse(operandMatch.Groups["floatingNumber"].Value);
 
         CheckForOverflow(number);
         
-        return ProcessPlusMinusSeq(sign, number);
+        return ProcessPlusMinusSeq(signSequence, number);
       }
 
       // Operand is extracted into 2 parts, sign and its numeric value. 

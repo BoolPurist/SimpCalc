@@ -4,23 +4,27 @@ Startsymbol = equation
 
 | Symbol| | Subsymbols of Symbol |
 |:----|:-:|:-------------------------------------------------------------------|
-| equation | = |operand ( ( operator operand ) \| equationInParatheseWithSpace \| ( operator equationInParatheseWithSpace)  )* |
+| equation | = |operand ( ( operator operand ) \| equationInParatheseWithSpace \| ( operator equationInParatheseWithSpace)  )\* WhiteSpace\* |
 | equationInParatheseWithSpace | = | WhiteSpace* equationInParathese |
 | equationInParathese | = | openingParathese equation closingParathese |
-| operand | = | WhiteSpace* ( operandAsNumber \| operandWithSurroundedOperator \| operandAsFunctionWithBase \| operandAsFunction \| operandAsWholeNumberFunction ) |
-| operandWithSurroundedOperator | = | operrandAsNumber surroundedOperator ( wholeNumber \| equationInParathese ) |
+| operand | = | WhiteSpace* ( operandAsNumber \| operandWithSurroundedOperator \| operandWithRightOperator \| operandAsFunctionWithBase \| operandAsFunction \| operandAsIntegerFunction ) |
+| operandWithSurroundedOperator | = | operrandAsNumber surroundedOperator ( integer \| equationInParathese ) |
+| operandWithRightOperator | = | operatorWithoutNeededLeft ( integer \| equationInParathese ) |
 | operandAsFunctionWithBase | = | operandFunctionBaseNeeded operandAsNumber equationInParathese |
 | operandAsFunction | = | operandFunction equationInParathese |
-| operandAsWholeNumberFunction | = | wholeNumber operandFunctionsWithWholeNumbers |
+| operandAsIntegerFunction | = | integer operandFunctionsWithIntegers |
 | operator | = | WhiteSpace* ( sign \| prioritySign )  |
-| operandAsNumber | = | wholeNumber fractionalPartOfNumber? |
-| wholeNumber | = | sign number |
+| operandAsNumber | = | signSequence floatingNumber |
+| floatingNumber | = | number fractionalPartOfNumber? |
+| integer | = | signSequence number |
+| signSequence | = | sign* |
 | fractionalPartOfNumber | = | ( . \| , ) number |
 | number | = | ( 0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| 8 \| 9 )+ |
 | sign | = | + \| - |
 | prioritySign  | = | ( * \| / \| % ) |
-| operandFunctionsWithWholeNumbers | = | ! |
-| surroundedOperator | = | ^ \| E \| √ \| R |
+| operandFunctionsWithIntegers | = | ! |
+| surroundedOperator | = | ^ \| E \| surroundedOperatorWithoutNeededLeft |
+| operatorWithoutNeededLeft | = |  √ \| R  |
 | operandFunctionBaseNeeded | = | log |
 | operandFunction | = | cos \| sin \| tan \| cosa \| sina \| tana \| ln |
 | openingParathese | = | ( |
