@@ -251,7 +251,19 @@ namespace CalculatorModelUnit
         {
           "log2(8)",
           3.0
-        },        
+        },
+        {
+          "3!",
+          6.0
+        },
+        {
+          "12!",
+          479001600.0
+        },
+        {
+          "-4!",
+          -24
+        }
       };
 
     
@@ -372,6 +384,9 @@ namespace CalculatorModelUnit
         },
         {
           "log2(0)"
+        },
+        {
+          "12 !"
         }
       };
 

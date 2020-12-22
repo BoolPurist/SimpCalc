@@ -55,18 +55,24 @@ namespace Calculator_Window
       return numberIsNegative ? result * -1 : result;
     }
 
+    protected const string floatingNumber =
+      @"(?<signSequence>[+-]*)" +
+      @"(?<floatingNumber>(\d+)(?<fractionalPartOfNumber>[\.,](\d+))?)";
+
     // Regular expression for matching a valid operand as a text unit
     protected static readonly Regex operationOneOperandRegex =
       new Regex(@"^\s*(?<operandFunctionBaseNeeded>log)");
 
-    protected static readonly Regex operrandRegex =
+    protected static readonly Regex spaceOperandPartPattern =
       new Regex(
-        @"^\s*(?<signSequence>[+-]*)" +
-        @"(?<floatingNumber>(\d+)+([\.,](\d+))?)(?<surroundedOperator>[\^ER√])?"
+        @"^\s*" + floatingNumber + @"(?<surroundedOperator>[\^ER√])?"
         );
+    protected static readonly Regex operandAsIntegerFunctionPattern =
+      new Regex(@"^((?<signSequence>[+-]*)(?<floatingNumber>\d+)!)");
+
     // Regular expression for matching a valid whole number for a factor of a power
-    protected static readonly Regex interegerPattern =
-      new Regex(@"^(?<signSequence>[+-]*)(?<floatingNumber>\d+)+");
+    protected static readonly Regex floatingNumberPattern =
+      new Regex(@"^" + floatingNumber);
     // Used to find cases for root operations with no left factor
     // Example: √9, which is √9 = 3
     protected static readonly Regex operatorWithoutNeededLeftPattern 
@@ -218,25 +224,25 @@ namespace Calculator_Window
         }
         else if (expectsOpperand)
         {          
+          
           currentMatch = operationOneOperandRegex.Match(textTerm);
           expectsOpperand = false;
           var number = 0.0;
 
+          // Checking for encounter of operandAsFunctionWithBase
           if (currentMatch.Success)
           {
-            //TODO
-
             textTerm = MoveToNextTextPart(textTerm, currentMatch);
             var numberInParanthese = 0.0;
             var baseNumber = 0.0;
-            string operandOperator = 
+            string operandOperator =
               currentMatch.Groups["operandFunctionBaseNeeded"].Value;
 
             if (operandOperator == "log")
             {
-              if ((currentMatch = operrandRegex.Match(textTerm)).Success)
+              if ((currentMatch = spaceOperandPartPattern.Match(textTerm)).Success)
               {
-                baseNumber = ProcessOneOperand(ref textTerm);                
+                baseNumber = ProcessOneOperand(ref textTerm);
               }
               else
               {
@@ -252,16 +258,16 @@ namespace Calculator_Window
               )
             {
               textTerm = MoveToNextTextPart(textTerm, currentMatch);
-              numberInParanthese = this.ProcessTextTerm(ref textTerm, true); 
+              numberInParanthese = this.ProcessTextTerm(ref textTerm, true);
             }
             else
             {
               throw new CalculationParseException(
-                $"Syntax Error: " + 
+                $"Syntax Error: " +
                 $"No term in parentheses for {operandOperator} was provided"
                 );
             }
-            
+
             number = CalculateFunctionOperand(
               operandOperator, baseNumber, numberInParanthese
               );
@@ -269,7 +275,16 @@ namespace Calculator_Window
             AddOperand(number);
           }
           else if (
-            (currentMatch = operrandRegex.Match(textTerm)).Success
+            (currentMatch = operandAsIntegerFunctionPattern.Match(textTerm))
+            .Success
+            )
+          {
+            textTerm = MoveToNextTextPart(textTerm, currentMatch);
+            number = GetNumericOperandFromMatch(currentMatch);
+            AddOperand(CalculateFaculty( (int)number ));
+          }
+          else if (
+            (currentMatch = spaceOperandPartPattern.Match(textTerm)).Success
             )
           {
             number = ProcessOneOperand(ref textTerm);
@@ -308,7 +323,7 @@ namespace Calculator_Window
               textTerm = MoveToNextTextPart(textTerm, currentMatch);
 
               // Check if factor for power operation is a valid whole number
-              Match rightSideOfOperand = interegerPattern.Match(textTerm);
+              Match rightSideOfOperand = floatingNumberPattern.Match(textTerm);
 
               if (rightSideOfOperand.Success)
               {
@@ -435,16 +450,17 @@ namespace Calculator_Window
 
       // Parameter: operandMatch is a match of a valid operand in a string.
       // Returns numeric signed value of an operand
+      // Match must have the Group signSequence and floatingNumber
       static double GetNumericOperandFromMatch(Match operandMatch)
       {
-        string signSequence = operandMatch.Groups["signSequence"].Value;
+        string signSequence = operandMatch.Groups["signSequence"].Value;        
         var number = 0.0;
-        
+        string test = operandMatch.Groups["floatingNumber"].Value;
         number = Double.Parse(operandMatch.Groups["floatingNumber"].Value);
 
         CheckForOverflow(number);
         
-        return ProcessPlusMinusSeq(signSequence, number);
+        return ProcessPlusMinusSeq(signSequence, number); ;
       }
 
       // Operand is extracted into 2 parts, sign and its numeric value. 

@@ -4,13 +4,14 @@ Startsymbol = equation
 
 | Symbol| | Subsymbols of Symbol |
 |:----|:-:|:-------------------------------------------------------------------|
-| equation | = |operand ( ( operator operand ) \| equationInParatheseWithSpace \| ( operator equationInParatheseWithSpace)  )\* WhiteSpace\* |
+| equation | = | spaceOperand ( ( operator SpaceOperand ) \| equationInParatheseWithSpace \| ( operator equationInParatheseWithSpace)  )\* WhiteSpace\* |
 | equationInParatheseWithSpace | = | WhiteSpace* equationInParathese |
 | equationInParathese | = | openingParathese equation closingParathese |
-| operand | = | WhiteSpace* ( operandAsNumber \| operandWithSurroundedOperator \| operandWithRightOperator \| operandAsFunctionWithBase \| operandAsFunction \| operandAsIntegerFunction ) |
+| spaceOperand | = | WhiteSpace* operand |
+| operand | = | ( operandAsNumber \| operandWithSurroundedOperator \| operandWithRightOperator \| operandAsFunctionWithBase \| operandAsFunction \| operandAsIntegerFunction ) |
 | operandWithSurroundedOperator | = | operrandAsNumber surroundedOperator ( integer \| equationInParathese ) |
 | operandWithRightOperator | = | operatorWithoutNeededLeft ( integer \| equationInParathese ) |
-| operandAsFunctionWithBase | = | operandFunctionBaseNeeded operandAsNumber equationInParathese |
+| operandAsFunctionWithBase | = | operandFunctionBaseNeeded ( equationInParathese \| operand ) equationInParathese |
 | operandAsFunction | = | operandFunction equationInParathese |
 | operandAsIntegerFunction | = | integer operandFunctionsWithIntegers |
 | operator | = | WhiteSpace* ( sign \| prioritySign )  |
