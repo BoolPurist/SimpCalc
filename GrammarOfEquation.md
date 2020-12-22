@@ -4,7 +4,7 @@ Startsymbol = equation
 
 | Symbol| | Subsymbols of Symbol |
 |:----|:-:|:-------------------------------------------------------------------|
-| equation | = | spaceOperand ( ( operator SpaceOperand ) \| equationInParatheseWithSpace \| ( operator equationInParatheseWithSpace)  )\* WhiteSpace\* |
+| equation | = | spaceOperand ( ( operator spaceOperand ) \| equationInParatheseWithSpace \| ( operator equationInParatheseWithSpace)  )\* WhiteSpace\* |
 | equationInParatheseWithSpace | = | WhiteSpace* equationInParathese |
 | equationInParathese | = | openingParathese equation closingParathese |
 | spaceOperand | = | WhiteSpace* operand |
