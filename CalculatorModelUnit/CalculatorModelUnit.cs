@@ -385,6 +385,12 @@ namespace CalculatorModelUnit
         {
           "log2(0)"
         },
+        { 
+          "log2 (24)"
+        },
+        {
+          "log 2(5)"
+        },
         {
           "12 !"
         }

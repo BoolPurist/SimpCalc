@@ -63,10 +63,16 @@ namespace Calculator_Window
     protected static readonly Regex operationOneOperandRegex =
       new Regex(@"^\s*(?<operandFunctionBaseNeeded>log)");
 
+    private const string operandPart =
+      floatingNumber + @"(?<surroundedOperator>[\^ER√])?";
+
+    protected static readonly Regex operandPartPattern =
+      new Regex(@"^" + operandPart);
+
     protected static readonly Regex spaceOperandPartPattern =
-      new Regex(
-        @"^\s*" + floatingNumber + @"(?<surroundedOperator>[\^ER√])?"
-        );
+      new Regex(@"^\s*" + operandPart);
+
+
     protected static readonly Regex operandAsIntegerFunctionPattern =
       new Regex(@"^((?<signSequence>[+-]*)(?<floatingNumber>\d+)!)");
 
@@ -240,7 +246,7 @@ namespace Calculator_Window
 
             if (operandOperator == "log")
             {
-              if ((currentMatch = spaceOperandPartPattern.Match(textTerm)).Success)
+              if ((currentMatch = operandPartPattern.Match(textTerm)).Success)
               {
                 baseNumber = ProcessOneOperand(ref textTerm);
               }
