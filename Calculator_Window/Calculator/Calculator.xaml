@@ -134,7 +134,11 @@
           <Button Content="*" Template="{StaticResource InputBtnTemp}" />
           <Button Content="/" Template="{StaticResource InputBtnTemp}" />
           <Button Content="%" Template="{StaticResource InputBtnTemp}" />
-          
+        </WrapPanel>
+        <WrapPanel>
+          <Button Content="cos" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="sin" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="tan" Template="{StaticResource InputBtnTemp}" />
         </WrapPanel>
         <WrapPanel>
           <Button Content="Clear" 
