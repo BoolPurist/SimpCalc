@@ -275,6 +275,10 @@ namespace CalculatorModelUnit
         {
           "cos(0)",
           1.0
+        },
+        {
+          "cotan(1)",
+          45
         }
       };
 
@@ -313,6 +317,31 @@ namespace CalculatorModelUnit
           0.5,
           1
           },
+          {
+            "cosin(-0.2)",
+            -11.54,
+            2
+          },
+          {
+            "cocos(0.6)",
+            53.13,
+            2
+          },
+          { 
+            "cotan(2.5)",
+            68.20,
+            2
+          },
+          {
+            "cocos(0.5)",
+            60.0,
+            1
+            },
+          {
+            "cosin(0.5)",
+            30,
+            1
+          }
         };
 
     public static TheoryData<string, double> CalculationForInteger
@@ -442,6 +471,12 @@ namespace CalculatorModelUnit
         },
         {
           "tan()"
+        },
+        {
+          "cocos(2)"
+        },
+        {
+          "cosin(-2)"
         }
       };
 

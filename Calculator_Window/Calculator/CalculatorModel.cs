@@ -123,7 +123,8 @@ namespace Calculator_Window
     // Regular expression for matching a valid operand as a text unit
     protected static readonly Regex operationOneOperandRegex =
       new Regex(
-        @"^\s*(?<function>(?<operandFunctionBaseNeeded>log)|(?<operandFunction>tan|sin|cos))"
+        @"^\s*(?<function>(?<operandFunctionBaseNeeded>log)|" +
+        @"(?<operandFunction>cotan|cosin|cocos|tan|sin|cos))"
       );
     private const string operandPart =
       floatingNumber + @"(?<surroundedOperator>[\^ER√])?";
@@ -707,12 +708,37 @@ namespace Calculator_Window
         {
           return Math.Cos(DegreeToRadians(secondOperand));
         }
+        else if (operandFunction == "cocos")
+        {
+          ThrowForOverOne();
+          return RadiansToDegree(Math.Acos(secondOperand));
+        }
+        else if (operandFunction == "cosin")
+        {
+          ThrowForOverOne();
+          return RadiansToDegree(Math.Asin(secondOperand));
+        }
+        else if (operandFunction == "cotan")
+        {
+          return RadiansToDegree(Math.Atan(secondOperand));        
+        }
         else
         {
           throw new ArgumentException(
             "No valid function for operator was given !",
             nameof(operandFunction)
             );
+        }
+
+        void ThrowForOverOne()
+        {
+          if (Math.Abs(secondOperand) > 1.0)
+          {
+            throw new CalculationParseException(
+              "Mathematical Error: " + 
+              $"operand must not be greater than 1 or -1 for {secondOperand}"
+              );
+          }
         }
       }
 

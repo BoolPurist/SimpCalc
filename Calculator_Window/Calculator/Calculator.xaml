@@ -77,7 +77,7 @@
         <TextBox 
                 Grid.Column="0" Grid.Row="0"                
                 Margin="{StaticResource CalculatorElementMargin}"
-                TextWrapping="Wrap"                
+                TextWrapping="Wrap"           
                 Width="{Binding Path=MainGirdWidth}"
                 KeyDown="ClearResult_TextBox_KeyDown"
                 Text="{Binding CalculationOutput, UpdateSourceTrigger=PropertyChanged}"
