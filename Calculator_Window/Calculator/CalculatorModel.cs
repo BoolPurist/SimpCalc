@@ -55,47 +55,11 @@ namespace Calculator_Window
       return numberIsNegative ? result * -1 : result;
     }
 
-    protected const string floatingNumber =
-      @"(?<signSequence>[+-]*)" +
-      @"(?<floatingNumber>(\d+)(?<fractionalPartOfNumber>[\.,](\d+))?)";
+    public static double DegreeToRadians(double degree)
+      => (Math.PI / 180) * degree;
 
-    // Regular expression for matching a valid operand as a text unit
-    protected static readonly Regex operationOneOperandRegex =
-      new Regex(@"^\s*(?<operandFunctionBaseNeeded>log)");
-
-    private const string operandPart =
-      floatingNumber + @"(?<surroundedOperator>[\^ER√])?";
-
-    protected static readonly Regex operandPartPattern =
-      new Regex(@"^" + operandPart);
-
-    protected static readonly Regex spaceOperandPartPattern =
-      new Regex(@"^\s*" + operandPart);
-
-
-    protected static readonly Regex operandAsIntegerFunctionPattern =
-      new Regex(@"^((?<signSequence>[+-]*)(?<floatingNumber>\d+)!)");
-
-    // Regular expression for matching a valid whole number for a factor of a power
-    protected static readonly Regex floatingNumberPattern =
-      new Regex(@"^" + floatingNumber);
-    // Used to find cases for root operations with no left factor
-    // Example: √9, which is √9 = 3
-    protected static readonly Regex operatorWithoutNeededLeftPattern 
-      = new Regex(@"\s*(?<surroundedOperator>[R√])");
-    // Regular expression for matching a valid operator as a text unit.
-    protected static readonly Regex operatorPattern =
-      new Regex(@"^\s*((?<sign>[+\-])|(?<prioritySign>[*/%]))");      
-    // Regular expression for matching a valid text unit as an opening parentheses
-    protected static readonly Regex whiteSpaceOpeningParathesePattern =
-      new Regex(@"^\s*\(");
-    // Regular expression for matching a valid text unit as an closing parentheses
-    // with no whitespace before.
-    protected static readonly Regex openingParathesePattern =
-      new Regex(@"^\(");
-    // Regular expression for matching a valid text unit as an closing parentheses
-    protected static readonly Regex whiteSpaceclosingParathesePattern =
-      new Regex(@"^\s*\)");
+    public static double RadiansToDegree(double radians)
+      => (180 / Math.PI) * radians;
 
     /// <summary> 
     /// Takes a string as an equation and returns a numeric values as the result
@@ -151,7 +115,44 @@ namespace Calculator_Window
 
       return this.CurrentResult;
     }
-   
+
+    protected const string floatingNumber =
+  @"(?<signSequence>[+-]*)" +
+  @"(?<floatingNumber>(\d+)(?<fractionalPartOfNumber>[\.,](\d+))?)";
+
+    // Regular expression for matching a valid operand as a text unit
+    protected static readonly Regex operationOneOperandRegex =
+      new Regex(
+        @"^\s*(?<function>(?<operandFunctionBaseNeeded>log)|(?<operandFunction>tan|sin|cos))"
+      );
+    private const string operandPart =
+      floatingNumber + @"(?<surroundedOperator>[\^ER√])?";
+    protected static readonly Regex operandPartPattern =
+      new Regex(@"^" + operandPart);
+    protected static readonly Regex spaceOperandPartPattern =
+      new Regex(@"^\s*" + operandPart);
+    protected static readonly Regex operandAsIntegerFunctionPattern =
+      new Regex(@"^((?<signSequence>[+-]*)(?<floatingNumber>\d+)!)");
+    // Regular expression for matching a valid whole number for a factor of a power
+    protected static readonly Regex floatingNumberPattern =
+      new Regex(@"^" + floatingNumber);
+    // Used to find cases for root operations with no left factor
+    // Example: √9, which is √9 = 3
+    protected static readonly Regex operatorWithoutNeededLeftPattern
+      = new Regex(@"\s*(?<surroundedOperator>[R√])");
+    // Regular expression for matching a valid operator as a text unit.
+    protected static readonly Regex operatorPattern =
+      new Regex(@"^\s*((?<sign>[+\-])|(?<prioritySign>[*/%]))");
+    // Regular expression for matching a valid text unit as an opening parentheses
+    protected static readonly Regex whiteSpaceOpeningParathesePattern =
+      new Regex(@"^\s*\(");
+    // Regular expression for matching a valid text unit as an closing parentheses
+    // with no whitespace before.
+    protected static readonly Regex openingParathesePattern =
+      new Regex(@"^\(");
+    // Regular expression for matching a valid text unit as an closing parentheses
+    protected static readonly Regex whiteSpaceclosingParathesePattern =
+      new Regex(@"^\s*\)");
     private const string OverflowOperationErrorMsg =
       "Mathematical Error: one operation resulted in a too big or small number !";
 
@@ -242,9 +243,10 @@ namespace Calculator_Window
             var numberInParanthese = 0.0;
             var baseNumber = 0.0;
             string operandOperator =
-              currentMatch.Groups["operandFunctionBaseNeeded"].Value;
+              currentMatch.Groups["function"].Value;
 
-            if (operandOperator == "log")
+
+            if (currentMatch.Groups["operandFunctionBaseNeeded"].Success)
             {
               if ((currentMatch = operandPartPattern.Match(textTerm)).Success)
               {
@@ -322,7 +324,8 @@ namespace Calculator_Window
                 );
             }
 
-            string surroundedOperator = currentMatch.Groups["surroundedOperator"].Value;
+            string surroundedOperator = 
+              currentMatch.Groups["surroundedOperator"].Value;
             // Checks if an operand contains a power operation.
             if (surroundedOperator != String.Empty)
             {
@@ -684,10 +687,22 @@ namespace Calculator_Window
 
           return Math.Log(secondOperand, firstOperand);
         }
+        else if (operandFunction == "tan")
+        {
+          
+          if (secondOperand == 90.0 || secondOperand == 270.0)
+          {
+            throw new CalculationParseException(
+              "Mathematical Error: angle must not be 90.0 or 270.0 degree for tan"
+              );
+          }
+
+          return Math.Tan(DegreeToRadians(secondOperand));
+        }
         else
         {
           throw new ArgumentException(
-            "No valid function for operator was given !", 
+            "No valid function for operator was given !",
             nameof(operandFunction)
             );
         }

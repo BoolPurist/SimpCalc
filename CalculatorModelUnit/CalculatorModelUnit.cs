@@ -91,11 +91,11 @@ namespace CalculatorModelUnit
     [MemberData(nameof(CalculationForInteger))]
     public void CalculateFromText_ShouldReturnIntegralPart(
       string text,
-      double expectedResult      
+      double expectedResult
       )
     {
       var calculator = new CalculatorModel();
-      calculator.CalculateFromText(text);      
+      calculator.CalculateFromText(text);
       Assert.Equal(expectedResult, calculator.IntegerFromCurrentResult);
     }
 
@@ -114,10 +114,10 @@ namespace CalculatorModelUnit
     [Theory]
     [MemberData(nameof(FacultyCalculation))]
     public void CalculateFaculty_ShouldReturnExactResult(
-      int parameter, 
+      int parameter,
       int expectedResult
       )
-    {      
+    {
       Assert.Equal(expectedResult, CalculatorModel.CalculateFaculty(parameter));
     }
 
@@ -266,7 +266,7 @@ namespace CalculatorModelUnit
         }
       };
 
-    
+
 
     public static TheoryData<string, double, int> CalculationWithRounding
       => new TheoryData<string, double, int>()
@@ -275,7 +275,12 @@ namespace CalculatorModelUnit
             "16.5 * -14.2",
             -234.3,
             1
-          }
+          },
+          { 
+          "tan(30)",
+          0.58,
+          2
+          }       
         };
 
     public static TheoryData<string, double> CalculationForInteger
@@ -289,7 +294,7 @@ namespace CalculatorModelUnit
           "24",
           24.0
         },
-        { 
+        {
           "0.45",
           0.0
         },
@@ -337,7 +342,7 @@ namespace CalculatorModelUnit
         },
         {
           "24. + 25.25"
-        },        
+        },
         {
           "2 * (2 - 4)24"
         },
@@ -385,7 +390,7 @@ namespace CalculatorModelUnit
         {
           "log2(0)"
         },
-        { 
+        {
           "log2 (24)"
         },
         {
@@ -393,6 +398,18 @@ namespace CalculatorModelUnit
         },
         {
           "12 !"
+        },
+        { 
+          "tan(90)"
+        },
+        {
+          "tan(270)"
+        },
+        {
+          "tan (80)"
+        },
+        {
+          "tan()"
         }
       };
 
@@ -400,11 +417,11 @@ namespace CalculatorModelUnit
       => new TheoryData<string>()
       {
         "2/0",
-        "2(2/(4-2*2))",                
-        "8%0"        
+        "2(2/(4-2*2))",
+        "8%0"
       };
 
-    private const string tooBigNumber = 
+    private const string tooBigNumber =
         "10000000000000000000000000000000000000000000000000000000000000000000000" +
         "00000000000000000000000000000000000000000000000000000000000000000000000" +
         "00000000000000000000000000000000000000000000000000000000000000000000000" +
@@ -427,8 +444,8 @@ namespace CalculatorModelUnit
         "6465465465465454665446546546546545664654654654654546654465465465465456666"
       };
 
-    public static TheoryData<int,int> FacultyCalculation
-      => new TheoryData<int,int>()
+    public static TheoryData<int, int> FacultyCalculation
+      => new TheoryData<int, int>()
       {
         {
           0,
