@@ -263,6 +263,18 @@ namespace CalculatorModelUnit
         {
           "-4!",
           -24
+        },
+        {
+          "sin(0)",
+          0.0
+        },
+        {
+          "sin(90)",
+          1.0
+        },
+        {
+          "cos(0)",
+          1.0
         }
       };
 
@@ -280,7 +292,27 @@ namespace CalculatorModelUnit
           "tan(30)",
           0.58,
           2
-          }       
+          },
+          {
+          "sin(80)",
+          0.98,
+          2
+          },
+          {
+          "sin(-45)",
+          -0.71,
+          2
+          },
+          {
+          "cos(-190)",
+          -0.98,
+          2
+          },
+          {
+          "cos(300)",
+          0.5,
+          1
+          },
         };
 
     public static TheoryData<string, double> CalculationForInteger
@@ -322,7 +354,7 @@ namespace CalculatorModelUnit
         {
           "78.04",
           0.04
-        }
+        },
       };
 
     public static TheoryData<string> InvalidEquations

@@ -689,7 +689,7 @@ namespace Calculator_Window
         }
         else if (operandFunction == "tan")
         {
-          
+
           if (secondOperand == 90.0 || secondOperand == 270.0)
           {
             throw new CalculationParseException(
@@ -698,6 +698,14 @@ namespace Calculator_Window
           }
 
           return Math.Tan(DegreeToRadians(secondOperand));
+        }
+        else if (operandFunction == "sin")
+        {
+          return Math.Sin(DegreeToRadians(secondOperand));
+        }
+        else if (operandFunction == "cos")
+        {
+          return Math.Cos(DegreeToRadians(secondOperand));
         }
         else
         {
