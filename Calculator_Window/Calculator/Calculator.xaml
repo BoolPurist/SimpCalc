@@ -139,6 +139,9 @@
           <Button Content="cos" Template="{StaticResource InputBtnTemp}" />
           <Button Content="sin" Template="{StaticResource InputBtnTemp}" />
           <Button Content="tan" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="cocos" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="cosin" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="cotan" Template="{StaticResource InputBtnTemp}" />          
         </WrapPanel>
         <WrapPanel>
           <Button Content="Clear" 
