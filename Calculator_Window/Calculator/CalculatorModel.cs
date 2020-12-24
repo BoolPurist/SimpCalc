@@ -33,10 +33,12 @@ namespace Calculator_Window
         else
         {
           return Double.Parse($"0.{this.CurrentResult.ToString().Split('.')[1]}");
-        } 
+        }
       }
     }
 
+    public bool UsesRadians { get; set; } = false;
+   
     public static int CalculateFaculty(int number)
     {
       var result = 1;
@@ -116,18 +118,23 @@ namespace Calculator_Window
       return this.CurrentResult;
     }
 
-    protected const string floatingNumber =
-  @"(?<signSequence>[+-]*)" +
-  @"(?<floatingNumber>(\d+)(?<fractionalPartOfNumber>[\.,](\d+))?)";
+    protected const string signSequence = @"(?<signSequence>[+-]*)";
 
+    protected const string floatingNumber =
+      signSequence +
+      @"(?<floatingNumber>(\d+)(?<fractionalPartOfNumber>[\.,](\d+))?)";
+   
     // Regular expression for matching a valid operand as a text unit
     protected static readonly Regex operationOneOperandRegex =
       new Regex(
         @"^\s*(?<function>(?<operandFunctionBaseNeeded>log)|" +
         @"(?<operandFunction>cotan|cosin|cocos|tan|sin|cos))"
-      );
+      ); // + piSings + @"?"
+    private const string piSings = @"(?<piSigns>(pi|π)+)";
+    private const string floatingNumberPiSings = floatingNumber + piSings;
     private const string operandPart =
-      floatingNumber + @"(?<surroundedOperator>[\^ER√])?";
+      "(" + signSequence + piSings + "|" + floatingNumber + piSings + "?" + ")" + 
+      @"(?<surroundedOperator>[\^ER√])?";
     protected static readonly Regex operandPartPattern =
       new Regex(@"^" + operandPart);
     protected static readonly Regex spaceOperandPartPattern =
@@ -137,6 +144,7 @@ namespace Calculator_Window
     // Regular expression for matching a valid whole number for a factor of a power
     protected static readonly Regex floatingNumberPattern =
       new Regex(@"^" + floatingNumber);
+
     // Used to find cases for root operations with no left factor
     // Example: √9, which is √9 = 3
     protected static readonly Regex operatorWithoutNeededLeftPattern
@@ -196,6 +204,7 @@ namespace Calculator_Window
       // Parsing equation and extracting text units for calculation
       while (textTerm != String.Empty)
       {
+        string test = operandPart;
         // Checks if the next equation unit is ')' in case the current method
         // stack was created because of '(' as equation unit.
         if (looksCloseParanthese)
@@ -214,6 +223,8 @@ namespace Calculator_Window
         }
 
         currentMatch = whiteSpaceOpeningParathesePattern.Match(textTerm);
+
+
 
         if (currentMatch.Success)
         {
@@ -313,16 +324,34 @@ namespace Calculator_Window
           double ProcessOneOperand(ref string textTerm)
           {
             double number = 0.0;
-
+            
             try
             {
-              number = GetNumericOperandFromMatch(currentMatch);
+              if (currentMatch.Groups["floatingNumber"].Success)
+              {
+                number = GetNumericOperandFromMatch(currentMatch);
+              }              
             }
             catch (OverflowException)
             {
               throw new OverflowException(
                 "Mathematical Error: One operand is too big for calculation"
                 );
+            }
+
+            Group piSigns = currentMatch.Groups["piSigns"];
+
+            if (piSigns.Success)
+            {
+              double piValue = ProcessPiSeqeunce(piSigns.Value);
+              if (number == 0.0)
+              {
+                number += piValue;
+              }
+              else
+              {
+                number *= piValue;
+              }
             }
 
             string surroundedOperator = 
@@ -400,7 +429,7 @@ namespace Calculator_Window
                   );
                 }
               }
-            }
+            }            
             else
             {
               textTerm = MoveToNextTextPart(textTerm, currentMatch);
@@ -408,7 +437,6 @@ namespace Calculator_Window
 
             return number;
           }
-
         }
         else
         {
@@ -465,7 +493,7 @@ namespace Calculator_Window
       {
         string signSequence = operandMatch.Groups["signSequence"].Value;        
         var number = 0.0;
-        string test = operandMatch.Groups["floatingNumber"].Value;
+
         number = Double.Parse(operandMatch.Groups["floatingNumber"].Value);
 
         CheckForOverflow(number);
@@ -655,6 +683,7 @@ namespace Calculator_Window
 
           leftSide = Math.Pow(rightSide, 1.0 / leftSide);
         }
+        
 
         return leftSide;
       }
@@ -742,6 +771,19 @@ namespace Calculator_Window
         }
       }
 
+      static double ProcessPiSeqeunce(string seqeunce)
+      {
+        double result = 1.0;
+
+        seqeunce = seqeunce.Replace("pi", "π");
+
+        foreach (char piSign in seqeunce)
+        {
+          result *= Math.PI;
+        }
+
+        return result == 1.0 ? 0.0 : result;
+      }
     }    
   }
 }
