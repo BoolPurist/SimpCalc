@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using Calculator_Window.CalculatorControl;
 
 
 namespace Calculator_Window
@@ -130,7 +131,7 @@ namespace Calculator_Window
         @"^\s*(?<function>(?<operandFunctionBaseNeeded>log)|" +
         @"(?<operandFunction>cotan|cosin|cocos|tan|sin|cos))"
       ); // + piSings + @"?"
-    private const string piSings = @"(?<piSigns>(pi|π)+)";
+    private const string piSings = @"(?<constSigns>(pi|π|e)+)";
     private const string floatingNumberPiSings = floatingNumber + piSings;
     private const string operandPart =
       "(" + signSequence + piSings + "|" + floatingNumber + piSings + "?" + ")" + 
@@ -203,8 +204,7 @@ namespace Calculator_Window
 
       // Parsing equation and extracting text units for calculation
       while (textTerm != String.Empty)
-      {
-        string test = operandPart;
+      {        
         // Checks if the next equation unit is ')' in case the current method
         // stack was created because of '(' as equation unit.
         if (looksCloseParanthese)
@@ -248,7 +248,7 @@ namespace Calculator_Window
           expectsOpperand = false;
           var number = 0.0;
 
-          // Checking for encounter of operandAsFunctionWithBase
+          // Checking for encounter of operandAsFunctionWithBase like log
           if (currentMatch.Success)
           {
             textTerm = MoveToNextTextPart(textTerm, currentMatch);
@@ -307,6 +307,7 @@ namespace Calculator_Window
             (currentMatch = spaceOperandPartPattern.Match(textTerm)).Success
             )
           {
+            // Handling operand like 24^4
             number = ProcessOneOperand(ref textTerm);
             AddOperand(number);
           }
@@ -339,19 +340,45 @@ namespace Calculator_Window
                 );
             }
 
-            Group piSigns = currentMatch.Groups["piSigns"];
+            Group constantHit = currentMatch.Groups["constSigns"];
 
-            if (piSigns.Success)
+            if (constantHit.Success)
             {
-              double piValue = ProcessPiSeqeunce(piSigns.Value);
-              if (number == 0.0)
+              string constantSequence = constantHit.Value;
+              double constantValue = 1.0;
+              constantSequence = constantSequence.Replace("pi", "π");
+
+              foreach (char constantSign in constantSequence)
               {
-                number += piValue;
+                switch (constantSign)
+                {
+                  case 'π':
+                    constantValue *= Math.PI;
+                    break;
+                  case 'e':
+                    constantValue *= Math.E;
+                    break;
+                  default:
+                    throw new ArgumentException(
+                      $"Unknown constant sign {constantValue}",
+                      nameof(constantSign)
+                      );
+                    
+                }
               }
-              else
+
+              if (constantValue != 1.0)
               {
-                number *= piValue;
+                if (number == 0.0)
+                {
+                  number += constantValue;
+                }
+                else
+                {
+                  number *= constantValue;
+                }
               }
+
             }
 
             string surroundedOperator = 
@@ -770,20 +797,7 @@ namespace Calculator_Window
           }
         }
       }
-
-      static double ProcessPiSeqeunce(string seqeunce)
-      {
-        double result = 1.0;
-
-        seqeunce = seqeunce.Replace("pi", "π");
-
-        foreach (char piSign in seqeunce)
-        {
-          result *= Math.PI;
-        }
-
-        return result == 1.0 ? 0.0 : result;
-      }
+      
     }    
   }
 }

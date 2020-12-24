@@ -181,6 +181,10 @@ namespace CalculatorModelUnit
           "2  +  ( 2/ (8*4) +2)-89",
           -84.9375
         },
+        {
+          "(2*2)^4",
+          256.0
+        },
         // Testing functionality for power        
         {
           "-5^0",
@@ -363,6 +367,11 @@ namespace CalculatorModelUnit
             2
           },
           {
+            "-2.5pi^2",
+            61.69,
+            2
+          },
+          {
             "2.5pipiπ",
             77.52,
             2
@@ -370,6 +379,11 @@ namespace CalculatorModelUnit
           {
             "---pi",
             3.14,
+            2
+          },
+          {
+            "e^3",
+            20.09,
             2
           }
         };
