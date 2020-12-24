@@ -133,9 +133,14 @@ namespace Calculator_Window
       ); // + piSings + @"?"
     private const string piSings = @"(?<constSigns>(pi|π|e)+)";
     private const string floatingNumberPiSings = floatingNumber + piSings;
+    private const string surroundedOperatorUnit = 
+      @"(?<surroundedOperator>[\^ER√])";
+
     private const string operandPart =
-      "(" + signSequence + piSings + "|" + floatingNumber + piSings + "?" + ")" + 
-      @"(?<surroundedOperator>[\^ER√])?";
+      "(" + signSequence + piSings + "|" + floatingNumber + piSings + "?" + ")" +
+      surroundedOperatorUnit + @"?";
+    protected static readonly Regex surroundedOperatorPattern =
+      new Regex(@"^" + surroundedOperatorUnit);
     protected static readonly Regex operandPartPattern =
       new Regex(@"^" + operandPart);
     protected static readonly Regex spaceOperandPartPattern =
@@ -224,13 +229,24 @@ namespace Calculator_Window
 
         currentMatch = whiteSpaceOpeningParathesePattern.Match(textTerm);
 
-
-
         if (currentMatch.Success)
         {
           textTerm = MoveToNextTextPart(textTerm, currentMatch);
           // Getting result from inner parentheses.
           double subResult = this.ProcessTextTerm(ref textTerm, true);
+
+          currentMatch = surroundedOperatorPattern.Match(textTerm);
+
+          if (currentMatch.Success)
+          {
+            textTerm = MoveToNextTextPart(textTerm, currentMatch);
+            
+            subResult = ProcessSurroundedWithRightSide(
+              ref textTerm, 
+              currentMatch.Groups["surroundedOperator"].Value,
+              subResult
+              );
+          }
 
           if (!expectsOpperand)
           {            
@@ -362,8 +378,7 @@ namespace Calculator_Window
                     throw new ArgumentException(
                       $"Unknown constant sign {constantValue}",
                       nameof(constantSign)
-                      );
-                    
+                      );                    
                 }
               }
 
@@ -388,74 +403,11 @@ namespace Calculator_Window
             {
               textTerm = MoveToNextTextPart(textTerm, currentMatch);
 
-              // Check if factor for power operation is a valid whole number
-              Match rightSideOfOperand = floatingNumberPattern.Match(textTerm);
-
-              if (rightSideOfOperand.Success)
-              {
-                double rightNumber;
-
-                try
-                {
-                  rightNumber = GetNumericOperandFromMatch(rightSideOfOperand);
-                }
-                catch (OverflowException)
-                {
-                  throw new OverflowException(
-                    "Mathematical Error: One factor for a power operation is too big !"
-                    );
-                }
-
-                number = CalcualteSurroundedOperator(
-                  number, rightNumber, surroundedOperator
-                  );
-
-
-                if (Double.IsInfinity(number))
-                {
-                  throw new OverflowException(
-                    "Mathematical Error: one operand is too big" +
-                    " after raised to a certain power"
-                    );
-                }
-
-                // valid power factor as whole number after "^" is processed
-                // and will be now removed.
-                currentMatch = rightSideOfOperand;
-                textTerm = MoveToNextTextPart(textTerm, currentMatch);
-              }
-              else
-              {
-                rightSideOfOperand = openingParathesePattern.Match(textTerm);
-
-                if (rightSideOfOperand.Success)
-                {
-                  textTerm = MoveToNextTextPart(textTerm, rightSideOfOperand);
-                  double subResult = this.ProcessTextTerm(ref textTerm, true);
-                  try
-                  {
-                    number = CalcualteSurroundedOperator(
-                      number, subResult, surroundedOperator
-                      );
-                  }
-                  catch (OverflowException)
-                  {
-                    throw new OverflowException(
-                      $"One operand is too big or small" +
-                      $" after the operation {surroundedOperator}"
-                      );
-                  }
-
-                }
-                else
-                {
-                  // String after operator is no valid whole number 
-                  // or term surrounded by ( ) as a power factor 
-                  throw new CalculationParseException(
-                  $"Syntax Error: invalid factor for {surroundedOperator} !"
-                  );
-                }
-              }
+              number = ProcessSurroundedWithRightSide(
+                ref textTerm, 
+                surroundedOperator,
+                number
+                );
             }            
             else
             {
@@ -797,7 +749,85 @@ namespace Calculator_Window
           }
         }
       }
-      
+
+      double ProcessSurroundedWithRightSide(
+        ref string textTerm, 
+        string surroundedOperator,
+        double number
+        )
+      {                
+        // Check if factor for power operation is a valid whole number
+        Match rightSideOfOperand = floatingNumberPattern.Match(textTerm);
+
+        if (rightSideOfOperand.Success)
+        {
+          double rightNumber;
+
+          try
+          {
+            rightNumber = GetNumericOperandFromMatch(rightSideOfOperand);
+          }
+          catch (OverflowException)
+          {
+            throw new OverflowException(
+              "Mathematical Error: One factor for a power operation is too big !"
+              );
+          }
+
+          number = CalcualteSurroundedOperator(
+            number, rightNumber, surroundedOperator
+            );
+
+
+          if (Double.IsInfinity(number))
+          {
+            throw new OverflowException(
+              "Mathematical Error: one operand is too big" +
+              " after raised to a certain power"
+              );
+          }
+
+          // valid power factor as whole number after "^" is processed
+          // and will be now removed.
+          currentMatch = rightSideOfOperand;
+          textTerm = MoveToNextTextPart(textTerm, currentMatch);
+        }
+        else
+        {
+          rightSideOfOperand = openingParathesePattern.Match(textTerm);
+
+          if (rightSideOfOperand.Success)
+          {
+            textTerm = MoveToNextTextPart(textTerm, rightSideOfOperand);
+            double subResult = this.ProcessTextTerm(ref textTerm, true);
+            try
+            {
+              number = CalcualteSurroundedOperator(
+                number, subResult, surroundedOperator
+                );
+            }
+            catch (OverflowException)
+            {
+              throw new OverflowException(
+                $"One operand is too big or small" +
+                $" after the operation {surroundedOperator}"
+                );
+            }
+
+          }
+          else
+          {
+            // String after operator is no valid whole number 
+            // or term surrounded by ( ) as a power factor 
+            throw new CalculationParseException(
+            $"Syntax Error: invalid factor for {surroundedOperator} !"
+            );
+          }
+        }
+
+        return number;
+      }
+
     }    
   }
 }
