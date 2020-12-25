@@ -150,7 +150,7 @@ namespace Calculator_Window
     protected static readonly Regex operationOneOperandRegex =
       new Regex(
         @"^\s*(?<function>(?<operandFunctionBaseNeeded>log)|" +
-        @"(?<operandFunction>cotan|cosin|cocos|tan|sin|cos))"
+        @"(?<operandFunction>cotan|cosin|cocos|tan|sin|cos|ln))"
       );
     protected static readonly Regex surroundedOperatorPattern =
       new Regex(@"^" + surroundedOperatorUnit);
@@ -275,11 +275,11 @@ namespace Calculator_Window
         else if (expectsOpperand)
         {          
           
+          // Checking for encounter of operandAsFunctionWithBase like log
           currentMatch = operationOneOperandRegex.Match(textTerm);
           expectsOpperand = false;
           var number = 0.0;
 
-          // Checking for encounter of operandAsFunctionWithBase like log
           if (currentMatch.Success)
           {
             textTerm = MoveToNextTextPart(textTerm, currentMatch);
@@ -698,6 +698,15 @@ namespace Calculator_Window
 
           return Math.Log(secondOperand, firstOperand);
         }
+        else if (operandFunction == "ln")
+        {
+          if (secondOperand <= 0.0)
+          {
+            ThrowMathematicalError(MathematicalError.LogParamZeroOrSmaller);
+          }
+
+          return Math.Log(secondOperand);
+        }
         else if (operandFunction == "tan")
         {
 
@@ -728,7 +737,7 @@ namespace Calculator_Window
         }
         else if (operandFunction == "cotan")
         {
-          return RadiansToDegree(Math.Atan(secondOperand));        
+          return RadiansToDegree(Math.Atan(secondOperand));
         }
         else
         {

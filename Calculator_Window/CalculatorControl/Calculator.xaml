@@ -98,38 +98,38 @@
       <StackPanel Grid.Column="0" Grid.Row="1"
                   Margin="{StaticResource CalculatorElementMargin}">
         <WrapPanel>
-          <Button Tag="True" Content="1" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="2" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="3" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="1" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="2" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="3" Template="{StaticResource InputBtnTemp}" />
           
-          <Button Tag="True" Content="π" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="!" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="π" Template="{StaticResource InputBtnTemp}" />
+          
           <Button Content="Int" 
                   Command="{Binding IntegerCommand}" 
                   Template="{StaticResource CommandBtnTemp}" />
         </WrapPanel>        
         <WrapPanel>
-          <Button Tag="True" Content="4" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="5" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="6" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="e" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="4" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="5" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="6" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="e" Template="{StaticResource InputBtnTemp}" />
           <Button Content="Fract" 
                   Command="{Binding FractionCommand}"
                   Template="{StaticResource CommandBtnTemp}" />
         </WrapPanel>
         <WrapPanel>
-          <Button Tag="True" Content="7" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="8" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="9" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="√" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="log" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="7" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="8" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="9" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="√" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="log" Template="{StaticResource InputBtnTemp}" />
         </WrapPanel>
         <WrapPanel>
-          <Button Tag="True" Content="^" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="0" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="." Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content="(" Template="{StaticResource InputBtnTemp}" />
-          <Button Tag="True" Content=")" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="^" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="0" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="." Template="{StaticResource InputBtnTemp}" />
+          <Button Content="(" Template="{StaticResource InputBtnTemp}" />
+          <Button Content=")" Template="{StaticResource InputBtnTemp}" />
         </WrapPanel>
         <WrapPanel>
           <Button Content="+" Template="{StaticResource InputBtnTemp}" />
@@ -137,6 +137,7 @@
           <Button Content="*" Template="{StaticResource InputBtnTemp}" />
           <Button Content="/" Template="{StaticResource InputBtnTemp}" />
           <Button Content="%" Template="{StaticResource InputBtnTemp}" />
+          <Button Content="!" Template="{StaticResource InputBtnTemp}" />
         </WrapPanel>
         <WrapPanel>
           <Button Content="cos" Template="{StaticResource InputBtnTemp}" />

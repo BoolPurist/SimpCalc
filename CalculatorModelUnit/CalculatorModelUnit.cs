@@ -409,6 +409,11 @@ namespace CalculatorModelUnit
             "(2*4-8)^2+(8+9)R85236",
             1.95,
             2
+          },
+          {
+            "ln(5)",
+            1.61,
+            2
           }
         };
 
