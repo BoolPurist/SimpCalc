@@ -25,7 +25,6 @@ namespace Calculator_Window
     /// <summary> Fractional part of a result </summary>
     /// <value> Getter of the fractional part of a result </value>
     /// <example> Returns 0.45646 of the result 22.45646 </example>
-    // surroundedOperator
     public double FractionFromCurrentResult
     {
       get
@@ -41,11 +40,70 @@ namespace Calculator_Window
       }
     }
 
+    private int maxNumberOfResult = 10;
+    /// <summary> 
+    /// Maximum number of stored calculations in the property Results 
+    /// </summary>
+    /// <value> 
+    /// Getter/Setter if property is set to number lower than the already number of 
+    /// stored calculation then the oldest calculations are removed until number of 
+    /// stored calculation is equal to this property
+    /// </value>
+    /// <exception cref="ArgumentOutOfRangeException"> 
+    /// Throws if property is set to value smaller than 1.
+    /// </exception>
+    public int MaxNumberOfResult
+    {
+      get => this.maxNumberOfResult;
+      set
+      {
+        const int minValue = 1;
+
+        if (value < minValue)
+        {
+          const string paramName = nameof(this.MaxNumberOfResult);
+
+          throw new ArgumentOutOfRangeException(
+            paramName,
+            $"Property {paramName} must not be smaller than {minValue}" 
+            );
+        }
+
+        this.maxNumberOfResult = value;
+
+        while (this.Results.Count > this.maxNumberOfResult)
+        {
+          this.Results.RemoveAt(this.Results.Count - 1);
+        }
+      }
+    }
+
+    /// <summary> 
+    /// Stores all valid calculations. A calculation is 2 read only properties
+    /// The result of an equation and the string of given equation
+    /// </summary>
+    /// <value> 
+    /// Getter of list of calculation. At index 0 the most recent result is 
+    /// stored and the last element holds the oldest equation.
+    /// </value>
+    public List<EquationCalculation> Results { get; private set; }
+      = new List<EquationCalculation>();
+
     public bool UsesRadians { get; set; } = false;
 
     #endregion
 
     #region public methods
+
+    /// <summary> 
+    /// Resets the history. After execution does not contain any 
+    /// previous equations anymore and CurrentResult is zero.
+    /// </summary>
+    public void ClearHistory()
+    {
+      this.CurrentResult = 0.0;
+      this.Results.Clear();
+    }
 
     public static int CalculateFaculty(int number)
     {
@@ -108,7 +166,17 @@ namespace Calculator_Window
       try
       {
         string textForm = inputForCalc.Trim();
-        this.CurrentResult = this.ProcessTextTerm(ref textForm);
+        string equation = textForm;
+        this.CurrentResult = this.ProcessTextTerm(ref textForm);        
+        
+        this.Results.Insert(
+          0, new EquationCalculation(this.CurrentResult, equation)
+          );
+        
+        if (this.Results.Count > this.MaxNumberOfResult)
+        {
+          this.Results.RemoveAt(this.Results.Count - 1);
+        }
       }
       catch (OverflowException e)
       {
@@ -380,20 +448,15 @@ namespace Calculator_Window
 
               foreach (char constantSign in constantSequence)
               {
-                switch (constantSign)
+                constantValue *= constantSign switch
                 {
-                  case 'π':
-                    constantValue *= Math.PI;
-                    break;
-                  case 'e':
-                    constantValue *= Math.E;
-                    break;
-                  default:
-                    throw new ArgumentException(
-                      $"Unknown constant sign {constantValue}",
-                      nameof(constantSign)
-                      );                    
-                }
+                  'π' => Math.PI,
+                  'e' => Math.E,
+                  _ => throw new ArgumentException(
+                          $"Unknown constant sign {constantValue}",
+                          nameof(constantSign)
+                           ),
+                };
               }
 
               if (constantValue != 1.0)

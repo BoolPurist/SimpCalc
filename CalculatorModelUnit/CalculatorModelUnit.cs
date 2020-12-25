@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Xunit;
 
 using Calculator_Window;
@@ -108,7 +109,7 @@ namespace CalculatorModelUnit
 
     [Theory]
     [MemberData(nameof(CalculationForInteger))]
-    public void CalculateFromText_ShouldReturnIntegralPart(
+    public void IntegerFromCurrentResult_ShouldReturnIntegralPart(
       string text,
       double expectedResult
       )
@@ -120,7 +121,7 @@ namespace CalculatorModelUnit
 
     [Theory]
     [MemberData(nameof(CalculationForFragtion))]
-    public void CalculateFromText_ShouldReturnFractionalPart(
+    public void FractionFromCurrentResult_ShouldReturnFractionalPart(
       string text,
       double expectedResult
       )
@@ -139,6 +140,91 @@ namespace CalculatorModelUnit
     {
       Assert.Equal(expectedResult, CalculatorModel.CalculateFaculty(parameter));
     }
+
+    // Tests if calculator stores all given equation and the respective results correctly.
+    // Tests if the last invalid equation is not stored and the most recent result is at
+    // index 0 aka list is reverted.
+    [Fact]
+    public void Results_ShouldHaveAllCalculatedResults()
+    {
+      List<EquationCalculation> equations = EquationsToBeStored;
+      var calucaltorModel = new CalculatorModel();
+      
+      foreach (EquationCalculation data in equations)
+      {
+        calucaltorModel.CalculateFromText(data.Equation);
+      }
+
+      for (int i = 0, j = 1, count = equations.Count; i < count; i++, j++)
+      {
+        // An equation is trimmed before saved in the history in the calculator model.
+        string trimedEquation = equations[i].Equation.Trim();
+
+        Assert.Equal(equations[i].Result, calucaltorModel.Results[count - j].Result);
+        Assert.Equal(trimedEquation, calucaltorModel.Results[count - j].Equation);
+      }
+
+      try
+      {
+        calucaltorModel.CalculateFromText(null);
+      }
+      catch (ArgumentNullException)
+      {
+        // Error provoked to test if invalid equation is not added to history.    
+      }
+
+      Assert.Equal(3, calucaltorModel.Results.Count);
+    }
+
+    // Tests if property Result of an instance CalculatorModel empty is after the 
+    // several invocations of CalculateFromText and a single call of ClearHistory 
+    [Fact]
+    public void ClearHistory_ShouldHaveNoResultsAfterClearHistory()
+    {
+      List<EquationCalculation> equations = EquationsToBeStored;
+      var calucaltorModel = new CalculatorModel();
+
+      foreach (EquationCalculation data in equations)
+      {
+        calucaltorModel.CalculateFromText(data.Equation);
+      }
+
+      calucaltorModel.ClearHistory();
+
+      Assert.Empty(calucaltorModel.Results);
+    }
+
+    // Tests if list only contains the last calculation 
+    // after performing 3 calculations and then setting property MaxNumberOfResult to 1.
+    [Fact]
+    public void MaxNumberOfResults_ShouldNotMoreThanMaxNumber()
+    {
+      List<EquationCalculation> equations = EquationsToBeStored;
+      var calucaltorModel = new CalculatorModel();
+
+
+      foreach (EquationCalculation data in equations)
+      {
+        calucaltorModel.CalculateFromText(data.Equation);
+      }
+
+      calucaltorModel.MaxNumberOfResult = 1;
+
+      Assert.Single<EquationCalculation>(calucaltorModel.Results);
+
+      Assert.Equal(2.0, calucaltorModel.Results[0].Result);
+    }
+
+    // Data used for fact tests Results_ShouldHaveAllCalculatedResults, 
+    // ClearHistory_ShouldHaveNoResultsAfterClearHistory and 
+    // MaxNumberOfResults_ShouldNotMoreThanMaxNumber
+    public static List<EquationCalculation> EquationsToBeStored =>
+      new List<EquationCalculation>()
+      {
+        new EquationCalculation(4.0, "2+2"),
+        new EquationCalculation(18.0, "8*2+2"),
+        new EquationCalculation(2.0, "4-2"),
+      };
 
     // 1. test element as string = equation as a text
     // 2. test element as double = expected result from equation
