@@ -59,8 +59,8 @@ namespace CalculatorModelUnit
       var calculator = new CalculatorModel();
       CalculationParseSyntaxException thrownException = 
         Assert.Throws<CalculationParseSyntaxException>(
-        () => calculator.CalculateFromText(invalidEquation)
-        );
+          () => calculator.CalculateFromText(invalidEquation)
+          );
       SyntaxError actualErrorType = thrownException.SyntaxErrorType;
       Assert.Equal(expectedErrorType, actualErrorType);
     }
@@ -68,13 +68,16 @@ namespace CalculatorModelUnit
     [Theory]
     [MemberData(nameof(EquationWithMathematicalError))]
     public void CalculateFromText_ShouldThrowExceptionForMathematicalError(
-      string invalidEquation
+      string invalidEquation, MathematicalError expectedErrorType
       )
     {
       var calculator = new CalculatorModel();
-      Assert.Throws<CalculationParseMathematicalException>(
-        () => calculator.CalculateFromText(invalidEquation)
-        );
+      CalculationParseMathematicalException thrownException =
+        Assert.Throws<CalculationParseMathematicalException>(
+          () => calculator.CalculateFromText(invalidEquation)
+          );
+      MathematicalError actualErrorType = thrownException.MathematicalErrorType;
+      Assert.Equal(expectedErrorType, actualErrorType);
     }
     
     [Theory]
@@ -451,42 +454,53 @@ namespace CalculatorModelUnit
         },
       };
 
-    public static TheoryData<string> EquationWithMathematicalError
-      => new TheoryData<string>()
+    public static TheoryData<string, MathematicalError> EquationWithMathematicalError
+      => new TheoryData<string, MathematicalError>()
       {
         {
-          "0R24"
+          "0R24",
+          MathematicalError.RootBaseZero
         },
         {
-          "4R0"
+          "4R0",
+          MathematicalError.RootParamZeroOrSmaller
         },
         {
-          "4R-8"
+          "4R-8",
+          MathematicalError.RootParamZeroOrSmaller
         },
         // Testing logarithm
         {
-          "log-2(2)"
+          "log-2(2)",
+          MathematicalError.LogBaseZeroOrSmaller
         },
         {
-          "log0(2)"
+          "log0(2)",
+          MathematicalError.LogBaseZeroOrSmaller
         },
         {
-          "log2(-2)"
+          "log2(-2)",
+          MathematicalError.LogParamZeroOrSmaller
         },
         {
-          "log2(0)"
+          "log2(0)",
+          MathematicalError.LogParamZeroOrSmaller
         },
         {
-          "tan(90)"
+          "tan(90)",
+          MathematicalError.TanInvalidAngle
         },
         {
-          "tan(270)"
+          "tan(270)",
+          MathematicalError.TanInvalidAngle
         },
         {
-          "cocos(2)"
+          "cocos(2)",
+          MathematicalError.SinCosInvalidAngle
         },
         {
-          "cosin(-2)"
+          "cosin(-2)",
+          MathematicalError.SinCosInvalidAngle
         }
       };
 
