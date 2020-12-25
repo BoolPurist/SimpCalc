@@ -2,6 +2,7 @@
 using Xunit;
 
 using Calculator_Window;
+using Calculator_Window.CalculatorControl;
 
 namespace CalculatorModelUnit
 {
@@ -52,13 +53,16 @@ namespace CalculatorModelUnit
     [Theory]
     [MemberData(nameof(EquationWithSyntaxError))]
     public void CalculateFromText_ShouldThrowExceptionForErrorError(
-      string invalidEquation
+      string invalidEquation, SyntaxError expectedErrorType
       )
     {
       var calculator = new CalculatorModel();
-      Assert.Throws<CalculationParseSyntaxException>(
+      CalculationParseSyntaxException thrownException = 
+        Assert.Throws<CalculationParseSyntaxException>(
         () => calculator.CalculateFromText(invalidEquation)
         );
+      SyntaxError actualErrorType = thrownException.SyntaxErrorType;
+      Assert.Equal(expectedErrorType, actualErrorType);
     }
 
     [Theory]
@@ -309,29 +313,29 @@ namespace CalculatorModelUnit
             1
           },
           {
-          "tan(30)",
-          0.58,
-          2
+            "tan(30)",
+            0.58,
+            2
           },
           {
-          "sin(80)",
-          0.98,
-          2
+            "sin(80)",
+            0.98,
+            2
           },
           {
-          "sin(-45)",
-          -0.71,
-          2
+            "sin(-45)",
+            -0.71,
+            2
           },
           {
-          "cos(-190)",
-          -0.98,
-          2
+            "cos(-190)",
+            -0.98,
+            2
           },
           {
-          "cos(300)",
-          0.5,
-          1
+            "cos(300)",
+            0.5,
+            1
           },
           {
             "cosin(-0.2)",
@@ -352,7 +356,7 @@ namespace CalculatorModelUnit
             "cocos(0.5)",
             60.0,
             1
-            },
+          },
           {
             "cosin(0.5)",
             30,
@@ -486,27 +490,79 @@ namespace CalculatorModelUnit
         }
       };
 
-    public static TheoryData<string> EquationWithSyntaxError =>
-      new TheoryData<string>()
+    public static TheoryData<string, SyntaxError> EquationWithSyntaxError
+      => new TheoryData<string, SyntaxError>()
       {
-        "+",
-        "25.. + 5",
-        "24 +",
-        "24 + 2a5",
-        "24. + 25.25",
-        "2 * (2 - 4)24",
-        "2 * (2 - 4 + 24",
-        "2 * (2 - ( 4 ) + 24",
-        "2 * )2 - 4 + 24",
-        "25 + ^-25",
-        "12 !",
-        "log(2)",
-        "log2",
-        "log2 (24)",
-        "log 2(5)",
-        "tan()",
-        "tan (80)"
+        {
+          "+",
+          SyntaxError.InvalidOperand
+        },
+        {
+          "25.. + 5",
+          SyntaxError.InvalidOperator
+        },
+        {
+          "24 +",
+          SyntaxError.InvalidOperand
+        },
+        {
+          "24 + 2a5",
+          SyntaxError.InvalidOperator
+        },
+        {
+          "24. + 25.25",
+          SyntaxError.InvalidOperator
+        },
+        {
+          "2 * (2 - 4)24",
+          SyntaxError.InvalidOperator
+        },
+        {
+          "2 * (2 - 4 + 24",
+          SyntaxError.MissingClosingParanthese
+        },
+        {
+          "2 * (2 - ( 4 ) + 24",
+          SyntaxError.MissingClosingParanthese
+        },
+        {
+          "2 * )2 - 4 + 24",
+          SyntaxError.InvalidOperand
+        },
+        {
+          "25 + ^-25",
+          SyntaxError.InvalidOperand
+        },
+        {
+          "12 !",
+          SyntaxError.InvalidOperator
+        },
+        {
+          "log(2)",
+          SyntaxError.MissingBaseForFunction
+        },
+        {
+          "log2",
+          SyntaxError.MissingParantheseParamForFunction
+        },
+        {
+          "log2 (24)",
+          SyntaxError.MissingParantheseParamForFunction
+        },
+        {
+          "log 2(5)",
+          SyntaxError.MissingBaseForFunction
+        },
+        {
+          "tan()",
+          SyntaxError.InvalidOperand
+        },
+        {
+          "tan (80)",
+          SyntaxError.MissingParantheseParamForFunction
+        }
       };
+
     public static TheoryData<string> EquationWithDenominatorAsZero
       => new TheoryData<string>()
       {
