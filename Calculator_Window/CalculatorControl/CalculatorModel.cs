@@ -118,7 +118,11 @@ namespace Calculator_Window
       {
         throw e;
       }
-      catch (CalculationParseException e)
+      catch (CalculationParseSyntaxException e)
+      {
+        throw e;
+      }
+      catch (CalculationParseMathematicalException e)
       {
         throw e;
       }
@@ -293,9 +297,8 @@ namespace Calculator_Window
               }
               else
               {
-                throw new CalculationParseException(
-                  $"Syntax Error:" +
-                  $"No number as a base provided for {operandOperator}"
+                ThrowSyntaxError(
+                  SyntaxError.MissingBaseForFunction, operandOperator
                   );
               }
             }
@@ -309,9 +312,9 @@ namespace Calculator_Window
             }
             else
             {
-              throw new CalculationParseException(
-                $"Syntax Error: " +
-                $"No term in parentheses for {operandOperator} was provided"
+              ThrowSyntaxError(
+                SyntaxError.MissingParantheseParamForFunction,
+                operandOperator
                 );
             }
 
@@ -346,7 +349,7 @@ namespace Calculator_Window
           }
           else
           {
-            throw new CalculationParseException("Syntax Error: one invalid operand");
+            ThrowSyntaxError(SyntaxError.InvalidOperand);
           }
 
           double ProcessOneOperand(ref string textTerm)
@@ -448,7 +451,7 @@ namespace Calculator_Window
           }
           else
           {
-            throw new CalculationParseException("Syntax Error: invalid operator");
+            ThrowSyntaxError(SyntaxError.InvalidOperator);
           }
           
           textTerm = MoveToNextTextPart(textTerm, currentMatch);
@@ -458,11 +461,11 @@ namespace Calculator_Window
 
       if (looksCloseParanthese && !foundClosingParanthese)
       {
-        throw new CalculationParseException("Syntax Error: Closing parentheses !");
+        ThrowSyntaxError(SyntaxError.MissingClosingParanthese);
       }
       else if (expectsOpperand)
       {
-        throw new CalculationParseException("Syntax Error: missing operand !");
+        ThrowSyntaxError(SyntaxError.InvalidOperand);
       }
 
       // Calculating priority terms aka multiplication before adding numbers ..
@@ -659,16 +662,11 @@ namespace Calculator_Window
         {
           if (leftSide == 0.0)
           {
-            throw new CalculationParseException(
-              "Mathematical Error: left side of a root operation must not be 0 !"
-              );
+            ThrowMathematicalError(MathematicalError.RootBaseZero);
           }
           else if (rightSide <= 0)
           {
-            throw new CalculationParseException(
-              "Mathematical Error: " + 
-              "Right side of a root operation must greater than 0 !"
-            );
+            ThrowMathematicalError(MathematicalError.RootParamZeroOrSmaller);
           }
 
           leftSide = Math.Pow(rightSide, 1.0 / leftSide);
@@ -691,18 +689,11 @@ namespace Calculator_Window
         {
           if (firstOperand <= 0.0)
           {
-            throw new CalculationParseException(
-              $"Mathematical Error: " +
-              $"base number must not be zero or smaller for {operandFunction}"
-              );
+            ThrowMathematicalError(MathematicalError.LogBaseZeroOrSmaller);
           }
           else if (secondOperand <= 0.0)
           {
-            throw new CalculationParseException(
-              $"Mathematical Error: Term in parentheses must not be" +
-              $"zero or smaller for {operandFunction}"
-              );
-
+            ThrowMathematicalError(MathematicalError.LogParamZeroOrSmaller);
           }
 
           return Math.Log(secondOperand, firstOperand);
@@ -712,9 +703,7 @@ namespace Calculator_Window
 
           if (secondOperand == 90.0 || secondOperand == 270.0)
           {
-            throw new CalculationParseException(
-              "Mathematical Error: angle must not be 90.0 or 270.0 degree for tan"
-              );
+            ThrowMathematicalError(MathematicalError.TanInvalidAngle);
           }
 
           return Math.Tan(DegreeToRadians(secondOperand));
@@ -753,10 +742,7 @@ namespace Calculator_Window
         {
           if (Math.Abs(secondOperand) > 1.0)
           {
-            throw new CalculationParseException(
-              "Mathematical Error: " + 
-              $"operand must not be greater than 1 or -1 for {secondOperand}"
-              );
+            ThrowMathematicalError(MathematicalError.SinCosInvalidAngle);
           }
         }
       }
@@ -830,15 +816,91 @@ namespace Calculator_Window
           {
             // String after operator is no valid whole number 
             // or term surrounded by ( ) as a power factor 
-            throw new CalculationParseException(
-            $"Syntax Error: invalid factor for {surroundedOperator} !"
-            );
+            ThrowSyntaxError(
+              SyntaxError.InvalidSorroundedParamter,
+              surroundedOperator
+              );
           }
         }
 
         return number;
       }
 
-    }    
+    }
+
+    static void ThrowSyntaxError(
+      SyntaxError errorType, string errorInfo = ""
+      )
+    {
+      const string prefixForMsg = "Syntax Error: ";
+      string errorMsg = prefixForMsg;
+
+      switch (errorType)
+      {
+        case SyntaxError.InvalidOperand:
+          errorMsg += "Encountered invalid operand";
+          break;
+        case SyntaxError.InvalidOperator:
+          errorMsg += "Encountered invalid operator";
+          break;
+        case SyntaxError.InvalidFloatingNumber:
+          errorMsg += "Encountered an invalid fractional part of an operand";
+          break;
+        case SyntaxError.MissingClosingParanthese:
+          errorMsg += "Closing parentheses is missing";
+          break;
+        case SyntaxError.MissingBaseForFunction:
+          errorMsg += 
+            $"For function {errorInfo}, no number as base factor is provided";
+          break;
+        case SyntaxError.MissingParantheseParamForFunction:
+          errorMsg += "Missing term as parameter in parentheses";
+          break;
+        case SyntaxError.InvalidSorroundedParamter:
+          errorMsg += $"Invalid parameter for surrounded parameter {errorInfo}";
+          break;
+        default:
+          break;
+      }
+
+      throw new CalculationParseSyntaxException(errorMsg, errorType);
+    }
+
+    #region Factory methods for parse exceptions
+
+    static void ThrowMathematicalError(MathematicalError errorType)
+    {
+      const string prefixForMsg = "Mathematical Error: ";
+      string errorMsg = prefixForMsg;
+
+      switch (errorType)
+      {
+        case MathematicalError.RootBaseZero:
+          errorMsg += "Left side of a root operation must not be 0 !";
+          break;
+        case MathematicalError.RootParamZeroOrSmaller:
+          errorMsg += "Right side of a root operation must greater than 0 !";
+          break;
+        case MathematicalError.LogBaseZeroOrSmaller:
+          errorMsg += "Base factor of log must be equal or greater than zero !";
+          break;
+        case MathematicalError.LogParamZeroOrSmaller:
+          errorMsg += "Term in parentheses must be equal or greater than zero !";
+          break;
+        case MathematicalError.TanInvalidAngle:
+          errorMsg += "Angle given to tan must not be 90 or 270";
+          break;
+        case MathematicalError.SinCosInvalidAngle:
+          errorMsg += "Angle given to sin or cos must be between -1 and 1";
+          break;
+        default:
+          break;
+      }
+
+      throw new CalculationParseMathematicalException(errorMsg, errorType);
+    }
+
+    #endregion
+
   }
 }

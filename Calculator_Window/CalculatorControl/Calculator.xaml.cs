@@ -220,7 +220,11 @@ namespace Calculator_Window
       {
         ShowParsingError(e);
       }
-      catch (CalculationParseException e)
+      catch (CalculationParseSyntaxException e)
+      {
+        ShowParsingError(e);
+      }
+      catch (CalculationParseMathematicalException e)
       {
         ShowParsingError(e);
       }

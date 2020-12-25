@@ -50,17 +50,29 @@ namespace CalculatorModelUnit
     }
 
     [Theory]
-    [MemberData(nameof(InvalidEquations))]
-    public void CalculateFromText_ShouldThrowExceptionForInvalidEquation(
+    [MemberData(nameof(EquationWithSyntaxError))]
+    public void CalculateFromText_ShouldThrowExceptionForErrorError(
       string invalidEquation
       )
     {
       var calculator = new CalculatorModel();
-      Assert.Throws<CalculationParseException>(
+      Assert.Throws<CalculationParseSyntaxException>(
         () => calculator.CalculateFromText(invalidEquation)
         );
     }
 
+    [Theory]
+    [MemberData(nameof(EquationWithMathematicalError))]
+    public void CalculateFromText_ShouldThrowExceptionForMathematicalError(
+      string invalidEquation
+      )
+    {
+      var calculator = new CalculatorModel();
+      Assert.Throws<CalculationParseMathematicalException>(
+        () => calculator.CalculateFromText(invalidEquation)
+        );
+    }
+    
     [Theory]
     [MemberData(nameof(BasicCalculation))]
     public void CalculateFromText_ShouldReturnExactResult(
@@ -296,7 +308,7 @@ namespace CalculatorModelUnit
             -234.3,
             1
           },
-          { 
+          {
           "tan(30)",
           0.58,
           2
@@ -331,7 +343,7 @@ namespace CalculatorModelUnit
             53.13,
             2
           },
-          { 
+          {
             "cotan(2.5)",
             68.20,
             2
@@ -375,7 +387,7 @@ namespace CalculatorModelUnit
             "2.5pipiπ",
             77.52,
             2
-          },          
+          },
           {
             "---pi",
             3.14,
@@ -435,39 +447,9 @@ namespace CalculatorModelUnit
         },
       };
 
-    public static TheoryData<string> InvalidEquations
+    public static TheoryData<string> EquationWithMathematicalError
       => new TheoryData<string>()
       {
-        {
-          "+"
-        },
-        {
-          "25.. + 5"
-        },
-        {
-          "24 +"
-        },
-        {
-          "24 + 2x5"
-        },
-        {
-          "24. + 25.25"
-        },
-        {
-          "2 * (2 - 4)24"
-        },
-        {
-          "2 * (2 - 4 + 24"
-        },
-        {
-          "2 * (2 - ( 4 ) + 24"
-        },
-        {
-          "2 * )2 - 4 + 24"
-        },
-        {
-          "25 + ^-25"
-        },
         {
           "0R24"
         },
@@ -477,17 +459,7 @@ namespace CalculatorModelUnit
         {
           "4R-8"
         },
-        // Testing syntax errors for logarithm
-        {
-          "log(2)"
-        },
-        {
-          "log2"
-        },
-        {
-          "log2 (2)"
-        },
-        // Testing mathematical errors for logarithm
+        // Testing logarithm
         {
           "log-2(2)"
         },
@@ -501,25 +473,10 @@ namespace CalculatorModelUnit
           "log2(0)"
         },
         {
-          "log2 (24)"
-        },
-        {
-          "log 2(5)"
-        },
-        {
-          "12 !"
-        },
-        { 
           "tan(90)"
         },
         {
           "tan(270)"
-        },
-        {
-          "tan (80)"
-        },
-        {
-          "tan()"
         },
         {
           "cocos(2)"
@@ -529,6 +486,27 @@ namespace CalculatorModelUnit
         }
       };
 
+    public static TheoryData<string> EquationWithSyntaxError =>
+      new TheoryData<string>()
+      {
+        "+",
+        "25.. + 5",
+        "24 +",
+        "24 + 2a5",
+        "24. + 25.25",
+        "2 * (2 - 4)24",
+        "2 * (2 - 4 + 24",
+        "2 * (2 - ( 4 ) + 24",
+        "2 * )2 - 4 + 24",
+        "25 + ^-25",
+        "12 !",
+        "log(2)",
+        "log2",
+        "log2 (24)",
+        "log 2(5)",
+        "tan()",
+        "tan (80)"
+      };
     public static TheoryData<string> EquationWithDenominatorAsZero
       => new TheoryData<string>()
       {
