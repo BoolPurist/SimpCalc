@@ -143,8 +143,6 @@ namespace Calculator_Window
       }
     }
 
-
-
     private string lastResult = "0";
     public string LastResult
     {
@@ -165,9 +163,12 @@ namespace Calculator_Window
       DataContext = this;
       
       this.InputCommand = new RelayCommand(this.AddInputToCalc);
-      this.ClearCommand = new RelayCommand(param => this.ClearDisplay());
       this.IntegerCommand = new RelayCommand(param => this.IntegerFromResult());
       this.FractionCommand = new RelayCommand(param => this.FractionFromResult());
+      this.ClearCommand = new RelayCommand(
+        param => this.ClearDisplay(),
+        param => this.CanClearDisplay()
+        );
       this.ResultCommand = new RelayCommand(
         param => this.CalculateResult(),
         param => this.CanCalculateResult()
@@ -232,7 +233,7 @@ namespace Calculator_Window
     }
 
     private bool CanCalculateResult()
-      => !this.ShowsResult;
+      => NotShowingResultAndEmpty();
 
     private void AddInputToCalc(object inputSymbol)
     {      
@@ -258,12 +259,14 @@ namespace Calculator_Window
       }
     }
 
-
     private void ClearDisplay()
     {
       this.ErrorMessageVisible = Visibility.Collapsed;      
       this.CalculationOutput = String.Empty;
     }
+
+    private bool CanClearDisplay()
+     => this.CalculationOutput != String.Empty;
 
     private void IntegerFromResult()
      => this.ExtractFractOrIntergerFromResult();
@@ -290,19 +293,20 @@ namespace Calculator_Window
     }
 
     private void RemoveOneChar()
-    {
-      this.CalculationOutput = this.CalculationOutput.Length > 0 ? 
-        this.CalculationOutput[..^1] : String.Empty;      
-    }
+      => this.CalculationOutput = this.CalculationOutput[..^1];      
+    
 
     private bool CanRemoveOneChar()
-      => !this.ShowsResult;
+      => NotShowingResultAndEmpty();
 
     private void AddSpace()
      => this.CalculationOutput += " ";
 
     private bool CanAddSpace()
-      => !this.ShowsResult;
+      => NotShowingResultAndEmpty();
+
+    private bool NotShowingResultAndEmpty()
+      => !this.ShowsResult && this.CalculationOutput != String.Empty;
 
     private void ClearResult_TextBox_KeyDown(object sender, KeyEventArgs e)
     {
@@ -363,16 +367,17 @@ namespace Calculator_Window
         }
       }
       else
-      {
-        
+      {        
         throw new ArgumentException(
           $"Parameter {faultyParmaName} must be of type Button", faultyParmaName
           );
       }
     }
-         
+             
     private void OnPropertyChanged(string paramName)
-      => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(paramName));
+      => this.PropertyChanged?.Invoke(
+        this, new PropertyChangedEventArgs(paramName)
+        );
 
   }
   
