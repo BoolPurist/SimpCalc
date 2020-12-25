@@ -85,6 +85,8 @@ namespace Calculator_Window
     /// </value>
     public RelayCommand SpaceCommand { get; private set; }
 
+    #region properties
+
     protected string errorMessage = String.Empty;
     public string ErrorMessage
     {
@@ -156,7 +158,9 @@ namespace Calculator_Window
 
     private readonly CalculatorModel calculatorModel = new CalculatorModel();
     private string lastResultToken = "X";
-
+    
+    #endregion
+    
     public Calculator()
     {
       InitializeComponent();
@@ -182,6 +186,8 @@ namespace Calculator_Window
         param => this.CanAddSpace()
         );
     }
+
+    #region methods for commands of calculator
 
     private void CalculateResult()
     {
@@ -320,6 +326,10 @@ namespace Calculator_Window
       }
     }
 
+    #endregion
+
+    #region event handler of calculator
+
     private void GetMainGridWidth_Loaded(object sender, RoutedEventArgs e)
     {
       if (sender is Grid mainGrid)
@@ -373,7 +383,9 @@ namespace Calculator_Window
           );
       }
     }
-             
+
+    #endregion
+
     private void OnPropertyChanged(string paramName)
       => this.PropertyChanged?.Invoke(
         this, new PropertyChangedEventArgs(paramName)

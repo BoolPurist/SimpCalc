@@ -12,6 +12,9 @@ namespace Calculator_Window
   /// </summary>
   public class CalculatorModel
   {
+
+    #region properties
+
     /// <summary> Result from last successfully calculated given equation </summary>
     /// <value> Getter for last result  </value>
     public double CurrentResult { get; private set; } = 0.0;
@@ -39,7 +42,11 @@ namespace Calculator_Window
     }
 
     public bool UsesRadians { get; set; } = false;
-   
+
+    #endregion
+
+    #region public methods
+
     public static int CalculateFaculty(int number)
     {
       var result = 1;
@@ -119,26 +126,28 @@ namespace Calculator_Window
       return this.CurrentResult;
     }
 
-    protected const string signSequence = @"(?<signSequence>[+-]*)";
+    #endregion
 
+    #region regular expressions and pattern for the grammar of an equation
+
+    protected const string signSequence = @"(?<signSequence>[+-]*)";
     protected const string floatingNumber =
       signSequence +
       @"(?<floatingNumber>(\d+)(?<fractionalPartOfNumber>[\.,](\d+))?)";
-   
+    private const string piSings = @"(?<constSigns>(pi|π|e)+)";
+    private const string floatingNumberPiSings = floatingNumber + piSings;
+    private const string surroundedOperatorUnit =
+      @"(?<surroundedOperator>[\^ER√])";
+    private const string operandPart =
+      "(" + signSequence + piSings + "|" + floatingNumber + piSings + "?" + ")" +
+      surroundedOperatorUnit + @"?";
+
     // Regular expression for matching a valid operand as a text unit
     protected static readonly Regex operationOneOperandRegex =
       new Regex(
         @"^\s*(?<function>(?<operandFunctionBaseNeeded>log)|" +
         @"(?<operandFunction>cotan|cosin|cocos|tan|sin|cos))"
-      ); // + piSings + @"?"
-    private const string piSings = @"(?<constSigns>(pi|π|e)+)";
-    private const string floatingNumberPiSings = floatingNumber + piSings;
-    private const string surroundedOperatorUnit = 
-      @"(?<surroundedOperator>[\^ER√])";
-
-    private const string operandPart =
-      "(" + signSequence + piSings + "|" + floatingNumber + piSings + "?" + ")" +
-      surroundedOperatorUnit + @"?";
+      );
     protected static readonly Regex surroundedOperatorPattern =
       new Regex(@"^" + surroundedOperatorUnit);
     protected static readonly Regex operandPartPattern =
@@ -150,7 +159,6 @@ namespace Calculator_Window
     // Regular expression for matching a valid whole number for a factor of a power
     protected static readonly Regex floatingNumberPattern =
       new Regex(@"^" + floatingNumber);
-
     // Used to find cases for root operations with no left factor
     // Example: √9, which is √9 = 3
     protected static readonly Regex operatorWithoutNeededLeftPattern
@@ -168,6 +176,9 @@ namespace Calculator_Window
     // Regular expression for matching a valid text unit as an closing parentheses
     protected static readonly Regex whiteSpaceclosingParathesePattern =
       new Regex(@"^\s*\)");
+
+    #endregion
+
     private const string OverflowOperationErrorMsg =
       "Mathematical Error: one operation resulted in a too big or small number !";
 
