@@ -10,9 +10,15 @@
     <Compile Update="CalculatorControl\Calculator.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="CalculatorSettingDialog.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="CalculatorControl\Calculator.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="CalculatorSettingDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="MainWindow.xaml">

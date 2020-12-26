@@ -1,0 +1,118 @@
+﻿<Window x:Class="Calculator_Window.CalculatorSettingDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Calculator_Window"
+        xmlns:v="clr-namespace:Calculator_Window.Util.Validators"
+        mc:Ignorable="d"
+        Title="Setting of Calculator" SizeToContent="WidthAndHeight">
+
+  <Window.Resources>
+    <Style TargetType="TextBox">
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="MaxLength" Value="5"/>
+      <Setter Property="MinWidth" Value="50"/>
+      <Style.Triggers>
+        <Trigger Property="Validation.HasError" Value="true">
+          <Setter Property="ToolTip" 
+              Value="{Binding RelativeSource={x:Static RelativeSource.Self}, 
+                    Path=(Validation.Errors)/ErrorContent}"/>
+        </Trigger>
+      </Style.Triggers>
+      <Style.Resources>
+        <Style TargetType="ToolTip" BasedOn="{StaticResource {x:Type ToolTip}}">
+          <Setter Property="Background" Value="#9E6565"/>
+          <Setter Property="Foreground" Value="Black"/>
+          <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+      </Style.Resources>
+    </Style>
+    <ControlTemplate x:Key="NumberTextBoxErrorTmp">
+      <Border Grid.Row="0" Grid.Column="0" BorderThickness="1" BorderBrush="Red">
+        <AdornedElementPlaceholder/>
+      </Border>
+    </ControlTemplate>
+    
+  </Window.Resources>
+  
+  <StackPanel Margin="20">
+    <StackPanel.Resources>
+      <Thickness x:Key="RadianBtnMargin">0,0,10,0</Thickness>
+      <Style TargetType="WrapPanel">
+        <Setter Property="Margin" Value="0,10,0,10"/>
+      </Style>
+
+    </StackPanel.Resources>
+    <WrapPanel>
+      <RadioButton Margin="{StaticResource RadianBtnMargin}" 
+                   GroupName="AngleKind"
+                   IsChecked="{Binding UsesDegree}"
+                   >
+        Degree
+      </RadioButton>
+      <RadioButton GroupName="AngleKind" IsChecked="{Binding UsesRadians}">
+        Radians
+      </RadioButton>
+    </WrapPanel>
+    <Separator/>
+    <WrapPanel>
+      <RadioButton Margin="{StaticResource RadianBtnMargin}" 
+                   GroupName="NumberSeparator"
+                   IsChecked="{Binding UsesComma}">
+        Comma
+      </RadioButton>
+      <RadioButton GroupName="NumberSeparator"
+                   IsChecked="{Binding UsesPoint}">
+        Point
+      </RadioButton>
+    </WrapPanel>
+    <Separator/>
+    <WrapPanel>
+      <Label>
+        Rounding Precision: 
+      </Label>
+      <TextBox MaxLength="2"
+        Validation.ErrorTemplate="{StaticResource NumberTextBoxErrorTmp}">
+        <TextBox.Text>
+          <Binding Path="RoundingPrecision" UpdateSourceTrigger="PropertyChanged">
+            <Binding.ValidationRules>
+              <v:StringToNumberValidator Min="0" Max="32"/>
+            </Binding.ValidationRules>
+          </Binding>
+        </TextBox.Text>
+      </TextBox>
+      <Label>
+        0 - 32
+      </Label>
+    </WrapPanel>
+    <Separator/>
+    <WrapPanel>
+      <Label>
+        Max Number of stored calculations:
+      </Label>
+      <TextBox 
+        Validation.ErrorTemplate="{StaticResource NumberTextBoxErrorTmp}">
+        <TextBox.Text>
+          <Binding Path="MaxNbrOfStoredCalcs" UpdateSourceTrigger="PropertyChanged">
+            <Binding.ValidationRules>
+              <v:StringToNumberValidator Min="0"/>
+            </Binding.ValidationRules>
+          </Binding>
+        </TextBox.Text>
+      </TextBox>
+    </WrapPanel>
+    <Separator/>
+    <WrapPanel HorizontalAlignment="Right">
+      <WrapPanel.Resources>
+        <Style TargetType="Button">
+          <Setter Property="Margin" Value="5"/>
+          <Setter Property="Padding" Value="5"/>
+          <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+      </WrapPanel.Resources>
+      <Button IsDefault="True">Apply</Button>
+      <Button IsCancel="True">Cancel</Button>
+    </WrapPanel>
+  </StackPanel>
+</Window>
