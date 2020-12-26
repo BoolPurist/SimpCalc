@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.ComponentModel;
 using System.Windows;
@@ -14,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using Calculator_Window.Util;
+using Calculator_Window.CalculatorControl;
 
 namespace Calculator_Window
 {
@@ -21,7 +23,7 @@ namespace Calculator_Window
   /// Interaction logic for Calculator.xaml
   /// </summary>
   public partial class Calculator : UserControl, INotifyPropertyChanged
-  {
+  {    
     public event PropertyChangedEventHandler PropertyChanged;
     /// <summary> 
     /// Used to append content as text from a calculation button 
@@ -85,7 +87,35 @@ namespace Calculator_Window
     /// </value>
     public RelayCommand SpaceCommand { get; private set; }
 
+    /// <summary> 
+    /// Empties the list of all calculatedly valid equations in the view and
+    /// the model
+    /// </summary>
+    /// <value> 
+    /// Getter for invocation of command. 
+    /// Command clears all elements from property HistoryData and 
+    /// a internal property of the model as the base of HistoryData.
+    /// Command can only executed 
+    /// if the history of processed equations in not empty
+    /// </value>
+    public RelayCommand ClearHistoryCommand { get; private set; }
+
     #region properties
+
+    public ObservableCollection<EquationCalculation> HistoryData 
+      { get; private set; }
+
+    private double mainHeight;
+
+    public double MainHeight
+    {
+      get => this.mainHeight;
+      set
+      {
+        this.mainHeight = value;
+        this.OnPropertyChanged(nameof(this.MainHeight));
+      }
+    }
 
     protected string errorMessage = String.Empty;
     public string ErrorMessage
@@ -158,17 +188,30 @@ namespace Calculator_Window
 
     private readonly CalculatorModel calculatorModel = new CalculatorModel();
     private string lastResultToken = "X";
-    
+    // Set to true if integer or fraction operation was performed
+    // Set to false if new equation is entered.
+    private bool modifiedResult = false;
+
     #endregion
     
     public Calculator()
     {
       InitializeComponent();
       DataContext = this;
-      
+
+      this.HistoryData = new ObservableCollection<EquationCalculation>(
+        this.calculatorModel.Results
+        );
+
       this.InputCommand = new RelayCommand(this.AddInputToCalc);
-      this.IntegerCommand = new RelayCommand(param => this.IntegerFromResult());
-      this.FractionCommand = new RelayCommand(param => this.FractionFromResult());
+      this.IntegerCommand = new RelayCommand(
+        param => this.IntegerFromResult(),
+        param => this.CanExtractFractOrIntergerFromResult()
+        );
+      this.FractionCommand = new RelayCommand(
+        param => this.FractionFromResult(),
+        param => this.CanExtractFractOrIntergerFromResult()
+        );
       this.ClearCommand = new RelayCommand(
         param => this.ClearDisplay(),
         param => this.CanClearDisplay()
@@ -185,6 +228,12 @@ namespace Calculator_Window
         param => this.AddSpace(),
         param => this.CanAddSpace()
         );
+      this.ClearHistoryCommand = new RelayCommand(
+        param => this.ClearHistory(),
+        param => this.CanClearHistory()
+        );
+
+      this.Loaded += (sender, e) => this.MainHeight = this.ActualHeight;      
     }
 
     #region methods for commands of calculator
@@ -207,10 +256,11 @@ namespace Calculator_Window
 
       try
       {
+        string equation = this.CalculationOutput;
         this.CalculationOutput = this.calculatorModel
           .CalculateFromText(this.CalculationOutput)
             .ToString();
-        ProcessValidResult();
+        ProcessValidResult(equation);
       }
       catch (OverflowException e)
       {
@@ -229,10 +279,18 @@ namespace Calculator_Window
         ShowParsingError(e);
       }
 
-      void ProcessValidResult()
+      void ProcessValidResult(string equation = null)
       {
         this.LastResult = this.CalculationOutput;
         this.ShowsResult = true;
+
+        if (equation != null)
+        {
+          this.HistoryData.Insert(
+            0,
+            new EquationCalculation(this.calculatorModel.CurrentResult, equation)
+            );
+        }
       }
 
       void ShowParsingError(Exception e)
@@ -248,6 +306,7 @@ namespace Calculator_Window
     private void AddInputToCalc(object inputSymbol)
     {      
       this.ErrorMessageVisible = Visibility.Collapsed;
+      this.modifiedResult = false;
 
       if (inputSymbol is string symbol)
       {
@@ -299,8 +358,12 @@ namespace Calculator_Window
         this.LastResult = this.CalculationOutput;
       }
 
+      this.modifiedResult = true;
       this.ShowsResult = true;
     }
+
+    private bool CanExtractFractOrIntergerFromResult()
+     => !this.modifiedResult && this.calculationOutput != String.Empty;
 
     private void RemoveOneChar()
       => this.CalculationOutput = this.CalculationOutput[..^1];      
@@ -318,21 +381,32 @@ namespace Calculator_Window
     private bool NotShowingResultAndEmpty()
       => !this.ShowsResult && this.CalculationOutput != String.Empty;
 
+    private void ClearHistory()
+    {
+      this.calculatorModel.ClearHistory();
+      this.HistoryData.Clear();
+    }
+
+    private bool CanClearHistory()
+      => this.calculatorModel.Results.Count != 0;
+    
+
+    #endregion
+
+    #region event handler of calculator
     private void ClearResult_TextBox_KeyDown(object sender, KeyEventArgs e)
     {
+      this.modifiedResult = false;
+
       if (ShowsResult)
       {
         ShowsResult = false;
-        if ( sender is TextBox textBox )
+        if (sender is TextBox textBox)
         {
           textBox.Text = String.Empty;
         }
       }
     }
-
-    #endregion
-
-    #region event handler of calculator
 
     private void GetMainGridWidth_Loaded(object sender, RoutedEventArgs e)
     {

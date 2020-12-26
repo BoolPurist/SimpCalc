@@ -89,6 +89,21 @@ namespace Calculator_Window
     public List<EquationCalculation> Results { get; private set; }
       = new List<EquationCalculation>();
 
+    public EquationCalculation LastEquation
+    {
+      get
+      {
+        if (this.Results.Count == 0)
+        {
+          throw new InvalidOperationException(
+            $"Property {nameof(this.LastEquation)} is empty !"
+            );
+        }
+
+        return this.Results[^1];
+      }
+    }
+
     public bool UsesRadians { get; set; } = false;
 
     #endregion

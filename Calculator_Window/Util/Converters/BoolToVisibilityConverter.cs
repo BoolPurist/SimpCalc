@@ -37,7 +37,7 @@ namespace Calculator_Window.Util.Converters
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {      
       if (value is bool showIt)
-      {
+      {        
         return showIt ? Visibility.Visible : 
           (this.CollapsesIt ? Visibility.Collapsed : Visibility.Hidden);        
       }

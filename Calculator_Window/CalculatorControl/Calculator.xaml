@@ -60,9 +60,8 @@
     CornerRadius="5"  BorderThickness="5" BorderBrush="Black">
     <Grid Background="Gray" 
           Loaded="GetMainGridWidth_Loaded">
-                  
+
       <Grid.ColumnDefinitions>
-        
         <ColumnDefinition Width="auto"/>
         <ColumnDefinition Width="auto"/>
       </Grid.ColumnDefinitions>
@@ -74,14 +73,12 @@
 
       <StackPanel>
         <Label Style="{StaticResource AnnouncementResultStat}" />
-        <TextBox 
-                Grid.Column="0" Grid.Row="0"                
+        <TextBox Grid.Column="0" Grid.Row="0"                
                 Margin="{StaticResource CalculatorElementMargin}"
                 TextWrapping="Wrap"           
                 Width="{Binding Path=MainGirdWidth}"
                 KeyDown="ClearResult_TextBox_KeyDown"
-                Text="{Binding CalculationOutput, UpdateSourceTrigger=PropertyChanged}"
-                >
+                Text="{Binding CalculationOutput, UpdateSourceTrigger=PropertyChanged}">
         </TextBox>
         <TextBox Text="{Binding ErrorMessage}"
                IsReadOnly="True"
@@ -113,7 +110,6 @@
           <Button Content="e" Template="{StaticResource InputBtnTemp}" />
           <Button Content="ln" Template="{StaticResource InputBtnTemp}" />
           <Button Content="e^" Template="{StaticResource InputBtnTemp}" />
-
         </WrapPanel>
         <WrapPanel>
           <Button Content="7" Template="{StaticResource InputBtnTemp}" />
@@ -169,7 +165,7 @@
                   Template="{StaticResource CommandBtnTemp}" />
           <Button Content="Clear &#xa;History" 
                   FontSize="10"
-                  Command="{Binding ClearCommand}"
+                  Command="{Binding ClearHistoryCommand}"
                   Template="{StaticResource CommandBtnTemp}" />
         </WrapPanel>
       </StackPanel>
