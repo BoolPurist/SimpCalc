@@ -15,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Calculator_Window.Util;
+
 namespace Calculator_Window
 {
   /// <summary>
@@ -24,6 +26,10 @@ namespace Calculator_Window
   public partial class MainWindow : Window, INotifyPropertyChanged
   {    
     public event PropertyChangedEventHandler PropertyChanged;
+
+    public RelayCommand OpenSettingCommand { get; private set; }
+
+    #region properties
 
     private Visibility lastResultVisibility = Visibility.Visible;
 
@@ -67,12 +73,16 @@ namespace Calculator_Window
       }
     }
 
+    #endregion
+
     public MainWindow()
     {
       InitializeComponent();
       this.DataContext = this;
 
       this.Loaded += (sender, e) => AdjustWindowSize();
+
+      this.OpenSettingCommand = new RelayCommand(param => this.OpenSettings());
     }
 
     // Making sure that the user does not shrink the main window to a size
@@ -81,6 +91,12 @@ namespace Calculator_Window
     {
       this.MinHeight = this.ActualHeight;
       this.MinWidth = this.ActualWidth;
+    }
+
+    private void OpenSettings()
+    {
+      var settingDialog = new CalculatorSettingDialog();
+      settingDialog.ShowDialog();
     }
 
   }

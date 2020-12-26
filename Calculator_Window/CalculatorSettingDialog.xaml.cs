@@ -107,9 +107,34 @@ namespace Calculator_Window
       this.MaxNbrOfStoredCalcs = _maxNbrOfStoredCalcs;
     }
 
+    
     protected void OnPropertyChanged(string paramName)
       => this.PropertyChanged?.Invoke(
         this, new PropertyChangedEventArgs(paramName)
         );
+
+    private void ApplySettings_Button_Click(object sender, RoutedEventArgs e)
+    {
+      if (sender is Button clickedBtn)
+      {
+        if (
+          !Validation.GetHasError(this.RoundingInput) && 
+          !Validation.GetHasError(this.MaxHistoryInput)
+          )
+        {
+          this.DialogResult = true;
+          this.Close();
+        }
+      }
+    }
+
+    private void CancleSettings_Button_Click(object sender, RoutedEventArgs e)
+    {
+      if (sender is Button clickedBtn)
+      {
+        this.DialogResult = false;
+        this.Close();
+      }
+    }
   }
 }

@@ -72,7 +72,7 @@
       <Label>
         Rounding Precision: 
       </Label>
-      <TextBox MaxLength="2"
+      <TextBox x:Name="RoundingInput" MaxLength="2"
         Validation.ErrorTemplate="{StaticResource NumberTextBoxErrorTmp}">
         <TextBox.Text>
           <Binding Path="RoundingPrecision" UpdateSourceTrigger="PropertyChanged">
@@ -91,7 +91,7 @@
       <Label>
         Max Number of stored calculations:
       </Label>
-      <TextBox 
+      <TextBox x:Name="MaxHistoryInput" 
         Validation.ErrorTemplate="{StaticResource NumberTextBoxErrorTmp}">
         <TextBox.Text>
           <Binding Path="MaxNbrOfStoredCalcs" UpdateSourceTrigger="PropertyChanged">
@@ -111,8 +111,8 @@
           <Setter Property="FontWeight" Value="Bold"/>
         </Style>
       </WrapPanel.Resources>
-      <Button IsDefault="True">Apply</Button>
-      <Button IsCancel="True">Cancel</Button>
+      <Button Click="ApplySettings_Button_Click" IsDefault="True">Apply</Button>
+      <Button Click="CancleSettings_Button_Click" IsCancel="True">Cancel</Button>
     </WrapPanel>
   </StackPanel>
 </Window>

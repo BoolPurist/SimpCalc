@@ -18,12 +18,13 @@ namespace Calculator_Window
     {
       // Start settings for debugging
 #if DEBUG
-      bool startOnlyCalcSettingDialog = true;
+      bool startCalcSettingDialog = false;
 
-      if (startOnlyCalcSettingDialog)
+      if (startCalcSettingDialog)
       {
+        startProd();
         var dialogSettingWindow = new CalculatorSettingDialog();
-        dialogSettingWindow.Show();
+        dialogSettingWindow.ShowDialog();
       }
       else
       {

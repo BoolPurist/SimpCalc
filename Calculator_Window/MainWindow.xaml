@@ -66,6 +66,10 @@
                   IsChecked="{Binding HistoryVisibility, Converter={StaticResource BoolToVisibleHidden}}"
                   />
       </MenuItem>
+      <MenuItem Header="Options">
+        <MenuItem Header="Calculator Settings"
+                  Command="{Binding OpenSettingCommand}"/>
+      </MenuItem>
     </Menu>
 
     <Grid x:Name="MainGrid"
