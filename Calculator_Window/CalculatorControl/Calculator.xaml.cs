@@ -99,6 +99,14 @@ namespace Calculator_Window
     /// if the history of processed equations in not empty
     /// </value>
     public RelayCommand ClearHistoryCommand { get; private set; }
+    /// <summary> 
+    /// After command execution Mouse cursor and keyboard have focus 
+    /// on the calculator display where equations are entered and results are shown.
+    /// </summary>
+    /// <value> 
+    /// Getter for command execution. Can always be executed.
+    /// </value>
+    public RelayCommand FocusCalculatorDisplayCommand { get; private set; }
 
     #region properties
 
@@ -191,6 +199,7 @@ namespace Calculator_Window
     // Set to true if integer or fraction operation was performed
     // Set to false if new equation is entered.
     private bool modifiedResult = false;
+    private TextBox calculatorDisplayBox = null;
 
     #endregion
     
@@ -232,6 +241,9 @@ namespace Calculator_Window
         param => this.ClearHistory(),
         param => this.CanClearHistory()
         );
+
+      this.FocusCalculatorDisplayCommand = 
+        new RelayCommand(param => this.FocusCalculatorDisplay());
 
       this.Loaded += (sender, e) => this.MainHeight = this.ActualHeight;      
     }
@@ -389,7 +401,15 @@ namespace Calculator_Window
 
     private bool CanClearHistory()
       => this.calculatorModel.Results.Count != 0;
-    
+
+    private void FocusCalculatorDisplay()
+    {
+      if (this.calculatorDisplayBox != null)
+      {
+        FocusManager.SetFocusedElement(this, this.calculatorDisplayBox);
+        Keyboard.Focus(this.calculatorDisplayBox);
+      }
+    }
 
     #endregion
 
@@ -469,6 +489,9 @@ namespace Calculator_Window
         this, new PropertyChangedEventArgs(paramName)
         );
 
+    private void CalcDisplayTextBox_Loaded(object sender, RoutedEventArgs e)
+      => this.calculatorDisplayBox = sender as TextBox;
+    
   }
   
 }

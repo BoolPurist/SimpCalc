@@ -20,6 +20,9 @@
     <KeyBinding Command="{Binding ClearHistoryCommand, ElementName=Calc}"
                 Modifiers="Ctrl"
                 Key="E"/>
+    <KeyBinding Command="{Binding FocusCalculatorDisplayCommand, ElementName=Calc}"
+                Modifiers="Ctrl"
+                Key="F"/>
 
   </Window.InputBindings>
 
@@ -48,6 +51,9 @@
         <MenuItem Header="Clear History"
                   Command="{Binding ClearHistoryCommand, ElementName=Calc}"
                   InputGestureText="Ctrl+E"/>
+        <MenuItem Header="Focus Display"
+                  Command="{Binding FocusCalculatorDisplayCommand, ElementName=Calc}"
+                  InputGestureText="Ctrl+F"/>
       </MenuItem>
 
       <MenuItem Header="View">
@@ -93,8 +99,10 @@
           </WrapPanel>
         </Border>
         <ScrollViewer  Height="{Binding MainHeight, ElementName=Calc}"
+                       VerticalScrollBarVisibility="Auto"
                        Visibility="{Binding HistoryVisibility}">
           <ListView ItemsSource="{Binding HistoryData, ElementName=Calc}"
+                    Width="auto"
                     d:ItemsSource="{StaticResource MockItemSource}"
                     Background="Gainsboro">
             <ListView.ItemTemplate>

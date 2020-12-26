@@ -46,7 +46,7 @@ namespace Calculator_Window
       }
     }
 
-    private Visibility historyVisibility = Visibility.Collapsed;
+    private Visibility historyVisibility = Visibility.Visible;
 
     /// <summary>  
     /// Determines if the label as last result is shown to the user.
