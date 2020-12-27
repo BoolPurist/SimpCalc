@@ -108,6 +108,17 @@ namespace Calculator_Window
     /// </value>
     public RelayCommand FocusCalculatorDisplayCommand { get; private set; }
 
+    /// <summary> 
+    /// Inserts the last result at the end of equation in the input field in
+    /// the calculator
+    /// </summary>
+    /// <value> 
+    /// Getter to execution of a command. Can be executed if InputCommand can
+    /// be executed. Appends the value of the property LastResult to 
+    /// the property CalculationOutput.
+    /// </value>
+    public RelayCommand InsertLastResultCommand { get; private set; }
+
     #region properties
 
     public ObservableCollection<EquationCalculation> HistoryData
@@ -206,6 +217,18 @@ namespace Calculator_Window
       set
       {
         this.calculatorModel.UsesPointAsDecimalSeperator = value;
+        
+        if (value)
+        {
+          this.CalculationOutput = this.CalculationOutput.Replace(",", ".");
+          this.LastResult = this.LastResult.Replace(",", ".");          
+        }
+        else
+        {
+          this.CalculationOutput = this.CalculationOutput.Replace(".", ",");
+          this.LastResult = this.LastResult.Replace(".", ",");
+        }
+
         this.OnPropertyChanged(nameof(this.UsesPointAsDecimalSeperator));
       }
     }
@@ -222,8 +245,7 @@ namespace Calculator_Window
       set => this.calculatorModel.RoundingPrecision = value;
     }
 
-    private readonly CalculatorModel calculatorModel = new CalculatorModel();
-    private string lastResultToken = "X";
+    private readonly CalculatorModel calculatorModel = new CalculatorModel();   
     // Set to true if integer or fraction operation was performed
     // Set to false if new equation is entered.
     private bool modifiedResult = false;
@@ -269,6 +291,12 @@ namespace Calculator_Window
       this.FocusCalculatorDisplayCommand = 
         new RelayCommand(param => this.FocusCalculatorDisplay());
 
+      this.InsertLastResultCommand =
+        new RelayCommand(
+          param => this.InputCommand.Execute(this.LastResult),
+          param => this.InputCommand.CanExecute(null)
+          );
+
       this.Loaded += (sender, e) => this.MainHeight = this.ActualHeight;      
     }
 
@@ -286,17 +314,13 @@ namespace Calculator_Window
         ProcessValidResult();
       }
 
-      // Insert the result from the last calculation. 
-      this.CalculationOutput = 
-        this.CalculationOutput.Replace(this.lastResultToken, this.LastResult);
-
       try
       {
         string equation = this.CalculationOutput;
         this.calculatorModel
           .CalculateFromText(this.CalculationOutput)
             .ToString();
-        this.calculationOutput = this.calculatorModel.LastResult;
+        this.CalculationOutput = this.calculatorModel.LastResult;
         ProcessValidResult();
       }
       catch (OverflowException e)
@@ -342,6 +366,7 @@ namespace Calculator_Window
         if (ShowsResult)
         {
           this.CalculationOutput = String.Empty;
+          this.CalculationOutput = symbol;
         }
         else
         {
@@ -460,43 +485,6 @@ namespace Calculator_Window
           );
       }
 
-    }
-
-    private void SetLastResultToken_Button_Loaded(object sender, RoutedEventArgs e)
-    {
-      string faultyParmaName = nameof(sender);
-      if (sender is Button lastResultBtn)
-      {
-        if (lastResultBtn.Content is string btnContent)
-        {
-          if (btnContent != null)
-          {
-            this.lastResultToken = btnContent;
-          }
-          else
-          {
-            throw new ArgumentNullException(
-              $"{faultyParmaName}.{nameof(lastResultBtn.Content)}",
-              $"Property {nameof(lastResultBtn.Content)} of" +
-              $"{faultyParmaName} must not be null"
-              );
-          }
-        }
-        else
-        {
-          throw new ArgumentException(
-            $"Property {nameof(lastResultBtn.Content)} of" +
-            $"{faultyParmaName} must be a string", 
-            $"{faultyParmaName}.{nameof(lastResultBtn.Content)}"
-            );
-        }
-      }
-      else
-      {        
-        throw new ArgumentException(
-          $"Parameter {faultyParmaName} must be of type Button", faultyParmaName
-          );
-      }
     }
 
     #endregion

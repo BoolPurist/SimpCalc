@@ -162,9 +162,9 @@
           <Button Content="=" 
                   Command="{Binding ResultCommand}"
                   Template="{StaticResource CommandBtnTemp}" />
-          <Button Content="LR" 
-                  Loaded="SetLastResultToken_Button_Loaded" 
-                  Template="{StaticResource InputBtnTemp}" />
+          <Button Content="Last &#xa;Result"              
+                  Command="{Binding InsertLastResultCommand}"
+                  Template="{StaticResource CommandBtnTemp}" />
           <Button Content="Back"
                   Command="{Binding RemoveCommand}"
                   Template="{StaticResource CommandBtnTemp}" />

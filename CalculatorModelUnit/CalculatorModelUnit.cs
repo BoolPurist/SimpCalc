@@ -266,8 +266,10 @@ namespace CalculatorModelUnit
     [Fact]
     public void RoundingPrecision_ShouldReturnResultWithRoundedDigits()
     {
-      var calculator = new CalculatorModel();
-      calculator.RoundingPrecision = 3;
+      var calculator = new CalculatorModel()
+      {
+        RoundingPrecision = 3
+      };
       double actualResult = calculator.CalculateFromText("1/3");
       Assert.Equal(0.333, actualResult);
     }

@@ -277,6 +277,8 @@ namespace Calculator_Window
 
         if (!this.UsesPointAsDecimalSeperator)
         {
+          // Since comma is not listed in the regex, commas need to be 
+          // converted to points
           textForm = textForm.Replace(",", ".");
         }
 
@@ -305,6 +307,9 @@ namespace Calculator_Window
 
       if (!this.UsesPointAsDecimalSeperator)
       {
+        // In c# floating number are separated with '.'
+        // If commas are used as decimal separator by the user
+        // then it should also used in the result string.
         resultToBeStored = resultToBeStored.Replace(".", ",");
       }
 
@@ -327,7 +332,7 @@ namespace Calculator_Window
     protected const string signSequence = @"(?<signSequence>[+-]*)";
     protected const string floatingNumber =
       signSequence +
-      @"(?<floatingNumber>(\d+)(?<fractionalPartOfNumber>[\.,](\d+))?)";
+      @"(?<floatingNumber>(\d+)(?<fractionalPartOfNumber>[\.](\d+))?)";
     private const string piSings = @"(?<constSigns>(pi|π|e)+)";
     private const string floatingNumberPiSings = floatingNumber + piSings;
     private const string surroundedOperatorUnit =
