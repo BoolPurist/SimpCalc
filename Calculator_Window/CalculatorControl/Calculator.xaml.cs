@@ -23,7 +23,7 @@ namespace Calculator_Window
   /// Interaction logic for Calculator.xaml
   /// </summary>
   public partial class Calculator : UserControl, INotifyPropertyChanged
-  {    
+  {
     public event PropertyChangedEventHandler PropertyChanged;
     /// <summary> 
     /// Used to append content as text from a calculation button 
@@ -136,7 +136,7 @@ namespace Calculator_Window
       }
     }
 
-    protected Visibility errorMessageVisible = Visibility.Collapsed;    
+    protected Visibility errorMessageVisible = Visibility.Collapsed;
     public Visibility ErrorMessageVisible
     {
       get => this.errorMessageVisible;
@@ -160,8 +160,8 @@ namespace Calculator_Window
     }
 
     private double mainGridWidth = 0.0;
-      
-    public double MainGirdWidth 
+
+    public double MainGirdWidth
     {
       get => this.mainGridWidth;
       set
@@ -190,8 +190,36 @@ namespace Calculator_Window
       set
       {
         this.lastResult = value;
-        this.OnPropertyChanged(nameof(this.LastResult));        
+        this.OnPropertyChanged(nameof(this.LastResult));
       }
+    }
+
+    public bool UsesesRadians
+    {
+      get => this.calculatorModel.UsesRadians;
+      set => this.calculatorModel.UsesRadians = value;      
+    }
+
+    public bool UsesPointAsDecimalSeperator
+    {
+      get => this.calculatorModel.UsesPointAsDecimalSeperator;
+      set
+      {
+        this.calculatorModel.UsesPointAsDecimalSeperator = value;
+        this.OnPropertyChanged(nameof(this.UsesPointAsDecimalSeperator));
+      }
+    }
+    
+    public int MaxNumberOfResult
+    {
+      get => this.calculatorModel.MaxNumberOfResult;
+      set => this.calculatorModel.MaxNumberOfResult = value;
+    }
+
+    public int RoundingPrecision
+    {
+      get => this.calculatorModel.RoundingPrecision;
+      set => this.calculatorModel.RoundingPrecision = value;
     }
 
     private readonly CalculatorModel calculatorModel = new CalculatorModel();
@@ -265,9 +293,10 @@ namespace Calculator_Window
       try
       {
         string equation = this.CalculationOutput;
-        this.CalculationOutput = this.calculatorModel
+        this.calculatorModel
           .CalculateFromText(this.CalculationOutput)
             .ToString();
+        this.calculationOutput = this.calculatorModel.LastResult;
         ProcessValidResult();
       }
       catch (OverflowException e)

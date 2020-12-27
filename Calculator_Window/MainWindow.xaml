@@ -1,4 +1,4 @@
-﻿<Window x:Class="Calculator_Window.MainWindow"
+﻿  <Window x:Class="Calculator_Window.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -59,7 +59,7 @@
       <MenuItem Header="View">
         <MenuItem Header="Last Result"
                   IsCheckable="True" 
-                  IsChecked="{Binding LastResultVisibility, Converter={StaticResource BoolToVisibleHidden}}"
+                  IsChecked="{Binding LastResultVisibility, Converter={StaticResource BoolToVisibleHidden} }"
                   />
         <MenuItem Header="History"
                   IsCheckable="True" 

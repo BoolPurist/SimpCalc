@@ -95,8 +95,22 @@ namespace Calculator_Window
 
     private void OpenSettings()
     {
-      var settingDialog = new CalculatorSettingDialog();
+      var settingDialog = new CalculatorSettingDialog(
+        Calc.UsesesRadians,
+        Calc.UsesPointAsDecimalSeperator,
+        Calc.RoundingPrecision,
+        Calc.MaxNumberOfResult
+        );
+
       settingDialog.ShowDialog();
+
+      if (settingDialog.DialogResult == true)
+      {
+        Calc.UsesesRadians = settingDialog.UsesRadians;
+        Calc.UsesPointAsDecimalSeperator = settingDialog.UsesPoint;
+        Calc.RoundingPrecision = settingDialog.RoundingPrecision;
+        Calc.MaxNumberOfResult = settingDialog.MaxNbrOfStoredCalcs;
+      }
     }
 
   }

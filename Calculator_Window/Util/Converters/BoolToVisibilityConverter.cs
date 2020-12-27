@@ -28,7 +28,7 @@ namespace Calculator_Window.Util.Converters
       else
       {
         throw new ArgumentException(
-          $"Value must be of type bool", nameof(value)
+          $"Value must be of type Visibility", nameof(value)
           );
       }
 
@@ -44,7 +44,7 @@ namespace Calculator_Window.Util.Converters
       else
       {
         throw new ArgumentException(
-          $"Value must be of type Visibility", nameof(value)
+          $"Value must be of type bool", nameof(value)
           );
       }
     }
