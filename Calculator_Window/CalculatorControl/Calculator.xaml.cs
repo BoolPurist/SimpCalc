@@ -110,8 +110,8 @@ namespace Calculator_Window
 
     #region properties
 
-    public ObservableCollection<EquationCalculation> HistoryData 
-      { get; private set; }
+    public ObservableCollection<EquationCalculation> HistoryData
+      => this.calculatorModel.Results;
 
     private double mainHeight;
 
@@ -207,11 +207,7 @@ namespace Calculator_Window
     {
       InitializeComponent();
       DataContext = this;
-
-      this.HistoryData = new ObservableCollection<EquationCalculation>(
-        this.calculatorModel.Results
-        );
-
+      
       this.InputCommand = new RelayCommand(this.AddInputToCalc);
       this.IntegerCommand = new RelayCommand(
         param => this.IntegerFromResult(),
@@ -264,7 +260,7 @@ namespace Calculator_Window
 
       // Insert the result from the last calculation. 
       this.CalculationOutput = 
-        this.CalculationOutput.Replace(this.lastResultToken, lastResult);
+        this.CalculationOutput.Replace(this.lastResultToken, this.LastResult);
 
       try
       {
@@ -272,7 +268,7 @@ namespace Calculator_Window
         this.CalculationOutput = this.calculatorModel
           .CalculateFromText(this.CalculationOutput)
             .ToString();
-        ProcessValidResult(equation);
+        ProcessValidResult();
       }
       catch (OverflowException e)
       {
@@ -291,18 +287,10 @@ namespace Calculator_Window
         ShowParsingError(e);
       }
 
-      void ProcessValidResult(string equation = null)
+      void ProcessValidResult()
       {
-        this.LastResult = this.CalculationOutput;
-        this.ShowsResult = true;
-
-        if (equation != null)
-        {
-          this.HistoryData.Insert(
-            0,
-            new EquationCalculation(this.calculatorModel.CurrentResult, equation)
-            );
-        }
+        this.LastResult = calculatorModel.LastResult;
+        this.ShowsResult = true;        
       }
 
       void ShowParsingError(Exception e)
@@ -367,7 +355,7 @@ namespace Calculator_Window
         this.CalculationOutput = fractional ?
           this.calculatorModel.FractionFromCurrentResult.ToString() :
           this.calculatorModel.IntegerFromCurrentResult.ToString();
-        this.LastResult = this.CalculationOutput;
+        this.LastResult = calculatorModel.LastResult;
       }
 
       this.modifiedResult = true;

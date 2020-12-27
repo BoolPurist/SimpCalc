@@ -212,7 +212,79 @@ namespace CalculatorModelUnit
 
       Assert.Single<EquationCalculation>(calucaltorModel.Results);
 
-      Assert.Equal(2.0, calucaltorModel.Results[0].Result);
+      Assert.Equal("2", calucaltorModel.Results[0].Result);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(-85)]
+    [InlineData(Int32.MinValue)]
+    public void MaxNumberOfResults_ShouldThrowIfNegative(int negativeValue)
+    {
+      var calculator = new CalculatorModel();
+      Assert.Throws<ArgumentOutOfRangeException>(
+        () => calculator.MaxNumberOfResult = negativeValue
+        );
+    }
+
+    [Fact]
+    public void CalculateFromText_ShouldCalculateWithRadians()
+    {
+      var calculator = new CalculatorModel() { UsesRadians = true };
+      
+      double actualResult = calculator.CalculateFromText("sin(2.0)");
+
+      Assert.Equal(0.91, Math.Round(actualResult, 2));
+
+      actualResult = calculator.CalculateFromText("cotan(0.5)");
+
+      Assert.Equal(0.46, Math.Round(actualResult, 2));
+    }
+
+    [Fact]
+    public void UsesPointAsDecimalSeperator_ShouldCalculateWithCommas()    
+    {
+      var calculator = new CalculatorModel() { UsesPointAsDecimalSeperator = false };
+
+      double actualResult = calculator.CalculateFromText("2,6 + 2,5");
+
+      Assert.Equal(5.1, actualResult);
+
+      var expectedCalculation = new EquationCalculation("5,1", "2,6 + 2,5");
+
+      EquationCalculation actualCalculation = calculator.Results[0];
+
+      Assert.Equal(
+          expectedCalculation.Result, actualCalculation.Result
+        );
+
+      Assert.Equal(
+        expectedCalculation.Equation, actualCalculation.Equation
+      );
+    }
+
+    [Fact]
+    public void RoundingPrecision_ShouldReturnResultWithRoundedDigits()
+    {
+      var calculator = new CalculatorModel();
+      calculator.RoundingPrecision = 3;
+      double actualResult = calculator.CalculateFromText("1/3");
+      Assert.Equal(0.333, actualResult);
+    }
+
+    [Theory]
+    [InlineData(-80)]
+    [InlineData(-1)]
+    [InlineData(Int32.MinValue)]
+    [InlineData(16)]
+    [InlineData(250)]
+    [InlineData(Int32.MaxValue)]
+    public void RoundingPrecision_ShouldThrowIfNegativeOrOver15(int invalidPrecision)
+    {
+      var calculator = new CalculatorModel();
+      Assert.Throws<ArgumentOutOfRangeException>(
+        () => calculator.RoundingPrecision = invalidPrecision
+        );
     }
 
     // Data used for fact tests Results_ShouldHaveAllCalculatedResults, 
@@ -221,9 +293,9 @@ namespace CalculatorModelUnit
     public static List<EquationCalculation> EquationsToBeStored =>
       new List<EquationCalculation>()
       {
-        new EquationCalculation(4.0, "2+2"),
-        new EquationCalculation(18.0, "8*2+2"),
-        new EquationCalculation(2.0, "4-2"),
+        new EquationCalculation("4", "2+2"),
+        new EquationCalculation("18", "8*2+2"),
+        new EquationCalculation("2", "4-2"),
       };
 
     // 1. test element as string = equation as a text
@@ -366,10 +438,6 @@ namespace CalculatorModelUnit
           6.0
         },
         {
-          "12!",
-          479001600.0
-        },
-        {
           "-4!",
           -24
         },
@@ -399,6 +467,11 @@ namespace CalculatorModelUnit
           {
             "16.5 * -14.2",
             -234.3,
+            1
+          },
+          {
+            "12!",
+            479001600.0,
             1
           },
           {

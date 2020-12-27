@@ -9,8 +9,8 @@ namespace Calculator_Window.CalculatorControl
   {
     public event PropertyChangedEventHandler PropertyChanged;
 
-    private double result;
-    public double Result
+    private string result;
+    public string Result
     {
       get => this.result;
       set
@@ -31,9 +31,9 @@ namespace Calculator_Window.CalculatorControl
       }
     }
 
-    public EquationCalculation() : this(0.0, "0") { }
+    public EquationCalculation() : this("0", "0") { }
 
-    public EquationCalculation(double _result, string _equation)
+    public EquationCalculation(string _result, string _equation)
       => (Result, Equation) = (_result, _equation);
 
     protected void OnPropertyChanged(string paramName)

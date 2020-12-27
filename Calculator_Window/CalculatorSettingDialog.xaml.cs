@@ -88,7 +88,7 @@ namespace Calculator_Window
       }
     }
 
-    public CalculatorSettingDialog() : this(false, true, 16, 10) { }
+    public CalculatorSettingDialog() : this(false, true, 15, 10) { }
 
     public CalculatorSettingDialog(
       bool _usesRadians,

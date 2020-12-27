@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.RegularExpressions;
+
 using Calculator_Window.CalculatorControl;
 
 
@@ -83,28 +85,103 @@ namespace Calculator_Window
     /// The result of an equation and the string of given equation
     /// </summary>
     /// <value> 
-    /// Getter of list of calculation. At index 0 the most recent result is 
-    /// stored and the last element holds the oldest equation.
+    /// Getter only of list of observable calculation.
+    /// At index 0 the most recent result is stored and the last element 
+    /// holds the oldest equation.
     /// </value>
-    public List<EquationCalculation> Results { get; private set; }
-      = new List<EquationCalculation>();
+    public ObservableCollection<EquationCalculation> Results { get; private set; }
+      = new ObservableCollection<EquationCalculation>();
 
+    /// <summary> Returns last valid equation given </summary>
+    /// <value> 
+    /// Getter only of a object of type EquationCalculation. Returns null
+    /// if no valid equation has been given so far.
+    /// </value>
     public EquationCalculation LastEquation
     {
       get
       {
         if (this.Results.Count == 0)
         {
-          throw new InvalidOperationException(
-            $"Property {nameof(this.LastEquation)} is empty !"
-            );
+          return null;
         }
 
         return this.Results[^1];
       }
     }
 
+    /// <summary> 
+    /// Value if radian or degree is used as angle in a calculation 
+    /// </summary>
+    /// <value> 
+    /// Getter/Setter property. Default value is false. 
+    /// If true, radians are used or If false, degree is used.
+    /// </value>
     public bool UsesRadians { get; set; } = false;
+    /// <summary> 
+    /// Value if point or comma is used as decimal separator in a number 
+    /// </summary>
+    /// <value> 
+    /// Getter/Setter property. Default value is true. 
+    /// if true, point is used or if false comma is used.
+    /// </value>
+    public bool UsesPointAsDecimalSeperator { get; set; } = true;
+
+
+    private int roundingPrecision = 15;
+    /// <summary> 
+    /// Determines to how many digits after the decimal separator 
+    /// a result of an equation is rounded up  
+    /// </summary>
+    /// <value> 
+    /// Getter/Setter of digits to round up to. 
+    /// </value>
+    /// <exception cref="ArgumentOutOfRangeException"> 
+    /// Thrown if value is under 0 or above 16
+    /// </exception>
+    public int RoundingPrecision
+    {
+      get => this.roundingPrecision;
+      set
+      {
+        const int min = 0;
+        const int max = 15;
+
+        if ( value < min || value > max)
+        {
+          throw new ArgumentOutOfRangeException(
+            nameof(RoundingPrecision),
+            value,
+            $"Value must be between {min} and {max}"
+            );
+        }
+
+        this.roundingPrecision = value;
+      }
+    }
+
+    /// <summary> 
+    /// Returns result of last validly given calculation with respective 
+    /// decimal separator. Either with '.' or ','
+    /// </summary>
+    /// <value> 
+    /// Only getter of result. 
+    /// Returns null if no valid equation has been given so far
+    /// </value>
+    public string LastResult
+    {
+      get 
+      { 
+        string result = null;
+
+        if (this.Results.Count != 0)
+        {
+          result = this.Results[0].Result;
+        }
+
+        return result;
+      }
+    }
 
     #endregion
 
@@ -120,6 +197,14 @@ namespace Calculator_Window
       this.Results.Clear();
     }
 
+    /// <summary> Calculates the faculty of a number </summary>
+    /// <param name="number"> number to use as base for the calculation </param>
+    /// <returns> Result of a faculty calculation </returns>
+    /// <example> 
+    /// double result = CalculateModel.CalculateFaculty(3);
+    /// // result = 3!
+    /// // result = 6
+    /// </example>
     public static int CalculateFaculty(int number)
     {
       var result = 1;
@@ -138,9 +223,15 @@ namespace Calculator_Window
       return numberIsNegative ? result * -1 : result;
     }
 
+    /// <summary> Returns conversion from degree to radians </summary>
+    /// <param name="degree"> Degree to be converted </param>
+    /// <returns> Returns radians as angle </returns>
     public static double DegreeToRadians(double degree)
       => (Math.PI / 180) * degree;
 
+    /// <summary> Returns conversion from radians to degree </summary>
+    /// <param name="radians"> Radians to be converted </param>
+    /// <returns> Returns degree as angle </returns>
     public static double RadiansToDegree(double radians)
       => (180 / Math.PI) * radians;
 
@@ -178,20 +269,20 @@ namespace Calculator_Window
           );
       }
 
+      string textForm = inputForCalc.Trim();
+      string equation = textForm;
+
       try
       {
-        string textForm = inputForCalc.Trim();
-        string equation = textForm;
-        this.CurrentResult = this.ProcessTextTerm(ref textForm);        
-        
-        this.Results.Insert(
-          0, new EquationCalculation(this.CurrentResult, equation)
-          );
-        
-        if (this.Results.Count > this.MaxNumberOfResult)
+
+        if (!this.UsesPointAsDecimalSeperator)
         {
-          this.Results.RemoveAt(this.Results.Count - 1);
+          textForm = textForm.Replace(",", ".");
         }
+
+        this.CurrentResult = Math.Round(
+          this.ProcessTextTerm(ref textForm), this.RoundingPrecision
+          );
       }
       catch (OverflowException e)
       {
@@ -208,6 +299,22 @@ namespace Calculator_Window
       catch (CalculationParseMathematicalException e)
       {
         throw e;
+      }
+
+      string resultToBeStored = this.CurrentResult.ToString();
+
+      if (!this.UsesPointAsDecimalSeperator)
+      {
+        resultToBeStored = resultToBeStored.Replace(".", ",");
+      }
+
+      this.Results.Insert(
+        0, new EquationCalculation(resultToBeStored, equation)
+        );
+
+      if (this.Results.Count > this.MaxNumberOfResult)
+      {
+        this.Results.RemoveAt(this.Results.Count - 1);
       }
 
       return this.CurrentResult;
@@ -263,7 +370,7 @@ namespace Calculator_Window
     // Regular expression for matching a valid text unit as an closing parentheses
     protected static readonly Regex whiteSpaceclosingParathesePattern =
       new Regex(@"^\s*\)");
-
+   
     #endregion
 
     private const string OverflowOperationErrorMsg =
@@ -560,7 +667,7 @@ namespace Calculator_Window
       // Parameter: operandMatch is a match of a valid operand in a string.
       // Returns numeric signed value of an operand
       // Match must have the Group signSequence and floatingNumber
-      static double GetNumericOperandFromMatch(Match operandMatch)
+      double GetNumericOperandFromMatch(Match operandMatch)
       {
         string signSequence = operandMatch.Groups["signSequence"].Value;        
         var number = 0.0;
@@ -759,7 +866,7 @@ namespace Calculator_Window
       // Parameter operandFunction = log, 
       // Parameter firstOperand = 2, 
       // Parameter secondOperand = 4
-      static double CalculateFunctionOperand(
+      double CalculateFunctionOperand(
         string operandFunction, double firstOperand, double secondOperand 
         )
       {
@@ -787,35 +894,39 @@ namespace Calculator_Window
         }
         else if (operandFunction == "tan")
         {
+          double degree = this.UsesRadians 
+            ? RadiansToDegree(secondOperand) : secondOperand;
 
-          if (secondOperand == 90.0 || secondOperand == 270.0)
+          if (degree == 90.0 || degree == 270.0)
           {
             ThrowMathematicalError(MathematicalError.TanInvalidAngle);
           }
 
-          return Math.Tan(DegreeToRadians(secondOperand));
+          return Math.Tan(
+            this.UsesRadians ? secondOperand : DegreeToRadians(secondOperand)
+            );
         }
         else if (operandFunction == "sin")
         {
-          return Math.Sin(DegreeToRadians(secondOperand));
+          return Math.Sin(ConvertAngle(secondOperand));
         }
         else if (operandFunction == "cos")
         {
-          return Math.Cos(DegreeToRadians(secondOperand));
+          return Math.Cos(ConvertAngle(secondOperand));
         }
         else if (operandFunction == "cocos")
         {
           ThrowForOverOne();
-          return RadiansToDegree(Math.Acos(secondOperand));
+          return ConvertAngleBack(Math.Acos(secondOperand));
         }
         else if (operandFunction == "cosin")
         {
           ThrowForOverOne();
-          return RadiansToDegree(Math.Asin(secondOperand));
+          return ConvertAngleBack(Math.Asin(secondOperand));
         }
         else if (operandFunction == "cotan")
         {
-          return RadiansToDegree(Math.Atan(secondOperand));
+          return ConvertAngleBack(Math.Atan(secondOperand));
         }
         else
         {
@@ -832,7 +943,15 @@ namespace Calculator_Window
             ThrowMathematicalError(MathematicalError.SinCosInvalidAngle);
           }
         }
+
+        double ConvertAngle(double angle)
+          => this.UsesRadians ? angle : DegreeToRadians(angle);
+
+        double ConvertAngleBack(double angle)
+          => this.UsesRadians ? angle : RadiansToDegree(angle);
       }
+
+
 
       double ProcessSurroundedWithRightSide(
         ref string textTerm, 
