@@ -8,18 +8,10 @@
              xmlns:convert="clr-namespace:Calculator_Window.Util.Converters"
              mc:Ignorable="d"              
              d:DesignHeight="600" d:DesignWidth="800">
-  
-  <UserControl.Resources>
-    <convert:BoolToStringOneWayConverter TextForTrue="." 
-                                         TextForFalse="," 
-                                         x:Key="DecimalSeparatorConverter"/>
 
+  <UserControl.Resources>
     <sys:Double x:Key="BtnSize">50</sys:Double>
-    
-    <Thickness x:Key="CalculatorElementMargin">
-      5
-    </Thickness>
-        
+
     <ControlTemplate TargetType="Button" x:Key="CalculationBtnTemplate">
       
       <Border Margin="5"  Background="White"
@@ -32,6 +24,7 @@
            BorderThickness="0">
         </Button>
       </Border>
+      
     </ControlTemplate>
 
     <ControlTemplate TargetType="Button" x:Key="InputBtnTemp">
@@ -50,6 +43,8 @@
     <Style x:Key="AnnouncementResultStat" TargetType="Label">
       <Setter Property="Content" Value="Entered equation" />
       <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontStyle" Value="Italic" />
       <Style.Triggers>
         <DataTrigger Binding="{Binding ShowsResult}" Value="True">
           <Setter Property="Content" Value="Current Result"/>
@@ -62,8 +57,9 @@
 
   
   <Border 
-    CornerRadius="5"  BorderThickness="5" BorderBrush="Black">
-    <Grid Background="Gray" 
+    Padding="10" Background="Gray"
+    BorderThickness="2" BorderBrush="Black">
+    <Grid            
           Loaded="GetMainGridWidth_Loaded">
 
       <Grid.ColumnDefinitions>
@@ -77,29 +73,41 @@
       </Grid.RowDefinitions>
 
       <StackPanel>
+
+        <StackPanel.Resources>
+          <Style TargetType="TextBox">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+          </Style>
+        </StackPanel.Resources>
+
         <Label Style="{StaticResource AnnouncementResultStat}" />
-        <TextBox Grid.Column="0" Grid.Row="0"                
-                Margin="{StaticResource CalculatorElementMargin}"
+        <TextBox Grid.Column="0" Grid.Row="0"                                
                 Loaded="CalcDisplayTextBox_Loaded"
-                TextWrapping="Wrap"           
-                Width="{Binding Path=MainGirdWidth}"
+                Background="#519AE2"
+                Padding="7"         
+                Width="{Binding Path=MainGirdWidth}"                
                 KeyDown="ClearResult_TextBox_KeyDown"
+                d:Text="24564654654 + 28744564222 45899 + 4654654654645646 54"
                 Text="{Binding CalculationOutput, UpdateSourceTrigger=PropertyChanged}">
         </TextBox>
         <TextBox Text="{Binding ErrorMessage}"
                IsReadOnly="True"
-               Padding="5"
-               TextWrapping="Wrap"
+               Padding="5"               
                Foreground="White"
                Background="DarkRed"
                HorizontalAlignment="Stretch"
-               HorizontalContentAlignment="Center"
-               Width="{Binding Path=MainGirdWidth}"
-               Visibility="{Binding ErrorMessageVisible}"/>
+               Width="{Binding Path=MainGirdWidth}"               
+               Visibility="{Binding ErrorMessageVisible}"
+               d:Visibility="Visible"
+               d:Text="Error Message" />
       </StackPanel>
 
-      <StackPanel Grid.Column="0" Grid.Row="1"
-                  Margin="{StaticResource CalculatorElementMargin}">
+      <StackPanel Grid.Column="0" Grid.Row="1">
         <WrapPanel>
           <Button Content="1" Template="{StaticResource InputBtnTemp}" />
           <Button Content="2" Template="{StaticResource InputBtnTemp}" />

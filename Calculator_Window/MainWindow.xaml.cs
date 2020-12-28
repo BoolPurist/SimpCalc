@@ -44,11 +44,9 @@ namespace Calculator_Window
       get => this.lastResultVisibility;
       set
       {
-        this.lastResultVisibility = value;        
-        this.PropertyChanged?.Invoke(
-          this,
-          new PropertyChangedEventArgs(nameof(this.LastResultVisibility))
-          );
+        this.lastResultVisibility = value;
+
+        this.OnPropertyChanged(nameof(this.LastResultVisibility));
       }
     }
 
@@ -66,10 +64,19 @@ namespace Calculator_Window
       set
       {
         this.historyVisibility = value;
-        this.PropertyChanged?.Invoke(
-          this,
-          new PropertyChangedEventArgs(nameof(this.HistoryVisibility))
-          );
+        this.OnPropertyChanged(nameof(this.HistoryVisibility));          
+      }
+    }
+
+    private Visibility calculatorStateVisibility = Visibility.Visible;
+
+    public Visibility CalculatorStateVisibility
+    {
+      get => this.calculatorStateVisibility;
+      set
+      {
+        this.calculatorStateVisibility = value;
+        this.OnPropertyChanged(nameof(this.CalculatorStateVisibility));
       }
     }
 
@@ -96,7 +103,7 @@ namespace Calculator_Window
     private void OpenSettings()
     {
       var settingDialog = new CalculatorSettingDialog(
-        Calc.UsesesRadians,
+        Calc.UsesRadians,
         Calc.UsesPointAsDecimalSeperator,
         Calc.RoundingPrecision,
         Calc.MaxNumberOfResult
@@ -106,12 +113,18 @@ namespace Calculator_Window
 
       if (settingDialog.DialogResult == true)
       {
-        Calc.UsesesRadians = settingDialog.UsesRadians;
+        Calc.UsesRadians = settingDialog.UsesRadians;
         Calc.UsesPointAsDecimalSeperator = settingDialog.UsesPoint;
         Calc.RoundingPrecision = settingDialog.RoundingPrecision;
         Calc.MaxNumberOfResult = settingDialog.MaxNbrOfStoredCalcs;
       }
     }
+
+
+    private void OnPropertyChanged(string paramName)
+      => this.PropertyChanged?.Invoke(
+          this, new PropertyChangedEventArgs(paramName)
+          );
 
   }
 }

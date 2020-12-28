@@ -2,8 +2,14 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Calculator_Window"
+             xmlns:convert="clr-namespace:Calculator_Window.Util.Converters"
              Startup="App_Startup">
     <Application.Resources>
-         
-    </Application.Resources>
+      <convert:BoolToStringOneWayConverter TextForTrue="." 
+                                            TextForFalse="," 
+                                            x:Key="DecimalSeparatorConverter"/>
+      <convert:BoolToStringOneWayConverter TextForTrue="Radians"
+                                            TextForFalse="Degree"
+                                            x:Key="AngleTextConverter"/>  
+  </Application.Resources>
 </Application>

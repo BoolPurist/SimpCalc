@@ -205,10 +205,14 @@ namespace Calculator_Window
       }
     }
 
-    public bool UsesesRadians
+    public bool UsesRadians
     {
       get => this.calculatorModel.UsesRadians;
-      set => this.calculatorModel.UsesRadians = value;      
+      set
+      {
+        this.calculatorModel.UsesRadians = value;
+        this.OnPropertyChanged(nameof(this.UsesRadians));
+      }
     }
 
     public bool UsesPointAsDecimalSeperator
@@ -236,13 +240,21 @@ namespace Calculator_Window
     public int MaxNumberOfResult
     {
       get => this.calculatorModel.MaxNumberOfResult;
-      set => this.calculatorModel.MaxNumberOfResult = value;
+      set
+      {
+        this.calculatorModel.MaxNumberOfResult = value;
+        this.OnPropertyChanged(nameof(this.MaxNumberOfResult));
+      }
     }
 
     public int RoundingPrecision
     {
       get => this.calculatorModel.RoundingPrecision;
-      set => this.calculatorModel.RoundingPrecision = value;
+      set
+      {
+        this.calculatorModel.RoundingPrecision = value;
+        this.OnPropertyChanged(nameof(this.RoundingPrecision));
+      }
     }
 
     private readonly CalculatorModel calculatorModel = new CalculatorModel();   
@@ -486,6 +498,8 @@ namespace Calculator_Window
       }
 
     }
+    private void CalcDisplayTextBox_Loaded(object sender, RoutedEventArgs e)
+      => this.calculatorDisplayBox = sender as TextBox;
 
     #endregion
 
@@ -494,8 +508,6 @@ namespace Calculator_Window
         this, new PropertyChangedEventArgs(paramName)
         );
 
-    private void CalcDisplayTextBox_Loaded(object sender, RoutedEventArgs e)
-      => this.calculatorDisplayBox = sender as TextBox;
     
   }
   
