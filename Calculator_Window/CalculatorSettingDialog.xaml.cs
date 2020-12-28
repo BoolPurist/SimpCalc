@@ -115,7 +115,7 @@ namespace Calculator_Window
 
     private void ApplySettings_Button_Click(object sender, RoutedEventArgs e)
     {
-      if (sender is Button clickedBtn)
+      if (sender is Button)
       {
         if (
           !Validation.GetHasError(this.RoundingInput) &&
@@ -130,7 +130,7 @@ namespace Calculator_Window
 
     private void CancleSettings_Button_Click(object sender, RoutedEventArgs e)
     {
-      if (sender is Button clickedBtn)
+      if (sender is Button)
       {
         this.DialogResult = false;
         this.Close();

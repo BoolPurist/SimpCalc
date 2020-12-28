@@ -14,6 +14,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Serialization;
+using System.IO;
+
 
 using Calculator_Window.Util;
 
@@ -59,8 +62,9 @@ namespace Calculator_Window
       set
       {
         this.lastResultVisibility = value;
-
         this.OnPropertyChanged(nameof(this.LastResultVisibility));
+
+        this.SaveVisibility();
       }
     }
 
@@ -78,7 +82,9 @@ namespace Calculator_Window
       set
       {
         this.historyVisibility = value;
-        this.OnPropertyChanged(nameof(this.HistoryVisibility));          
+        this.OnPropertyChanged(nameof(this.HistoryVisibility));
+        
+        this.SaveVisibility();
       }
     }
 
@@ -91,19 +97,28 @@ namespace Calculator_Window
       {
         this.calculatorStateVisibility = value;
         this.OnPropertyChanged(nameof(this.CalculatorStateVisibility));
+
+        this.SaveVisibility();
       }
     }
 
     #endregion
+    
+    private static readonly XmlSerializer xmlSaver =
+      new XmlSerializer(typeof(MenuModel));
+
+    private const string MenuStateFilePath = "MenuState.xml";
+
+    private readonly bool initLoadingDone = false;
 
     public MainWindow()
     {
       InitializeComponent();
       this.DataContext = this;
-      this.ResetSettings();
 
-      this.Loaded += (sender, e) => AdjustWindowSize();
-
+      this.Loaded +=  (sender, e) => { AdjustWindowSize(); };
+      this.LoadSettings();
+      this.initLoadingDone = true;
       this.OpenSettingCommand = new RelayCommand(param => this.OpenSettings());
       this.ResetSettingCommand = new RelayCommand(parma => this.ResetSettings());
     }
@@ -122,10 +137,12 @@ namespace Calculator_Window
       this.HistoryVisibility = standardVisibility;
       this.CalculatorStateVisibility = standardVisibility;
       this.LastResultVisibility = standardVisibility;
-      this.Calc.LastResult = "0";
+      this.Calc.UsesRadians = true;
       this.Calc.UsesPointAsDecimalSeperator = true;
       this.Calc.RoundingPrecision = 15;
       this.Calc.MaxNumberOfResult = 10;
+
+      this.SaveSettings();
     }
 
     private void OpenSettings()
@@ -146,8 +163,107 @@ namespace Calculator_Window
         Calc.RoundingPrecision = settingDialog.RoundingPrecision;
         Calc.MaxNumberOfResult = settingDialog.MaxNbrOfStoredCalcs;
       }
+
+      this.SaveSettings();
     }
 
+    private void SaveSettings()
+    {
+      var menuState = new MenuModel()
+      {
+        ViewState = new View()
+        {
+          ShowLastResult = ConvertVisibiltiyToChecked(this.LastResultVisibility),
+          ShowHistory = ConvertVisibiltiyToChecked(this.HistoryVisibility),
+          ShowCalculatorSetting = ConvertVisibiltiyToChecked(this.CalculatorStateVisibility)
+        },
+        OptionState = new Option()
+        {
+          SettingOfCalculator = new CalculatorSettings()
+          {
+            UsesRadians = this.Calc.UsesRadians,
+            UsesPointAsDecimalSeparator = this.Calc.UsesPointAsDecimalSeperator,
+            RoundingPrecision = this.Calc.RoundingPrecision,
+            MaxNumberOfResult = this.Calc.MaxNumberOfResult
+          }
+        }
+      };
+
+      using var writer = new StreamWriter(MenuStateFilePath);
+        xmlSaver.Serialize(writer, menuState);
+
+    }
+
+    private void SaveVisibility()
+    {
+      if (this.initLoadingDone)
+      {
+        this.SaveSettings();
+      }
+    }
+
+    private void LoadSettings()
+    {     
+      if (File.Exists(MenuStateFilePath))
+      {
+        try
+        {
+          using var reader = new StreamReader(MenuStateFilePath);
+
+          if (xmlSaver.Deserialize(reader) is MenuModel menuState)
+          {
+            ApplySettingsLoad(menuState);
+          }
+          else
+          {
+            this.ResetSettings();
+          }
+        }
+        catch (InvalidOperationException)
+        {
+          ResetSettings();
+        }
+      }
+      else
+      {
+        ResetSettings();
+      }
+
+
+      void ApplySettingsLoad(MenuModel menuState)
+      {
+        try
+        {
+          View viewState = menuState.ViewState;
+          Option optionState = menuState.OptionState;
+
+          CalculatorSettings calculatorSettingsState =
+            optionState.SettingOfCalculator;
+
+          this.LastResultVisibility = ConvertBoolToVisibility(viewState.ShowLastResult);
+          this.HistoryVisibility = ConvertBoolToVisibility(viewState.ShowHistory);
+          this.CalculatorStateVisibility = ConvertBoolToVisibility(viewState.ShowCalculatorSetting);
+
+          Calculator calculator = this.Calc;
+
+          calculator.UsesRadians = calculatorSettingsState.UsesRadians;
+          calculator.UsesPointAsDecimalSeperator =
+            calculatorSettingsState.UsesPointAsDecimalSeparator;
+          calculator.RoundingPrecision = calculatorSettingsState.RoundingPrecision;
+          calculator.MaxNumberOfResult = calculatorSettingsState.MaxNumberOfResult;
+        }
+        catch (ArgumentNullException)
+        {
+          ResetSettings();
+        }
+      }
+    }
+
+    public static bool ConvertVisibiltiyToChecked(Visibility value)
+      => value == Visibility.Visible;
+
+    public static Visibility ConvertBoolToVisibility(bool value)
+      => value ? Visibility.Visible : Visibility.Collapsed;
 
     private void OnPropertyChanged(string paramName)
       => this.PropertyChanged?.Invoke(

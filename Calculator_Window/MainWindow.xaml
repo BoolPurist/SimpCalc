@@ -40,9 +40,9 @@
   </Window.Resources>
   
   <StackPanel x:Name="MainContainer" Height="Auto">
-    <Menu Margin="0,0,0,10" IsMainMenu="True">
+    <Menu x:Name="MainMenu" Margin="0,0,0,10" IsMainMenu="True">
       <MenuItem Header="Action">
-        <MenuItem Header="Clear" 
+        <MenuItem Header="Clear"
                   Command="{Binding ClearCommand, ElementName=Calc}"
                   InputGestureText="Ctrl+L"/>
         <MenuItem Header="Calculate"
@@ -58,14 +58,17 @@
 
       <MenuItem Header="View">
         <MenuItem Header="Last Result"
+                  x:Name="ViewLastResult"
                   IsCheckable="True" 
                   IsChecked="{Binding LastResultVisibility, Converter={StaticResource BoolToVisibleHidden} }"
                   />
         <MenuItem Header="History"
+                  x:Name="ViewHistory"
                   IsCheckable="True" 
                   IsChecked="{Binding HistoryVisibility, Converter={StaticResource BoolToVisibleHidden}}"
                   />
         <MenuItem Header="Calculator Settings"
+                  x:Name="ViewCalculatorSettings"
                   IsCheckable="True" 
                   IsChecked="{Binding CalculatorStateVisibility, Converter={StaticResource BoolToVisibleHidden}}"
                   />
