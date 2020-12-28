@@ -8,7 +8,7 @@ using System.Windows.Data;
 
 namespace Calculator_Window.Util.Converters
 {
-  [ValueConversion(typeof(Visibility), typeof(bool))]
+  [ValueConversion(typeof(bool), typeof(Visibility))]
   public class BoolToVisibilityConverter : IValueConverter
   {
     /// <summary> 
@@ -20,7 +20,22 @@ namespace Calculator_Window.Util.Converters
     /// </value>
     public bool CollapsesIt { get; set; } = false;
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {      
+    {
+      if (value is bool showIt)
+      {
+        return showIt ? Visibility.Visible :
+          (this.CollapsesIt ? Visibility.Collapsed : Visibility.Hidden);
+      }
+      else
+      {
+        throw new ArgumentException(
+          $"Value must be of type bool", nameof(value)
+          );
+      }
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
       if (value is Visibility visibilityStatus)
       {
         return visibilityStatus == Visibility.Visible;
@@ -29,22 +44,6 @@ namespace Calculator_Window.Util.Converters
       {
         throw new ArgumentException(
           $"Value must be of type Visibility", nameof(value)
-          );
-      }
-
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {      
-      if (value is bool showIt)
-      {        
-        return showIt ? Visibility.Visible : 
-          (this.CollapsesIt ? Visibility.Collapsed : Visibility.Hidden);        
-      }
-      else
-      {
-        throw new ArgumentException(
-          $"Value must be of type bool", nameof(value)
           );
       }
     }

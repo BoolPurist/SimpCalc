@@ -6,9 +6,11 @@
         xmlns:local="clr-namespace:Calculator_Window"   
         xmlns:converters="clr-namespace:Calculator_Window.Util.Converters"
         xmlns:equa="clr-namespace:Calculator_Window.CalculatorControl"
-        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib" 
+        d:DataContext="{d:DesignInstance Type=local:MainWindow}"
         mc:Ignorable="d"
-        Title="Calculator" SizeToContent="WidthAndHeight">
+        Title="Calculator" SizeToContent="WidthAndHeight"
+        >
 
 <Window.InputBindings>
     <KeyBinding Command="{Binding ClearCommand, ElementName=Calc}"
@@ -60,17 +62,17 @@
         <MenuItem Header="Last Result"
                   x:Name="ViewLastResult"
                   IsCheckable="True" 
-                  IsChecked="{Binding LastResultVisibility, Converter={StaticResource BoolToVisibleHidden} }"
+                  IsChecked="{Binding ShowsLastResult}"
                   />
         <MenuItem Header="History"
                   x:Name="ViewHistory"
                   IsCheckable="True" 
-                  IsChecked="{Binding HistoryVisibility, Converter={StaticResource BoolToVisibleHidden}}"
+                  IsChecked="{Binding ShowsHistory}"
                   />
         <MenuItem Header="Calculator Settings"
                   x:Name="ViewCalculatorSettings"
                   IsCheckable="True" 
-                  IsChecked="{Binding CalculatorStateVisibility, Converter={StaticResource BoolToVisibleHidden}}"
+                  IsChecked="{Binding ShowsCalculatorState}"
                   />
       </MenuItem>
       <MenuItem Header="Options">
@@ -92,7 +94,7 @@
         <Grid            
             HorizontalAlignment="Center"
             Background="Gray"
-            Visibility="{Binding CalculatorStateVisibility}">
+            Visibility="{Binding ShowsCalculatorState, Converter={StaticResource BoolToVisibleHidden}}">
 
           <Grid.Resources>
             <ControlTemplate x:Key="GridCell" TargetType="Label">
@@ -178,12 +180,12 @@
         </StackPanel.Resources>
 
         <Label Template="{StaticResource SimpleInfoLable}" 
-               Visibility="{Binding LastResultVisibility}"
+               Visibility="{Binding ShowsLastResult, Converter={StaticResource BoolToVisibleHidden}}"
                Background="DarkOliveGreen"
                Tag="Last Result:"
                Content="{Binding LastResult, ElementName=Calc}"/>
 
-        <StackPanel Visibility="{Binding HistoryVisibility}">
+        <StackPanel Visibility="{Binding ShowsHistory, Converter={StaticResource BoolToVisibleHidden}}">
           <ScrollViewer  Height="{Binding MainHeight, ElementName=Calc}"                         
                          VerticalScrollBarVisibility="Auto"
                          d:Height="560">

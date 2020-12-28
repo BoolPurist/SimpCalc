@@ -48,7 +48,7 @@ namespace Calculator_Window
 
     #region properties
 
-    private Visibility lastResultVisibility;
+    private bool showsLastResult;
 
     /// <summary>  
     /// Determines if the label as last result is shown to the user.
@@ -56,19 +56,19 @@ namespace Calculator_Window
     /// <value> 
     /// Getter/Setter of visibility of last result
     /// </value>
-    public Visibility LastResultVisibility
+    public bool ShowsLastResult
     {
-      get => this.lastResultVisibility;
+      get => this.showsLastResult;
       set
       {
-        this.lastResultVisibility = value;
-        this.OnPropertyChanged(nameof(this.LastResultVisibility));
+        this.showsLastResult = value;
+        this.OnPropertyChanged(nameof(this.ShowsLastResult));
 
         this.SaveVisibility();
       }
     }
 
-    private Visibility historyVisibility;
+    private bool showsHistory;
 
     /// <summary>  
     /// Determines if the label as last result is shown to the user.
@@ -76,27 +76,27 @@ namespace Calculator_Window
     /// <value> 
     /// Getter/Setter of visibility of history list of all entered equations
     /// </value>
-    public Visibility HistoryVisibility
+    public bool ShowsHistory
     {
-      get => this.historyVisibility;
+      get => this.showsHistory;
       set
       {
-        this.historyVisibility = value;
-        this.OnPropertyChanged(nameof(this.HistoryVisibility));
+        this.showsHistory = value;
+        this.OnPropertyChanged(nameof(this.ShowsHistory));
         
         this.SaveVisibility();
       }
     }
 
-    private Visibility calculatorStateVisibility;
+    private bool showsCalculatorState;
 
-    public Visibility CalculatorStateVisibility
+    public bool ShowsCalculatorState
     {
-      get => this.calculatorStateVisibility;
+      get => this.showsCalculatorState;
       set
       {
-        this.calculatorStateVisibility = value;
-        this.OnPropertyChanged(nameof(this.CalculatorStateVisibility));
+        this.showsCalculatorState = value;
+        this.OnPropertyChanged(nameof(this.ShowsCalculatorState));
 
         this.SaveVisibility();
       }
@@ -104,7 +104,7 @@ namespace Calculator_Window
 
     #endregion
     
-    private static readonly XmlSerializer xmlSaver =
+    private static readonly XmlSerializer xmlMainMenuSerialize =
       new XmlSerializer(typeof(MenuModel));
 
     private const string MenuStateFilePath = "MenuState.xml";
@@ -123,6 +123,7 @@ namespace Calculator_Window
       this.ResetSettingCommand = new RelayCommand(parma => this.ResetSettings());
     }
 
+
     // Making sure that the user does not shrink the main window to a size
     // which breaks the whole layout.
     private void AdjustWindowSize()
@@ -133,11 +134,11 @@ namespace Calculator_Window
 
     private void ResetSettings()
     {
-      const Visibility standardVisibility = Visibility.Visible;
-      this.HistoryVisibility = standardVisibility;
-      this.CalculatorStateVisibility = standardVisibility;
-      this.LastResultVisibility = standardVisibility;
-      this.Calc.UsesRadians = true;
+      const bool showByStandard = true;
+      this.ShowsHistory = showByStandard;
+      this.ShowsCalculatorState = showByStandard;
+      this.ShowsLastResult = showByStandard;
+      this.Calc.UsesRadians = false;
       this.Calc.UsesPointAsDecimalSeperator = true;
       this.Calc.RoundingPrecision = 15;
       this.Calc.MaxNumberOfResult = 10;
@@ -173,9 +174,9 @@ namespace Calculator_Window
       {
         ViewState = new View()
         {
-          ShowLastResult = ConvertVisibiltiyToChecked(this.LastResultVisibility),
-          ShowHistory = ConvertVisibiltiyToChecked(this.HistoryVisibility),
-          ShowCalculatorSetting = ConvertVisibiltiyToChecked(this.CalculatorStateVisibility)
+          ShowLastResult = this.ShowsLastResult,
+          ShowHistory = this.ShowsHistory,
+          ShowCalculatorSetting = this.ShowsCalculatorState
         },
         OptionState = new Option()
         {
@@ -190,7 +191,7 @@ namespace Calculator_Window
       };
 
       using var writer = new StreamWriter(MenuStateFilePath);
-        xmlSaver.Serialize(writer, menuState);
+        xmlMainMenuSerialize.Serialize(writer, menuState);
 
     }
 
@@ -210,7 +211,7 @@ namespace Calculator_Window
         {
           using var reader = new StreamReader(MenuStateFilePath);
 
-          if (xmlSaver.Deserialize(reader) is MenuModel menuState)
+          if (xmlMainMenuSerialize.Deserialize(reader) is MenuModel menuState)
           {
             ApplySettingsLoad(menuState);
           }
@@ -240,9 +241,9 @@ namespace Calculator_Window
           CalculatorSettings calculatorSettingsState =
             optionState.SettingOfCalculator;
 
-          this.LastResultVisibility = ConvertBoolToVisibility(viewState.ShowLastResult);
-          this.HistoryVisibility = ConvertBoolToVisibility(viewState.ShowHistory);
-          this.CalculatorStateVisibility = ConvertBoolToVisibility(viewState.ShowCalculatorSetting);
+          this.ShowsLastResult = viewState.ShowLastResult;
+          this.ShowsHistory = viewState.ShowHistory;
+          this.ShowsCalculatorState = viewState.ShowCalculatorSetting;
 
           Calculator calculator = this.Calc;
 
@@ -258,12 +259,6 @@ namespace Calculator_Window
         }
       }
     }
-
-    public static bool ConvertVisibiltiyToChecked(Visibility value)
-      => value == Visibility.Visible;
-
-    public static Visibility ConvertBoolToVisibility(bool value)
-      => value ? Visibility.Visible : Visibility.Collapsed;
 
     private void OnPropertyChanged(string paramName)
       => this.PropertyChanged?.Invoke(
