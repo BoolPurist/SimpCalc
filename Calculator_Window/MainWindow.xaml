@@ -73,6 +73,8 @@
       <MenuItem Header="Options">
         <MenuItem Header="Calculator Settings"
                   Command="{Binding OpenSettingCommand}"/>
+        <MenuItem Header="Reset Settings"
+                  Command="{Binding ResetSettingCommand}"/>
       </MenuItem>
     </Menu>
 

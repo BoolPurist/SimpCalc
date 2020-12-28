@@ -24,14 +24,28 @@ namespace Calculator_Window
   /// binding properties for visibility of certain controls in the main window 
   /// </summary>
   public partial class MainWindow : Window, INotifyPropertyChanged
-  {    
+  {
     public event PropertyChangedEventHandler PropertyChanged;
 
+    /// <summary> Opens up modular dialog for setting behavior of the calculator </summary>
+    /// <value> 
+    /// Getter of command. Command can always executed. Creates an instance
+    /// CalculatorSettingDialog and starts it as modular to the user.
+    /// </value>
     public RelayCommand OpenSettingCommand { get; private set; }
+
+    /// <summary> Sets all settings possibilities to its initial state </summary>
+    /// <value> 
+    /// Getter for command. Command always executed 
+    /// Currently makes all hide-able controls visible again
+    /// and sets all set-able properties of the calculator and history of equation
+    /// to a determined initial state. 
+    /// </value>
+    public RelayCommand ResetSettingCommand { get; private set; }
 
     #region properties
 
-    private Visibility lastResultVisibility = Visibility.Visible;
+    private Visibility lastResultVisibility;
 
     /// <summary>  
     /// Determines if the label as last result is shown to the user.
@@ -50,7 +64,7 @@ namespace Calculator_Window
       }
     }
 
-    private Visibility historyVisibility = Visibility.Visible;
+    private Visibility historyVisibility;
 
     /// <summary>  
     /// Determines if the label as last result is shown to the user.
@@ -68,7 +82,7 @@ namespace Calculator_Window
       }
     }
 
-    private Visibility calculatorStateVisibility = Visibility.Visible;
+    private Visibility calculatorStateVisibility;
 
     public Visibility CalculatorStateVisibility
     {
@@ -86,10 +100,12 @@ namespace Calculator_Window
     {
       InitializeComponent();
       this.DataContext = this;
+      this.ResetSettings();
 
       this.Loaded += (sender, e) => AdjustWindowSize();
 
       this.OpenSettingCommand = new RelayCommand(param => this.OpenSettings());
+      this.ResetSettingCommand = new RelayCommand(parma => this.ResetSettings());
     }
 
     // Making sure that the user does not shrink the main window to a size
@@ -98,6 +114,18 @@ namespace Calculator_Window
     {
       this.MinHeight = this.ActualHeight;
       this.MinWidth = this.ActualWidth;
+    }
+
+    private void ResetSettings()
+    {
+      const Visibility standardVisibility = Visibility.Visible;
+      this.HistoryVisibility = standardVisibility;
+      this.CalculatorStateVisibility = standardVisibility;
+      this.LastResultVisibility = standardVisibility;
+      this.Calc.LastResult = "0";
+      this.Calc.UsesPointAsDecimalSeperator = true;
+      this.Calc.RoundingPrecision = 15;
+      this.Calc.MaxNumberOfResult = 10;
     }
 
     private void OpenSettings()
