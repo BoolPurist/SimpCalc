@@ -172,9 +172,6 @@
           </ControlTemplate>
         </StackPanel.Resources>
 
-
-        <!-- Content="{Binding LastResult, ElementName=Calc}" -->
-        <!--Visibility="{Binding LastResultVisibility}"-->
         <Label Template="{StaticResource SimpleInfoLable}" 
                Visibility="{Binding LastResultVisibility}"
                Background="DarkOliveGreen"

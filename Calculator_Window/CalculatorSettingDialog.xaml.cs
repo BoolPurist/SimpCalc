@@ -118,7 +118,7 @@ namespace Calculator_Window
       if (sender is Button clickedBtn)
       {
         if (
-          !Validation.GetHasError(this.RoundingInput) && 
+          !Validation.GetHasError(this.RoundingInput) &&
           !Validation.GetHasError(this.MaxHistoryInput)
           )
         {

@@ -11,7 +11,6 @@
   <Window.Resources>
     <Style TargetType="TextBox">
       <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="MaxLength" Value="5"/>
       <Setter Property="MinWidth" Value="50"/>
       <Style.Triggers>
         <Trigger Property="Validation.HasError" Value="true">
@@ -28,12 +27,13 @@
         </Style>
       </Style.Resources>
     </Style>
+
     <ControlTemplate x:Key="NumberTextBoxErrorTmp">
       <Border Grid.Row="0" Grid.Column="0" BorderThickness="1" BorderBrush="Red">
         <AdornedElementPlaceholder/>
       </Border>
     </ControlTemplate>
-    
+
   </Window.Resources>
   
   <StackPanel Margin="20">
@@ -83,7 +83,7 @@
         </TextBox.Text>
       </TextBox>
       <Label>
-        0 - 32
+        0 - 15
       </Label>
     </WrapPanel>
     <Separator/>
@@ -91,28 +91,50 @@
       <Label>
         Max Number of stored calculations:
       </Label>
-      <TextBox x:Name="MaxHistoryInput" 
+      <TextBox x:Name="MaxHistoryInput" MaxLength="5"
         Validation.ErrorTemplate="{StaticResource NumberTextBoxErrorTmp}">
         <TextBox.Text>
           <Binding Path="MaxNbrOfStoredCalcs" UpdateSourceTrigger="PropertyChanged">
             <Binding.ValidationRules>
-              <v:StringToNumberValidator Min="0"/>
+              <v:StringToNumberValidator Min="1"/>
             </Binding.ValidationRules>
           </Binding>
         </TextBox.Text>
       </TextBox>
+      <Label>
+        1-99999
+      </Label>
     </WrapPanel>
     <Separator/>
     <WrapPanel HorizontalAlignment="Right">
       <WrapPanel.Resources>
-        <Style TargetType="Button">
+        <Style TargetType="Button" x:Key="ButtonStyle">
           <Setter Property="Margin" Value="5"/>
           <Setter Property="Padding" Value="5"/>
           <Setter Property="FontWeight" Value="Bold"/>
         </Style>
+        <Style TargetType="Button" x:Key="ErrorApplyBtn" 
+               BasedOn="{StaticResource ButtonStyle}">
+          <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="true">
+              <Setter Property="Background" Value="Red"/>
+            </Trigger>
+          </Style.Triggers>
+        </Style>
       </WrapPanel.Resources>
-      <Button Click="ApplySettings_Button_Click" IsDefault="True">Apply</Button>
-      <Button Click="CancleSettings_Button_Click" IsCancel="True">Cancel</Button>
+      <Button x:Name="ApplyBtn"
+              Style="{StaticResource ErrorApplyBtn}"
+              Click="ApplySettings_Button_Click" 
+              IsDefault="True">
+        Apply
+      </Button>
+      <Button Click="CancleSettings_Button_Click" 
+              Style="{StaticResource ButtonStyle}"
+              IsCancel="True">
+        Cancel
+      </Button>
     </WrapPanel>
   </StackPanel>
+  
+  
 </Window>
