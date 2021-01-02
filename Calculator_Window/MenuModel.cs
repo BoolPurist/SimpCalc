@@ -17,6 +17,7 @@ namespace Calculator_Window
     public bool ShowLastResult { get; set; }
     public bool ShowHistory { get; set; }
     public bool ShowCalculatorSetting { get; set; }
+    public bool UsesDarkTheme { get; set; }
   }
 
   public class Option

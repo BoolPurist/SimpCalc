@@ -5,11 +5,24 @@
              xmlns:convert="clr-namespace:Calculator_Window.Util.Converters"
              Startup="App_Startup">
     <Application.Resources>
+      <SolidColorBrush x:Key="BlackColor">Black</SolidColorBrush>
+      <SolidColorBrush x:Key="WhiteColor">White</SolidColorBrush>
       <convert:BoolToStringOneWayConverter TextForTrue="." 
                                             TextForFalse="," 
                                             x:Key="DecimalSeparatorConverter"/>
       <convert:BoolToStringOneWayConverter TextForTrue="Radians"
                                             TextForFalse="Degree"
-                                            x:Key="AngleTextConverter"/>  
+                                            x:Key="AngleTextConverter"/>
+    <convert:BoolToStringOneWayConverter TextForTrue="Light Theme"
+                                              TextForFalse="Dark Theme"
+                                              x:Key="ThemeTextConverter"/>
+      <convert:BoolToSolidBrushOneWayConverter 
+            x:Key="TrueWhiteFalseBlackConverter"
+            FalseBrush="{StaticResource WhiteColor}"
+            TrueBrush="{StaticResource BlackColor}"/>
+    <convert:BoolToSolidBrushOneWayConverter 
+            x:Key="TrueBlackFalseWhiteConverter"
+            FalseBrush="{StaticResource BlackColor}"
+            TrueBrush="{StaticResource WhiteColor}"/>
   </Application.Resources>
 </Application>

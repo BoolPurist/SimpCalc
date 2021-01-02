@@ -9,7 +9,9 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib" 
         d:DataContext="{d:DesignInstance Type=local:MainWindow}"
         mc:Ignorable="d"
-        Title="Calculator" SizeToContent="WidthAndHeight"
+        Title="Calculator" SizeToContent="WidthAndHeight"   
+        Background="{Binding UsesDarkTheme, Converter={StaticResource TrueWhiteFalseBlackConverter}}" 
+       
         >
 
 <Window.InputBindings>
@@ -42,17 +44,19 @@
   </Window.Resources>
   
   <StackPanel x:Name="MainContainer" Height="Auto">
-    <Menu x:Name="MainMenu" Margin="0,0,0,10" IsMainMenu="True">
+    <Menu Margin="0,0,0,10" IsMainMenu="True">
       <MenuItem Header="Action">
-        <MenuItem Header="Clear"
-                  Command="{Binding ClearCommand, ElementName=Calc}"
-                  InputGestureText="Ctrl+L"/>
         <MenuItem Header="Calculate"
                   Command="{Binding ResultCommand, ElementName=Calc}"
                   InputGestureText="Ctrl+R"/>
+        <Separator/>
+        <MenuItem Header="Clear"
+                  Command="{Binding ClearCommand, ElementName=Calc}"
+                  InputGestureText="Ctrl+L"/>
         <MenuItem Header="Clear History"
                   Command="{Binding ClearHistoryCommand, ElementName=Calc}"
                   InputGestureText="Ctrl+E"/>
+        <Separator/>
         <MenuItem Header="Focus Display"
                   Command="{Binding FocusCalculatorDisplayCommand, ElementName=Calc}"
                   InputGestureText="Ctrl+F"/>
@@ -60,24 +64,26 @@
 
       <MenuItem Header="View">
         <MenuItem Header="Last Result"
-                  x:Name="ViewLastResult"
-                  IsCheckable="True" 
+                  IsCheckable="True"
                   IsChecked="{Binding ShowsLastResult}"
                   />
         <MenuItem Header="History"
-                  x:Name="ViewHistory"
                   IsCheckable="True" 
                   IsChecked="{Binding ShowsHistory}"
                   />
         <MenuItem Header="Calculator Settings"
-                  x:Name="ViewCalculatorSettings"
                   IsCheckable="True" 
                   IsChecked="{Binding ShowsCalculatorState}"
+                  />
+        <Separator/>
+        <MenuItem Command="{Binding SwitchThemeCommand}"
+          Header="{Binding UsesDarkTheme, Converter={StaticResource ThemeTextConverter}}"
                   />
       </MenuItem>
       <MenuItem Header="Options">
         <MenuItem Header="Calculator Settings"
                   Command="{Binding OpenSettingCommand}"/>
+        <Separator/>
         <MenuItem Header="Reset Settings"
                   Command="{Binding ResetSettingCommand}"/>
       </MenuItem>
@@ -90,7 +96,9 @@
         <ColumnDefinition/>
       </Grid.ColumnDefinitions>
       
-      <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1">
+      <Border Grid.Column="1" 
+              BorderBrush="{Binding UsesDarkTheme, Converter={StaticResource TrueBlackFalseWhiteConverter}}" 
+              BorderThickness="1">
         <Grid            
             HorizontalAlignment="Center"
             Background="Gray"
@@ -98,7 +106,7 @@
 
           <Grid.Resources>
             <ControlTemplate x:Key="GridCell" TargetType="Label">
-              <Border BorderBrush="Black" 
+              <Border BorderBrush="{Binding UsesDarkTheme , Converter={StaticResource TrueBlackFalseWhiteConverter}}" 
                     BorderThickness="1"
                       >
                 <Label Content="{TemplateBinding Content}"
@@ -155,7 +163,8 @@
       </Grid.RowDefinitions>
       
       <local:Calculator Grid.Column="0" Grid.Row="0"
-                        VerticalAlignment="Center"
+                        VerticalAlignment="Center"                       
+                     
                       x:Name="Calc">
       </local:Calculator>
       

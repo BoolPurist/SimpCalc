@@ -28,6 +28,21 @@ namespace Calculator_Window
   /// </summary>
   public partial class MainWindow : Window, INotifyPropertyChanged
   {
+
+    #region initial variables
+
+    const bool initShowsLastResult = true;
+    const bool initShowsHistory = true;
+    const bool initShowsCalculatorState = true;
+
+    const bool initUsesRadians = true;
+    const bool initUsesPointAsDecimalSeperator = true;
+    const bool initUsesDarkTheme = false;
+    const int initRoundingPrecision = 15;
+    const int initMaxNumberOfResult = 10;
+
+    #endregion
+
     public event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary> Opens up modular dialog for setting behavior of the calculator </summary>
@@ -45,6 +60,8 @@ namespace Calculator_Window
     /// to a determined initial state. 
     /// </value>
     public RelayCommand ResetSettingCommand { get; private set; }
+
+    public RelayCommand SwitchThemeCommand { get; private set; }
 
     #region properties
 
@@ -102,6 +119,17 @@ namespace Calculator_Window
       }
     }
 
+    private bool usesesDarkTheme;
+    public bool UsesDarkTheme
+    {
+      get => this.usesesDarkTheme;
+      set
+      {
+        this.usesesDarkTheme = value;
+        this.OnPropertyChanged(nameof(this.UsesDarkTheme));
+      }
+    }
+
     #endregion
     
     private static readonly XmlSerializer xmlMainMenuSerialize =
@@ -121,8 +149,8 @@ namespace Calculator_Window
       this.initLoadingDone = true;
       this.OpenSettingCommand = new RelayCommand(param => this.OpenSettings());
       this.ResetSettingCommand = new RelayCommand(parma => this.ResetSettings());
+      this.SwitchThemeCommand = new RelayCommand(param => this.SwitchTheme());
     }
-
 
     // Making sure that the user does not shrink the main window to a size
     // which breaks the whole layout.
@@ -132,16 +160,35 @@ namespace Calculator_Window
       this.MinWidth = this.ActualWidth;
     }
 
+    // Depending on the property UsesDarkTheme respective control get a different 
+    // color to match either a light or dark themed GUI
+    private void SwitchTheme()
+    {
+      this.UsesDarkTheme = !this.UsesDarkTheme;
+
+      if (this.UsesDarkTheme)
+      {
+        Calc.BorderBrush = new SolidColorBrush(Colors.White);
+      }
+      else
+      {
+        Calc.BorderBrush = new SolidColorBrush(Colors.Black);
+      }
+
+      this.SaveSettings();
+    }
+
+    // Resets the state of the main menu and because 
     private void ResetSettings()
     {
-      const bool showByStandard = true;
-      this.ShowsHistory = showByStandard;
-      this.ShowsCalculatorState = showByStandard;
-      this.ShowsLastResult = showByStandard;
-      this.Calc.UsesRadians = false;
-      this.Calc.UsesPointAsDecimalSeperator = true;
-      this.Calc.RoundingPrecision = 15;
-      this.Calc.MaxNumberOfResult = 10;
+      this.ShowsLastResult = initShowsLastResult;
+      this.ShowsHistory = initShowsHistory;
+      this.ShowsCalculatorState = initShowsCalculatorState;
+      this.Calc.UsesRadians = initUsesRadians;
+      this.Calc.UsesPointAsDecimalSeperator = initUsesPointAsDecimalSeperator;
+      this.UsesDarkTheme = initUsesDarkTheme;
+      this.Calc.RoundingPrecision = initRoundingPrecision;
+      this.Calc.MaxNumberOfResult = initMaxNumberOfResult;
 
       this.SaveSettings();
     }
@@ -176,7 +223,8 @@ namespace Calculator_Window
         {
           ShowLastResult = this.ShowsLastResult,
           ShowHistory = this.ShowsHistory,
-          ShowCalculatorSetting = this.ShowsCalculatorState
+          ShowCalculatorSetting = this.ShowsCalculatorState,
+          UsesDarkTheme = this.UsesDarkTheme
         },
         OptionState = new Option()
         {
@@ -207,29 +255,34 @@ namespace Calculator_Window
     {     
       if (File.Exists(MenuStateFilePath))
       {
-        try
-        {
-          using var reader = new StreamReader(MenuStateFilePath);
+        MenuModel menuState = null;
 
-          if (xmlMainMenuSerialize.Deserialize(reader) is MenuModel menuState)
-          {
-            ApplySettingsLoad(menuState);
-          }
-          else
-          {
-            this.ResetSettings();
-          }
+        try
+        {                    
+          using var reader = new StreamReader(MenuStateFilePath);          
+          menuState = xmlMainMenuSerialize.Deserialize(reader) as MenuModel;                  
         }
         catch (InvalidOperationException)
         {
-          ResetSettings();
+          this.ResetSettings();
+          return;
         }
+        // Checks if casting to MenuModel was successful
+        if (menuState != null)
+        {
+          ApplySettingsLoad(menuState);          
+        }
+        else
+        {
+          this.ResetSettings();          
+        }
+
+        
       }
       else
       {
-        ResetSettings();
+        this.ResetSettings();
       }
-
 
       void ApplySettingsLoad(MenuModel menuState)
       {
@@ -244,19 +297,28 @@ namespace Calculator_Window
           this.ShowsLastResult = viewState.ShowLastResult;
           this.ShowsHistory = viewState.ShowHistory;
           this.ShowsCalculatorState = viewState.ShowCalculatorSetting;
+          this.UsesDarkTheme = viewState.UsesDarkTheme;
 
           Calculator calculator = this.Calc;
 
           calculator.UsesRadians = calculatorSettingsState.UsesRadians;
           calculator.UsesPointAsDecimalSeperator =
             calculatorSettingsState.UsesPointAsDecimalSeparator;
-          calculator.RoundingPrecision = calculatorSettingsState.RoundingPrecision;
-          calculator.MaxNumberOfResult = calculatorSettingsState.MaxNumberOfResult;
+
+          try
+          {
+            calculator.RoundingPrecision = calculatorSettingsState.RoundingPrecision;
+            calculator.MaxNumberOfResult = calculatorSettingsState.MaxNumberOfResult;
+          }
+          catch (ArgumentOutOfRangeException)
+          {
+            this.ResetSettings();
+          }
         }
         catch (ArgumentNullException)
         {
-          ResetSettings();
-        }
+          this.ResetSettings();
+        }        
       }
     }
 

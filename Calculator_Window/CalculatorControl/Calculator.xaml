@@ -59,7 +59,9 @@
   
   <Border 
     Padding="10" Background="Gray"
-    BorderThickness="2" BorderBrush="Black">
+    BorderThickness="2"
+    BorderBrush="{Binding BorderBrush}"
+    >
     <Grid            
           Loaded="GetMainGridWidth_Loaded">
 

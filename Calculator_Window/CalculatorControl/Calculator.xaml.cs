@@ -120,6 +120,18 @@ namespace Calculator_Window
     public RelayCommand InsertLastResultCommand { get; private set; }
 
     #region properties
+    private SolidColorBrush outerBorderBrush;
+
+    public SolidColorBrush OuterBorderBrush
+    {
+      get => this.outerBorderBrush;
+      set
+      {
+        this.outerBorderBrush = value;
+        this.OnPropertyChanged(nameof(this.OuterBorderBrush));
+      }
+    }
+      
 
     public ObservableCollection<EquationCalculation> HistoryData
       => this.calculatorModel.Results;
@@ -308,6 +320,8 @@ namespace Calculator_Window
           param => this.InputCommand.Execute(this.LastResult),
           param => this.InputCommand.CanExecute(null)
           );
+
+      this.BorderBrush = new SolidColorBrush(Colors.Black);
 
       this.Loaded += (sender, e) => this.MainHeight = this.ActualHeight;      
     }
