@@ -10,8 +10,7 @@
         d:DataContext="{d:DesignInstance Type=local:MainWindow}"
         mc:Ignorable="d"
         Title="Calculator" SizeToContent="WidthAndHeight"   
-        Background="{Binding UsesDarkTheme, Converter={StaticResource TrueWhiteFalseBlackConverter}}" 
-       
+        Background="{Binding UsesDarkTheme, Converter={StaticResource TrueWhiteFalseBlackConverter}}"        
         >
 
 <Window.InputBindings>

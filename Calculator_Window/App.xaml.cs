@@ -35,8 +35,6 @@ namespace Calculator_Window
       startProd();
 #endif
 
-
-
       static void startProd()
       {
         var mainWindows = new MainWindow();
