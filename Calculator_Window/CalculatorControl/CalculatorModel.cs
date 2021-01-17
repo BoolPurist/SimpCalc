@@ -254,6 +254,16 @@ namespace Calculator_Window
     /// <exception cref="CalculationParseException"> 
     /// If the parameter inputForCalc is an invalid equation 
     /// </exception>
+    /// <exception cref="CalculationParseMathematicalException">
+    /// Following Cases are a mathematical error.
+    /// Left side of root is zero, Example: 0R2 is invalid
+    /// Right side of root operation is not greater than 0. Example: 2R-1 is invalid
+    /// Base of log is not greater than zero. Example: log-2(-2) is invalid
+    /// Term in parentheses is not greater than zero. Example: log2(-2) is invalid
+    /// For Tan: Angel is 90 or 270. Example: tan(90) is invalid
+    /// For cosin/cocos: Angel is not the interval between -1 and 1.
+    /// Example: cosin(-2) is invalid
+    /// </exception>
     public double CalculateFromText(string inputForCalc)
     {
 

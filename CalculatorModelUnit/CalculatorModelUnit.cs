@@ -8,7 +8,7 @@ using Calculator_Window.CalculatorControl;
 namespace CalculatorModelUnit
 {
   public class CalculatorModelUnit
-  {
+  {    
     [Fact]
     public void CalculateFromText_ShouldThrowExceptionForNull()
     {
@@ -27,6 +27,7 @@ namespace CalculatorModelUnit
         );
     }
 
+    // Checks if an exception is thrown if an equation has a division by zero
     [Theory]
     [MemberData(nameof(EquationWithDenominatorAsZero))]
     public void CalculateFromText_ShouldThrowExceptionZeroDivition(
@@ -39,6 +40,8 @@ namespace CalculatorModelUnit
         );
     }
 
+    // Checks if an operand converted to numeric value or the returned 
+    // numeric result would so big to cause an overflow.
     [Theory]
     [MemberData(nameof(EquationWithTooBigNumbers))]
     public void CalculateFromText_ShouldThrowExceptionForTooBigNbr(
@@ -51,6 +54,9 @@ namespace CalculatorModelUnit
         );
     }
 
+    // Checks if an exception is thrown for an the equation which 
+    // does not follow the language of the calculator. 
+    // Language is specified in the GrammarOfEquation.md
     [Theory]
     [MemberData(nameof(EquationWithSyntaxError))]
     public void CalculateFromText_ShouldThrowExceptionForErrorError(
@@ -58,7 +64,7 @@ namespace CalculatorModelUnit
       )
     {
       var calculator = new CalculatorModel();
-      CalculationParseSyntaxException thrownException = 
+      CalculationParseSyntaxException thrownException =
         Assert.Throws<CalculationParseSyntaxException>(
           () => calculator.CalculateFromText(invalidEquation)
           );
@@ -66,6 +72,15 @@ namespace CalculatorModelUnit
       Assert.Equal(expectedErrorType, actualErrorType);
     }
 
+    // Checks if an exception is thrown for an mathematical error
+    // Following errors are possible:
+    // Left side of root is zero, Example: 0R2 is invalid
+    // Right side of root operation is not greater than 0. Example: 2R-1 is invalid
+    // Base of log is not greater than zero. Example: log-2(-2) is invalid
+    // Term in parentheses is not greater than zero. Example: log2(-2) is invalid
+    // For Tan: Angel is 90 or 270. Example: tan(90) is invalid
+    // For cosin/cocos: Angel is not the interval between -1 and 1.
+    // Example: cosin(-2) is invalid
     [Theory]
     [MemberData(nameof(EquationWithMathematicalError))]
     public void CalculateFromText_ShouldThrowExceptionForMathematicalError(
@@ -81,6 +96,8 @@ namespace CalculatorModelUnit
       Assert.Equal(expectedErrorType, actualErrorType);
     }
     
+    // Expects a exact given result returned after the calculation 
+    // from an equation as a text.
     [Theory]
     [MemberData(nameof(BasicCalculation))]
     public void CalculateFromText_ShouldReturnExactResult(
@@ -93,6 +110,9 @@ namespace CalculatorModelUnit
       Assert.Equal(expectedResult, actualResult);
     }
 
+
+    // Expects a rounded/approximated result returned after the calculation 
+    // from an equation as a text.
     [Theory]
     [MemberData(nameof(CalculationWithRounding))]
     public void CalculateFromText_ShouldReturnRoundedResult(
@@ -107,6 +127,8 @@ namespace CalculatorModelUnit
       Assert.Equal(expectedResult, actualResult);
     }
 
+    // Tests if the integral part of the last result is returned.
+    // With LastResult = 49.5, IntegerFromCurrentResult = 49
     [Theory]
     [MemberData(nameof(CalculationForInteger))]
     public void IntegerFromCurrentResult_ShouldReturnIntegralPart(
@@ -119,6 +141,8 @@ namespace CalculatorModelUnit
       Assert.Equal(expectedResult, calculator.IntegerFromCurrentResult);
     }
 
+    // Tests if the fractional part of last result is returned.
+    // With LastResult = 49.5, FractionFromCurrentResult = 0.5
     [Theory]
     [MemberData(nameof(CalculationForFragtion))]
     public void FractionFromCurrentResult_ShouldReturnFractionalPart(
@@ -131,6 +155,8 @@ namespace CalculatorModelUnit
       Assert.Equal(expectedResult, calculator.FractionFromCurrentResult);
     }
 
+    // Should return the faculty of a number
+    // Example: 5! = 120, Parameter of the method is 5 here.
     [Theory]
     [MemberData(nameof(FacultyCalculation))]
     public void CalculateFaculty_ShouldReturnExactResult(
@@ -215,6 +241,8 @@ namespace CalculatorModelUnit
       Assert.Equal("2", calucaltorModel.Results[0].Result);
     }
 
+    // Should throw if the value is negative because a negative max number
+    // result to be stored does not make any sense.
     [Theory]
     [InlineData(-1)]
     [InlineData(-85)]
@@ -227,6 +255,8 @@ namespace CalculatorModelUnit
         );
     }
 
+    // Checks if calculator can also calculate with radians as angle
+    // and return correct results.
     [Fact]
     public void CalculateFromText_ShouldCalculateWithRadians()
     {
@@ -241,6 +271,8 @@ namespace CalculatorModelUnit
       Assert.Equal(0.46, Math.Round(actualResult, 2));
     }
 
+    // Checks if calculator can also calculate equations with comma instead
+    // points and return correct results.
     [Fact]
     public void UsesPointAsDecimalSeperator_ShouldCalculateWithCommas()    
     {
@@ -263,6 +295,7 @@ namespace CalculatorModelUnit
       );
     }
 
+    // Test for returning correct result rounded up to the specified digits.
     [Fact]
     public void RoundingPrecision_ShouldReturnResultWithRoundedDigits()
     {
@@ -274,6 +307,9 @@ namespace CalculatorModelUnit
       Assert.Equal(0.333, actualResult);
     }
 
+    // Test for throwing exception if the digits for rounding is not between 
+    // 0 to 15. Reason minus as value does not make any sense and Math.Round 
+    // from .Net Core does not support rounding up to digits over 15
     [Theory]
     [InlineData(-80)]
     [InlineData(-1)]
@@ -578,6 +614,7 @@ namespace CalculatorModelUnit
           }
         };
 
+    // Test cases for extracting the integral part of a result
     public static TheoryData<string, double> CalculationForInteger
      => new TheoryData<string, double>()
       {
@@ -599,6 +636,7 @@ namespace CalculatorModelUnit
         }
       };
 
+    // Test cases for extracting the fractional part of a result
     public static TheoryData<string, double> CalculationForFragtion
       => new TheoryData<string, double>()
       {
@@ -619,7 +657,7 @@ namespace CalculatorModelUnit
           0.04
         },
       };
-
+    
     public static TheoryData<string, MathematicalError> EquationWithMathematicalError
       => new TheoryData<string, MathematicalError>()
       {
