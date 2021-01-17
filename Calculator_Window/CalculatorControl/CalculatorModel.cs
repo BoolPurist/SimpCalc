@@ -10,7 +10,9 @@ using Calculator_Window.CalculatorControl;
 namespace Calculator_Window
 {
   /// <summary> 
-
+  /// Takes a string as an equation and calculates the numeric value of it.
+  /// The string must follow the language specified in the file GrammarOfEquation.md
+  /// The model also stores the result of calculation up to a certain count.
   /// </summary>
   public class CalculatorModel
   {
@@ -59,15 +61,14 @@ namespace Calculator_Window
       get => this.maxNumberOfResult;
       set
       {
-        const int minValue = 1;
+        const int MIN_VALUE = 1;
 
-        if (value < minValue)
+        if (value < MIN_VALUE)
         {
-          const string paramName = nameof(this.MaxNumberOfResult);
-
+          const string PARAM_NAME = nameof(this.MaxNumberOfResult);          
           throw new ArgumentOutOfRangeException(
-            paramName,
-            $"Property {paramName} must not be smaller than {minValue}" 
+            PARAM_NAME,
+            $"Property {PARAM_NAME} must not be smaller than {MIN_VALUE}" 
             );
         }
 
@@ -130,29 +131,29 @@ namespace Calculator_Window
 
     private int roundingPrecision = 15;
     /// <summary> 
-    /// Determines to how many digits after the decimal separator 
+    /// DeterMINes to how many digits after the decimal separator 
     /// a result of an equation is rounded up  
     /// </summary>
     /// <value> 
     /// Getter/Setter of digits to round up to. 
     /// </value>
     /// <exception cref="ArgumentOutOfRangeException"> 
-    /// Thrown if value is under 0 or above 16
+    /// Thrown if value is under 0 or above 15
     /// </exception>
     public int RoundingPrecision
     {
       get => this.roundingPrecision;
       set
       {
-        const int min = 0;
-        const int max = 15;
+        const int MIN = 0;
+        const int MAX = 15;
 
-        if ( value < min || value > max)
+        if ( value < MIN || value > MAX)
         {
           throw new ArgumentOutOfRangeException(
             nameof(RoundingPrecision),
             value,
-            $"Value must be between {min} and {max}"
+            $"Value must be between {MIN} and {MAX}"
             );
         }
 
@@ -248,7 +249,7 @@ namespace Calculator_Window
     /// is too big for a double value
     /// </exception>
     /// <exception cref="DivideByZeroException"> 
-    /// Thrown if one operand is a denominator and zero
+    /// Thrown if one operand is a denoMINator and zero
     /// </exception>
     /// <exception cref="CalculationParseException"> 
     /// If the parameter inputForCalc is an invalid equation 
@@ -327,19 +328,18 @@ namespace Calculator_Window
 
     #endregion
 
-    #region regular expressions and pattern for the grammar of an equation
-
-    protected const string signSequence = @"(?<signSequence>[+-]*)";
-    protected const string floatingNumber =
-      signSequence +
-      @"(?<floatingNumber>(\d+)(?<fractionalPartOfNumber>[\.](\d+))?)";
-    private const string piSings = @"(?<constSigns>(pi|π|e)+)";
-    private const string floatingNumberPiSings = floatingNumber + piSings;
-    private const string surroundedOperatorUnit =
+    #region regular expressions and pattern for the grammar of an equation    
+    protected const string SIGN_SEQUENCE = @"(?<SIGN_SEQUENCE>[+-]*)";
+    protected const string FLOATING_NUMBER =
+      SIGN_SEQUENCE +
+      @"(?<FLOATING_NUMBER>(\d+)(?<fractionalPartOfNumber>[\.](\d+))?)";
+    private const string PI_SINGS = @"(?<constSigns>(pi|π|e)+)";
+    private const string FLOATING_NUMBERPiSings = FLOATING_NUMBER + PI_SINGS;
+    private const string SURROUNDED_OPERATOR_UNIT =
       @"(?<surroundedOperator>[\^ER√])";
-    private const string operandPart =
-      "(" + signSequence + piSings + "|" + floatingNumber + piSings + "?" + ")" +
-      surroundedOperatorUnit + @"?";
+    private const string OPERAND_PART =
+      "(" + SIGN_SEQUENCE + PI_SINGS + "|" + FLOATING_NUMBER + PI_SINGS + "?" + ")" +
+      SURROUNDED_OPERATOR_UNIT + @"?";
 
     // Regular expression for matching a valid operand as a text unit
     protected static readonly Regex operationOneOperandRegex =
@@ -348,16 +348,16 @@ namespace Calculator_Window
         @"(?<operandFunction>cotan|cosin|cocos|tan|sin|cos|ln))"
       );
     protected static readonly Regex surroundedOperatorPattern =
-      new Regex(@"^" + surroundedOperatorUnit);
-    protected static readonly Regex operandPartPattern =
-      new Regex(@"^" + operandPart);
+      new Regex(@"^" + SURROUNDED_OPERATOR_UNIT);
+    protected static readonly Regex OPERAND_PARTPattern =
+      new Regex(@"^" + OPERAND_PART);
     protected static readonly Regex spaceOperandPartPattern =
-      new Regex(@"^\s*" + operandPart);
+      new Regex(@"^\s*" + OPERAND_PART);
     protected static readonly Regex operandAsIntegerFunctionPattern =
-      new Regex(@"^((?<signSequence>[+-]*)(?<floatingNumber>\d+)!)");
+      new Regex(@"^((?<SIGN_SEQUENCE>[+-]*)(?<FLOATING_NUMBER>\d+)!)");
     // Regular expression for matching a valid whole number for a factor of a power
-    protected static readonly Regex floatingNumberPattern =
-      new Regex(@"^" + floatingNumber);
+    protected static readonly Regex FloatingNumberPattern =
+      new Regex(@"^" + FLOATING_NUMBER);
     // Used to find cases for root operations with no left factor
     // Example: √9, which is √9 = 3
     protected static readonly Regex operatorWithoutNeededLeftPattern
@@ -375,10 +375,9 @@ namespace Calculator_Window
     // Regular expression for matching a valid text unit as an closing parentheses
     protected static readonly Regex whiteSpaceclosingParathesePattern =
       new Regex(@"^\s*\)");
-   
-    #endregion
 
-    private const string OverflowOperationErrorMsg =
+    #endregion    
+    private const string OVERFLOW_OPERATION_ERROR_MSG =
       "Mathematical Error: one operation resulted in a too big or small number !";
 
     // Equation as a string is parsed. An equation string is considered to be made 
@@ -486,7 +485,7 @@ namespace Calculator_Window
 
             if (currentMatch.Groups["operandFunctionBaseNeeded"].Success)
             {
-              if ((currentMatch = operandPartPattern.Match(textTerm)).Success)
+              if ((currentMatch = OPERAND_PARTPattern.Match(textTerm)).Success)
               {
                 baseNumber = ProcessOneOperand(ref textTerm);
               }
@@ -553,7 +552,7 @@ namespace Calculator_Window
             
             try
             {
-              if (currentMatch.Groups["floatingNumber"].Success)
+              if (currentMatch.Groups["FLOATING_NUMBER"].Success)
               {
                 number = GetNumericOperandFromMatch(currentMatch);
               }              
@@ -671,17 +670,17 @@ namespace Calculator_Window
 
       // Parameter: operandMatch is a match of a valid operand in a string.
       // Returns numeric signed value of an operand
-      // Match must have the Group signSequence and floatingNumber
+      // Match must have the Group SIGN_SEQUENCE and FLOATING_NUMBER
       double GetNumericOperandFromMatch(Match operandMatch)
       {
-        string signSequence = operandMatch.Groups["signSequence"].Value;        
+        string SIGN_SEQUENCE = operandMatch.Groups["SIGN_SEQUENCE"].Value;        
         var number = 0.0;
 
-        number = Double.Parse(operandMatch.Groups["floatingNumber"].Value);
+        number = Double.Parse(operandMatch.Groups["FLOATING_NUMBER"].Value);
 
         CheckForOverflow(number);
         
-        return ProcessPlusMinusSeq(signSequence, number); ;
+        return ProcessPlusMinusSeq(SIGN_SEQUENCE, number); ;
       }
 
       // Operand is extracted into 2 parts, sign and its numeric value. 
@@ -742,7 +741,7 @@ namespace Calculator_Window
             break;
         }
 
-        CheckForOverflow(firstOperand, OverflowOperationErrorMsg);
+        CheckForOverflow(firstOperand, OVERFLOW_OPERATION_ERROR_MSG);
 
         return firstOperand;
       }
@@ -769,7 +768,7 @@ namespace Calculator_Window
             break;
         }
 
-        CheckForOverflow(firstOperand, OverflowOperationErrorMsg);
+        CheckForOverflow(firstOperand, OVERFLOW_OPERATION_ERROR_MSG);
 
         return firstOperand;
 
@@ -779,7 +778,7 @@ namespace Calculator_Window
           {
             throw new DivideByZeroException(
               $"Mathematical Error: "+ 
-              $"One denominator is zero in the operation {operatorPart} !"
+              $"One denoMINator is zero in the operation {operatorPart} !"
               );
           }
         }
@@ -965,7 +964,7 @@ namespace Calculator_Window
         )
       {                
         // Check if factor for power operation is a valid whole number
-        Match rightSideOfOperand = floatingNumberPattern.Match(textTerm);
+        Match rightSideOfOperand = FloatingNumberPattern.Match(textTerm);
 
         if (rightSideOfOperand.Success)
         {
@@ -1038,13 +1037,13 @@ namespace Calculator_Window
       }
 
     }
-
+    
     static void ThrowSyntaxError(
       SyntaxError errorType, string errorInfo = ""
       )
     {
-      const string prefixForMsg = "Syntax Error: ";
-      string errorMsg = prefixForMsg;
+      const string PREFIX_FOR_MSG = "Syntax Error: ";
+      string errorMsg = PREFIX_FOR_MSG;
 
       switch (errorType)
       {
@@ -1081,8 +1080,8 @@ namespace Calculator_Window
 
     static void ThrowMathematicalError(MathematicalError errorType)
     {
-      const string prefixForMsg = "Mathematical Error: ";
-      string errorMsg = prefixForMsg;
+      const string PREFIX_FOR_MSG = "Mathematical Error: ";
+      string errorMsg = PREFIX_FOR_MSG;
 
       switch (errorType)
       {

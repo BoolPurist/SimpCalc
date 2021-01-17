@@ -35,8 +35,8 @@ namespace Calculator_Window
     public bool UsesDarkTheme { get; set; }
   }
 
-  /// <summary> 
-  /// Object for all settings of a certain controls 
+  /// <summary>
+  /// Object for all settings of a certain controls
   /// Used for serialization/deserialization in xml
   /// </summary>
   public class Option
