@@ -122,6 +122,8 @@ namespace Calculator_Window
     #region properties
     private SolidColorBrush outerBorderBrush;
 
+    /// <summary> Normal color of the outest border of the calculator </summary>
+    /// <value> Setter/Getter for data binding </value>
     public SolidColorBrush OuterBorderBrush
     {
       get => this.outerBorderBrush;
@@ -131,13 +133,16 @@ namespace Calculator_Window
         this.OnPropertyChanged(nameof(this.OuterBorderBrush));
       }
     }
-      
 
+    /// <summary> Holds all calculated results from the model</summary>
+    /// <value> Getter for data binding </value>
     public ObservableCollection<EquationCalculation> HistoryData
       => this.calculatorModel.Results;
 
     private double mainHeight;
 
+    /// <summary> Represents the actual height of the whole calculator </summary>
+    /// <value> Getter/Setter for data binding </value>
     public double MainHeight
     {
       get => this.mainHeight;
@@ -149,6 +154,10 @@ namespace Calculator_Window
     }
 
     protected string errorMessage = String.Empty;
+    /// <summary> 
+    /// Text for the last error message for an invalid entered equation 
+    /// </summary>
+    /// <value> Getter/Setter for data binding </value>
     public string ErrorMessage
     {
       get => this.errorMessage;
@@ -160,6 +169,10 @@ namespace Calculator_Window
     }
 
     protected Visibility errorMessageVisible = Visibility.Collapsed;
+    /// <summary> 
+    /// Visibility of last error message for an invalid entered equation   
+    /// </summary>
+    /// <value> Getter/Setter for data binding </value>
     public Visibility ErrorMessageVisible
     {
       get => this.errorMessageVisible;
@@ -171,6 +184,12 @@ namespace Calculator_Window
     }
 
     protected string calculationOutput = String.Empty;
+
+    /// <summary> Text shown in the display calculator </summary>
+    /// <value> 
+    /// Getter/Setter for data binding. Can either be the current entered equation 
+    /// or the last result.
+    /// </value>
     public string CalculationOutput
     {
       get => this.calculationOutput;
@@ -184,6 +203,8 @@ namespace Calculator_Window
 
     private double mainGridWidth = 0.0;
 
+    /// <summary> Width of the calculator </summary>
+    /// <value> Getter/Setter for data binding </value>
     public double MainGirdWidth
     {
       get => this.mainGridWidth;
@@ -196,6 +217,11 @@ namespace Calculator_Window
     }
 
     protected bool showsResult = false;
+
+    /// <summary> 
+    /// Indicates if last result should be shown in the display of the calculator 
+    /// </summary>
+    /// <value> Getter/Setter for data binding </value>
     public bool ShowsResult
     {
       get => this.showsResult;
@@ -207,6 +233,11 @@ namespace Calculator_Window
     }
 
     private string lastResult = "0";
+
+    /// <summary> 
+    /// Numeric value of the last result.
+    /// </summary>
+    /// <value> Getter/Setter for data binding </value>
     public string LastResult
     {
       get => this.lastResult;
@@ -217,6 +248,8 @@ namespace Calculator_Window
       }
     }
 
+    /// <summary> Indicates if the radians or degree as angle is used. </summary>
+    /// <value> Getter/Setter for data binding. If false, degree is used</value>
     public bool UsesRadians
     {
       get => this.calculatorModel.UsesRadians;
@@ -227,6 +260,14 @@ namespace Calculator_Window
       }
     }
 
+    /// <summary> 
+    /// Indicates if the comma or point is used for the decimal separator in an equation
+    /// </summary>
+    /// <value> 
+    /// Getter/Setter for data binding. If false, comma is used
+    /// Decimal separator in the Property LastResult and CalculationOutput is adjusted
+    /// to the change of value.
+    /// </value>
     public bool UsesPointAsDecimalSeperator
     {
       get => this.calculatorModel.UsesPointAsDecimalSeperator;
@@ -248,7 +289,9 @@ namespace Calculator_Window
         this.OnPropertyChanged(nameof(this.UsesPointAsDecimalSeperator));
       }
     }
-    
+
+    /// <summary> Maximum number of stored results  </summary>
+    /// <value> Getter/Setter for data binding </value>
     public int MaxNumberOfResult
     {
       get => this.calculatorModel.MaxNumberOfResult;
@@ -259,6 +302,8 @@ namespace Calculator_Window
       }
     }
 
+    /// <summary> Digits to round up results from an equation </summary>
+    /// <value> Getter/Setter for data binding </value>
     public int RoundingPrecision
     {
       get => this.calculatorModel.RoundingPrecision;
@@ -328,6 +373,9 @@ namespace Calculator_Window
 
     #region methods for commands of calculator
 
+    // Calculates the entered equation and replaces the content of the calculator's display
+    // with the result. If entered equation is not valid, a error message under the 
+    // display is shown to the user.
     private void CalculateResult()
     {
       this.ErrorMessageVisible = Visibility.Collapsed;
@@ -382,6 +430,8 @@ namespace Calculator_Window
     private bool CanCalculateResult()
       => NotShowingResultAndEmpty();
 
+    // Takes char from the content of button and appends it to
+    // the property CalculationOutput.
     private void AddInputToCalc(object inputSymbol)
     {      
       this.ErrorMessageVisible = Visibility.Collapsed;
@@ -408,21 +458,28 @@ namespace Calculator_Window
       }
     }
 
+    // Empties the displays of the calculator
     private void ClearDisplay()
     {
       this.ErrorMessageVisible = Visibility.Collapsed;      
       this.CalculationOutput = String.Empty;
     }
 
+    // Command can only be executed if display is empty
     private bool CanClearDisplay()
      => this.CalculationOutput != String.Empty;
 
+    // Shows the integral part of the last result in the display of calculator
     private void IntegerFromResult()
      => this.ExtractFractOrIntergerFromResult();
 
+    // Shows the fractional part of the last result in the display of calculator
     private void FractionFromResult()
      => this.ExtractFractOrIntergerFromResult(true);
 
+    // Sets the property CalculationOutput to integral or 
+    // fractional part of the last result depending on the parameter
+    // fractional. If false the integral part is used. 
     private void ExtractFractOrIntergerFromResult(bool fractional = false)
     {
       if (!this.ShowsResult)
@@ -442,13 +499,15 @@ namespace Calculator_Window
       this.ShowsResult = true;
     }
 
+    // Command can be executed if integral or fractional part was not extracted
+    // display of calculator is not empty.
     private bool CanExtractFractOrIntergerFromResult()
-     => !this.modifiedResult && this.calculationOutput != String.Empty;
+     => !this.modifiedResult && this.CalculationOutput != String.Empty;
 
+    // Removes last char from the display of the calculator
     private void RemoveOneChar()
-      => this.CalculationOutput = this.CalculationOutput[..^1];      
+      => this.CalculationOutput = this.CalculationOutput[..^1];
     
-
     private bool CanRemoveOneChar()
       => NotShowingResultAndEmpty();
 
@@ -458,18 +517,24 @@ namespace Calculator_Window
     private bool CanAddSpace()
       => NotShowingResultAndEmpty();
 
+    // True if A result in the display of the calculator is currently shown and 
+    // the display is not empty.
     private bool NotShowingResultAndEmpty()
       => !this.ShowsResult && this.CalculationOutput != String.Empty;
 
+    // Deletes all stored results of the calculator and those results
+    // are not shown to the user anymore.
     private void ClearHistory()
     {
       this.calculatorModel.ClearHistory();
       this.HistoryData.Clear();
     }
 
+    // Command can only be executed if no result is stored.
     private bool CanClearHistory()
       => this.calculatorModel.Results.Count != 0;
 
+    // Cursor of user is focused on the display of the calculator.
     private void FocusCalculatorDisplay()
     {
       if (this.calculatorDisplayBox != null)
