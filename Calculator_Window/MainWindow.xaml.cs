@@ -30,7 +30,8 @@ namespace Calculator_Window
   {
 
     #region initial variables
-
+    // Initial settings of this application if no settings
+    // are not stored yet or loading of invalid setting file occurred
     const bool initShowsLastResult = true;
     const bool initShowsHistory = true;
     const bool initShowsCalculatorState = true;
@@ -81,6 +82,8 @@ namespace Calculator_Window
         this.showsLastResult = value;
         this.OnPropertyChanged(nameof(this.ShowsLastResult));
 
+        // Makes sure visibility is preserved at the next session 
+        // of the application
         this.SaveVisibility();
       }
     }
@@ -120,6 +123,10 @@ namespace Calculator_Window
     }
 
     private bool usesesDarkTheme;
+    /// <summary> States if dark theme or light theme is used </summary>
+    /// <value> 
+    /// Getter/Setter if true the dark theme is used otherwise light theme is used 
+    /// </value>
     public bool UsesDarkTheme
     {
       get => this.usesesDarkTheme;
@@ -131,12 +138,15 @@ namespace Calculator_Window
     }
 
     #endregion
-    
+       
     private static readonly XmlSerializer xmlMainMenuSerialize =
       new XmlSerializer(typeof(MenuModel));
 
-    private const string MenuStateFilePath = "MenuState.xml";
+    // Name of the setting file and its path.
+    private const string MENU_STATE_FILE_PATH = "MenuState.xml";
 
+    // If true the loading of setting is done at the start of the app.
+    // Used to prevent saving the setting in the start up.
     private readonly bool initLoadingDone = false;
 
     public MainWindow()
@@ -145,15 +155,17 @@ namespace Calculator_Window
       this.DataContext = this;
 
       this.Loaded +=  (sender, e) => { AdjustWindowSize(); };
+      // Load settings at the start.
       this.LoadSettings();
       this.initLoadingDone = true;
+      
       this.OpenSettingCommand = new RelayCommand(param => this.OpenSettings());
       this.ResetSettingCommand = new RelayCommand(parma => this.ResetSettings());
       this.SwitchThemeCommand = new RelayCommand(param => this.SwitchTheme());
     }
 
     // Making sure that the user does not shrink the main window to a size
-    // which breaks the whole layout.
+    // which breaks the layout.
     private void AdjustWindowSize()
     {
       this.MinHeight = this.ActualHeight;
@@ -179,6 +191,8 @@ namespace Calculator_Window
     }
 
     // Resets the state of the main menu and because 
+    // there are no custom settings stored yet or 
+    // the setting file is not valid.
     private void ResetSettings()
     {
       this.ShowsLastResult = initShowsLastResult;
@@ -193,6 +207,7 @@ namespace Calculator_Window
       this.SaveSettings();
     }
 
+    // Opens dialog for the user to adjust the behavior of the calculator
     private void OpenSettings()
     {
       var settingDialog = new CalculatorSettingDialog(
@@ -215,6 +230,8 @@ namespace Calculator_Window
       this.SaveSettings();
     }
 
+    // Saves visibility of all toggable controls and settings of 
+    // the calculator in xml file as a setting file.
     private void SaveSettings()
     {
       var menuState = new MenuModel()
@@ -238,11 +255,12 @@ namespace Calculator_Window
         }
       };
 
-      using var writer = new StreamWriter(MenuStateFilePath);
+      using var writer = new StreamWriter(MENU_STATE_FILE_PATH);
         xmlMainMenuSerialize.Serialize(writer, menuState);
 
     }
 
+    // Invoked to save visibility of all toggable controls.
     private void SaveVisibility()
     {
       if (this.initLoadingDone)
@@ -251,15 +269,16 @@ namespace Calculator_Window
       }
     }
 
+    // Tries to read from setting file as .xml file
     private void LoadSettings()
     {     
-      if (File.Exists(MenuStateFilePath))
+      if (File.Exists(MENU_STATE_FILE_PATH))
       {
         MenuModel menuState = null;
 
         try
         {                    
-          using var reader = new StreamReader(MenuStateFilePath);          
+          using var reader = new StreamReader(MENU_STATE_FILE_PATH);          
           menuState = xmlMainMenuSerialize.Deserialize(reader) as MenuModel;                  
         }
         catch (InvalidOperationException)
@@ -284,6 +303,10 @@ namespace Calculator_Window
         this.ResetSettings();
       }
 
+      // Sets the certain properties of the application 
+      // to apply saved settings
+      // If setting file is not valid the initial settings are
+      // applied instead.
       void ApplySettingsLoad(MenuModel menuState)
       {
         try
