@@ -80,11 +80,7 @@ namespace Calculator_Window
       set
       {
         this.showsLastResult = value;
-        this.OnPropertyChanged(nameof(this.ShowsLastResult));
-
-        // Makes sure visibility is preserved at the next session 
-        // of the application
-        this.SaveVisibility();
+        this.HandelToggeledControl(nameof(this.ShowsLastResult));
       }
     }
 
@@ -102,9 +98,7 @@ namespace Calculator_Window
       set
       {
         this.showsHistory = value;
-        this.OnPropertyChanged(nameof(this.ShowsHistory));
-        
-        this.SaveVisibility();
+        this.HandelToggeledControl(nameof(this.ShowsHistory));
       }
     }
 
@@ -116,10 +110,17 @@ namespace Calculator_Window
       set
       {
         this.showsCalculatorState = value;
-        this.OnPropertyChanged(nameof(this.ShowsCalculatorState));
-
-        this.SaveVisibility();
+        this.HandelToggeledControl(nameof(this.ShowsCalculatorState));
       }
+    }
+
+    // Updates binding, adjust window size because of missing or appeared control and
+    // saves that information to a file.
+    private void HandelToggeledControl(string bindingTargetName)
+    {
+      this.OnPropertyChanged(bindingTargetName);
+      this.AdjustWindowSize();
+      this.SaveVisibility();
     }
 
     private bool usesesDarkTheme;
@@ -158,7 +159,7 @@ namespace Calculator_Window
       // Load settings at the start.
       this.LoadSettings();
       this.initLoadingDone = true;
-      
+            
       this.OpenSettingCommand = new RelayCommand(param => this.OpenSettings());
       this.ResetSettingCommand = new RelayCommand(parma => this.ResetSettings());
       this.SwitchThemeCommand = new RelayCommand(param => this.SwitchTheme());
@@ -168,6 +169,11 @@ namespace Calculator_Window
     // which breaks the layout.
     private void AdjustWindowSize()
     {
+      
+      double currentWidht = this.ActualWidth;
+      double currentHeight = this.ActualHeight;
+
+      SizeToContent = SizeToContent.WidthAndHeight;
       this.MinHeight = this.ActualHeight;
       this.MinWidth = this.ActualWidth;
     }

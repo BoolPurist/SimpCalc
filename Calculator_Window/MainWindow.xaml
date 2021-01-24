@@ -9,7 +9,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib" 
         d:DataContext="{d:DesignInstance Type=local:MainWindow}"
         mc:Ignorable="d"
-        Title="Calculator" SizeToContent="WidthAndHeight"   
+        Title="Calculator"  
         Background="{Binding UsesDarkTheme, Converter={StaticResource TrueWhiteFalseBlackConverter}}"        
         >
 
@@ -88,171 +88,174 @@
       </MenuItem>
     </Menu>
 
-    <Grid>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition/>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition/>
-      </Grid.ColumnDefinitions>
-      
-      <Border Grid.Column="1" 
-              BorderBrush="{Binding UsesDarkTheme, Converter={StaticResource TrueBlackFalseWhiteConverter}}" 
-              BorderThickness="1">
-        <Grid            
-            HorizontalAlignment="Center"
-            Background="Gray"
-            Visibility="{Binding ShowsCalculatorState, Converter={StaticResource BoolToVisibleHidden}}">
+    <StackPanel Margin="20">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
 
-          <Grid.Resources>
-            <ControlTemplate x:Key="GridCell" TargetType="Label">
-              <Border BorderBrush="{Binding UsesDarkTheme , Converter={StaticResource TrueBlackFalseWhiteConverter}}" 
+        <Border Grid.Column="1" 
+              BorderBrush="{Binding UsesDarkTheme, Converter={StaticResource TrueBlackFalseWhiteConverter}}" 
+              BorderThickness="1"
+              Visibility="{Binding ShowsCalculatorState, Converter={StaticResource BoolToVisibleHidden}}">
+          <Grid            
+            HorizontalAlignment="Center"
+            Background="Gray">
+
+            <Grid.Resources>
+              <ControlTemplate x:Key="GridCell" TargetType="Label">
+                <Border BorderBrush="{Binding UsesDarkTheme , Converter={StaticResource TrueBlackFalseWhiteConverter}}" 
                     BorderThickness="1"
                       >
-                <Label Content="{TemplateBinding Content}"
+                  <Label Content="{TemplateBinding Content}"
                        FontWeight="Bold"
                        Foreground="Black"
                        Background="#5E664F"
                        HorizontalContentAlignment="Center"
                       Margin="2"/>
-              </Border>
-            </ControlTemplate>
-          </Grid.Resources>
+                </Border>
+              </ControlTemplate>
+            </Grid.Resources>
 
-          <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-          </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition/>
+              <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition/>
+              <ColumnDefinition/>
+              <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
 
-          <Label Template="{StaticResource GridCell}" Content="Angle"
+            <Label Template="{StaticResource GridCell}" Content="Angle"
                  Grid.Row="0" Grid.Column="0"/>
-          <Label Template="{StaticResource GridCell}" Content="Decimal Separator"
+            <Label Template="{StaticResource GridCell}" Content="Decimal Separator"
                  Grid.Row="0" Grid.Column="1"/>
-          <Label Template="{StaticResource GridCell}" Content="Rounding Digits"
+            <Label Template="{StaticResource GridCell}" Content="Rounding Digits"
                  Grid.Row="0" Grid.Column="2"/>
 
-          <Label Template="{StaticResource GridCell}" 
+            <Label Template="{StaticResource GridCell}" 
                  Content="{Binding UsesRadians, ElementName=Calc, Converter={StaticResource AngleTextConverter}}"
                  Grid.Row="1" Grid.Column="0"/>
-          <Label Template="{StaticResource GridCell}" 
+            <Label Template="{StaticResource GridCell}" 
                  Content="{Binding UsesPointAsDecimalSeperator, ElementName=Calc, Converter={StaticResource DecimalSeparatorConverter}}"
                  Grid.Row="1" Grid.Column="1"/>
-          <Label Template="{StaticResource GridCell}" 
+            <Label Template="{StaticResource GridCell}" 
                  Content="{Binding RoundingPrecision, ElementName=Calc}"
                  Grid.Row="1" Grid.Column="2"/>
-        </Grid>
-      </Border>
+          </Grid>
+        </Border>
 
-    </Grid>
+      </Grid>
 
-    <Grid x:Name="MainGrid"
+      <Grid x:Name="MainGrid"
       Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="auto"/>
-        <ColumnDefinition Width="20"/>
-        <ColumnDefinition Width="auto"/>
-      </Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="auto"/>
+          <ColumnDefinition Width="20"/>
+          <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
 
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      
-      <local:Calculator Grid.Column="0" Grid.Row="0"
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <local:Calculator Grid.Column="0" Grid.Row="0"
                         VerticalAlignment="Center"                       
                      
                       x:Name="Calc">
-      </local:Calculator>
-      
-      <StackPanel Grid.Column="2" Grid.Row="0">
-        <StackPanel.Resources>
-          <ControlTemplate x:Key="SimpleInfoLable" TargetType="Label">
-            <Border Visibility="{TemplateBinding Visibility}" 
+        </local:Calculator>
+
+        <StackPanel Grid.Column="2" Grid.Row="0">
+          <StackPanel.Resources>
+            <ControlTemplate x:Key="SimpleInfoLable" TargetType="Label">
+              <Border Visibility="{TemplateBinding Visibility}" 
                 CornerRadius="2" 
                 BorderBrush="OliveDrab" 
                 BorderThickness="1"
                 Margin="0,0,0,10">
-              <WrapPanel  Background="{TemplateBinding Background}" 
+                <WrapPanel  Background="{TemplateBinding Background}" 
                           Height="Auto">
-                <Label FontWeight="Bold"
+                  <Label FontWeight="Bold"
                        Content="{TemplateBinding Tag}"/>
 
-                <Label FontWeight="Bold" 
+                  <Label FontWeight="Bold" 
                        Content="{TemplateBinding Content}"/>
-              </WrapPanel>
-            </Border>
-          </ControlTemplate>
-        </StackPanel.Resources>
+                </WrapPanel>
+              </Border>
+            </ControlTemplate>
+          </StackPanel.Resources>
 
-        <Label Template="{StaticResource SimpleInfoLable}" 
+          <Label Template="{StaticResource SimpleInfoLable}" 
                Visibility="{Binding ShowsLastResult, Converter={StaticResource BoolToVisibleHidden}}"
                Background="DarkOliveGreen"
                Tag="Last Result:"
                Content="{Binding LastResult, ElementName=Calc}"/>
 
-        <StackPanel Visibility="{Binding ShowsHistory, Converter={StaticResource BoolToVisibleHidden}}">
-          <ScrollViewer  Height="{Binding MainHeight, ElementName=Calc}"                         
+          <StackPanel Visibility="{Binding ShowsHistory, Converter={StaticResource BoolToVisibleHidden}}">
+            <ScrollViewer  Height="{Binding MainHeight, ElementName=Calc}"                         
                          VerticalScrollBarVisibility="Auto"
                          d:Height="560">
-            <ListView ItemsSource="{Binding HistoryData, ElementName=Calc}"                    
+              <ListView ItemsSource="{Binding HistoryData, ElementName=Calc}"                    
                       d:ItemsSource="{StaticResource MockItemSource}"
                       Background="Gainsboro">
-              <ListView.ItemTemplate>
-                <DataTemplate>
-                  <Border BorderThickness="1" BorderBrush="Black">
-                    <StackPanel>
-                      <StackPanel.Resources>
-                        <ControlTemplate x:Key="ShowTextBox" TargetType="TextBox">
-                          <StackPanel Background="Gray">
-                            <Label Content="{TemplateBinding Tag}"/>
-                            <TextBox Text="{TemplateBinding Text}"
+                <ListView.ItemTemplate>
+                  <DataTemplate>
+                    <Border BorderThickness="1" BorderBrush="Black">
+                      <StackPanel>
+                        <StackPanel.Resources>
+                          <ControlTemplate x:Key="ShowTextBox" TargetType="TextBox">
+                            <StackPanel Background="Gray">
+                              <Label Content="{TemplateBinding Tag}"/>
+                              <TextBox Text="{TemplateBinding Text}"
                                      Background="{TemplateBinding Background}"
                                    BorderThickness="0"                               
                                    TextWrapping="Wrap"
                                    IsReadOnly="True"
                                    Padding="5"
                                    />
-                          </StackPanel>
-                        </ControlTemplate>
-                    
-                        <Style TargetType="StackPanel">
-                          <Setter Property="Width" Value="150"/>
-                        </Style>
-                    
-                      </StackPanel.Resources>
+                            </StackPanel>
+                          </ControlTemplate>
 
-                      <StackPanel>
-                        <TextBox Template="{StaticResource ShowTextBox}"
+                          <Style TargetType="StackPanel">
+                            <Setter Property="Width" Value="150"/>
+                          </Style>
+
+                        </StackPanel.Resources>
+
+                        <StackPanel>
+                          <TextBox Template="{StaticResource ShowTextBox}"
                                  Text="{Binding Result}"
                                  Tag="Result:"
                                  Background="Green"/>
-                      </StackPanel>
-                      <StackPanel>
-                        <TextBox Template="{StaticResource ShowTextBox}"
+                        </StackPanel>
+                        <StackPanel>
+                          <TextBox Template="{StaticResource ShowTextBox}"
                                  Text="{Binding Equation}"
                                  Tag="Equation:"
                                  Background="Orange"/>
+                        </StackPanel>
                       </StackPanel>
-                    </StackPanel>
-                  </Border>
-                </DataTemplate>
-              </ListView.ItemTemplate>
-            </ListView>
-          </ScrollViewer>
+                    </Border>
+                  </DataTemplate>
+                </ListView.ItemTemplate>
+              </ListView>
+            </ScrollViewer>
 
-          <Label Template="{StaticResource SimpleInfoLable}"
+            <Label Template="{StaticResource SimpleInfoLable}"
                  Visibility="Visible"
                  Background="Orange"
                  Content="{Binding MaxNumberOfResult, ElementName=Calc}"
                  Tag="Max Stored Equations:"/>
 
+          </StackPanel>
         </StackPanel>
-      </StackPanel>
 
-    </Grid>
-  
+      </Grid>
+
+    </StackPanel>
+    
   </StackPanel>
 </Window>
