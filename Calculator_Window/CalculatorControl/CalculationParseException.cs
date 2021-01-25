@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Calculator_Window.CalculatorControl;
 
 namespace Calculator_Window
