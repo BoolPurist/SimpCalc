@@ -653,7 +653,7 @@ namespace CalculatorModelUnit
           0.45
         },
         {
-          "78.04",
+          "0.04",
           0.04
         },
       };

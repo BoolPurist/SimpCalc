@@ -33,13 +33,16 @@ namespace Calculator_Window
     {
       get
       {
-        if (!this.CurrentResult.ToString().Contains('.'))
+        string numberAsText = this.CurrentResult.ToString(CultureInfo.InvariantCulture);
+        if (!numberAsText.Contains('.'))
         {
           return 0.0;
         }
         else
         {
-          return Double.Parse($"0.{this.CurrentResult.ToString().Split('.')[1]}");
+          string fractional = $"0.{numberAsText.Split('.')[1]}";
+          
+          return Double.Parse(fractional, NumberStyles.Any, CultureInfo.InvariantCulture);
         }
       }
     }
