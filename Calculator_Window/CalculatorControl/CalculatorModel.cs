@@ -122,14 +122,57 @@ namespace Calculator_Window
     /// If true, radians are used or If false, degree is used.
     /// </value>
     public bool UsesRadians { get; set; } = false;
+
+    private bool _usesPointAsDecimalSeperator = true;
+
     /// <summary> 
     /// Value if point or comma is used as decimal separator in a number 
+    /// It also adjusts the decimal delimiter according to the new value
+    /// for the history of equation and results in the property Results
     /// </summary>
     /// <value> 
     /// Getter/Setter property. Default value is true. 
     /// if true, point is used or if false comma is used.
     /// </value>
-    public bool UsesPointAsDecimalSeperator { get; set; } = true;
+    public bool UsesPointAsDecimalSeperator
+    {
+      get => this._usesPointAsDecimalSeperator;
+      set
+      {
+        // Only adjust the current equations and results in the history
+        // if the new value would actually change the current decimal separator.
+        if (this._usesPointAsDecimalSeperator != value)
+        {
+          this._usesPointAsDecimalSeperator = value;
+
+          if (this._usesPointAsDecimalSeperator)
+          {
+            AdjustResultsToDecimalDelimeter(",", ".");
+          }
+          else
+          {
+            AdjustResultsToDecimalDelimeter(".", ",");
+          }
+        }
+
+        // Makes sure that is the decimal delimiters are adjusted to the current one        
+        void AdjustResultsToDecimalDelimeter(string originalDelimeter, string targetDelimeter)
+        {
+          const string DUMMY_DELIMTER = "X";
+
+          for (int indexOfResults = 0; indexOfResults < this.Results.Count; indexOfResults++)
+          {
+            EquationCalculation currentCalcalation = this.Results[indexOfResults];
+            currentCalcalation.Result = currentCalcalation.Result.Replace(originalDelimeter, targetDelimeter);
+            currentCalcalation.Equation = currentCalcalation.Equation.Replace(targetDelimeter, DUMMY_DELIMTER);
+            currentCalcalation.Equation = currentCalcalation.Equation.Replace(originalDelimeter, targetDelimeter);
+            currentCalcalation.Equation = currentCalcalation.Equation.Replace(DUMMY_DELIMTER, originalDelimeter);
+          }
+        }
+      }
+    }
+
+    
 
 
     private int roundingPrecision = 15;
@@ -293,7 +336,12 @@ namespace Calculator_Window
         {
           // Since comma is not listed in the regex, commas need to be 
           // converted to points
+          textForm = textForm.Replace(".", String.Empty);
           textForm = textForm.Replace(",", ".");
+        }
+        else
+        {
+          textForm = textForm.Replace(",", String.Empty);
         }
 
         this.CurrentResult = Math.Round(
@@ -318,6 +366,14 @@ namespace Calculator_Window
       }
 
       string resultToBeStored = this.CurrentResult.ToString();
+      if (this.UsesPointAsDecimalSeperator)
+      {
+        resultToBeStored = resultToBeStored.Replace(',', '.');
+      }
+      else
+      {
+        resultToBeStored = resultToBeStored.Replace('.', ',');
+      }
 
       if (!this.UsesPointAsDecimalSeperator)
       {
