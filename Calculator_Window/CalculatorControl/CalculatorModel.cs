@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
@@ -684,8 +685,11 @@ namespace Calculator_Window
       {
         string SIGN_SEQUENCE = operandMatch.Groups["SIGN_SEQUENCE"].Value;        
         var number = 0.0;
-
-        number = Double.Parse(operandMatch.Groups["FLOATING_NUMBER"].Value);
+        
+        // 2. Parameter and 3. Parameter are needed otherwise a decimal point is not interpreted correctly
+        // Floating numbers would result in whole numbers.
+        // Example: 16.5 would become 165.
+        number = Double.Parse(operandMatch.Groups["FLOATING_NUMBER"].Value, NumberStyles.Any, CultureInfo.InvariantCulture);
 
         CheckForOverflow(number);
         
